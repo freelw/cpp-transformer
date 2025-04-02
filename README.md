@@ -111,3 +111,4 @@ epoch 9 loss : 3.35273 emit_clip : 3
 
 * [Dive into Deep Learning](https://d2l.ai/)
 * [recognizing_handwritten_digits](https://github.com/freelw/recognizing_handwritten_digits)
+* [micrograd](https://github.com/EurekaLabsAI/micrograd)
