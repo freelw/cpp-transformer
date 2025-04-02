@@ -79,6 +79,28 @@ translate res : <bos> à ! <eos>
 #### output
 
 ```
+./train_tiny.sh 
+OMP_THREADS: 8
+epochs : 10
+dropout : 0.2
+lr : 0.001
+tiny : 0
+data loaded
+warmUp done
+parameter size = 21388
+all parameters require_grad = true
+[300/300]checkpoint saved : ./checkpoints/checkpoint_20250402_164906_0.bin
+epoch 0 loss : 9.0757 emit_clip : 3
+[300/300]epoch 1 loss : 7.90043 emit_clip : 3
+[300/300]epoch 2 loss : 6.8447 emit_clip : 3
+[300/300]epoch 3 loss : 5.85042 emit_clip : 3
+[300/300]epoch 4 loss : 5.00354 emit_clip : 3
+[300/300]epoch 5 loss : 4.38405 emit_clip : 3
+[300/300]epoch 6 loss : 3.96133 emit_clip : 3
+[300/300]epoch 7 loss : 3.70218 emit_clip : 3
+[300/300]epoch 8 loss : 3.51153 emit_clip : 3
+[300/300]checkpoint saved : ./checkpoints/checkpoint_20250402_164906_9.bin
+epoch 9 loss : 3.35273 emit_clip : 3
 ```
 
 ## Reference Materials
