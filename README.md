@@ -82,5 +82,6 @@ translate res : <bos> à ! <eos>
 ```
 
 ## Reference Materials
-[Dive into Deep Learning](https://d2l.ai/)
-[recognizing_handwritten_digits](https://github.com/freelw/recognizing_handwritten_digits)
+
+* [Dive into Deep Learning](https://d2l.ai/)
+* [recognizing_handwritten_digits](https://github.com/freelw/recognizing_handwritten_digits)
