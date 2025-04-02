@@ -1,0 +1,12 @@
+(d2l) cs@cs-desktop:~/project/recognizing_handwritten_digits/c++/transformer$ ./transformer 
+res: 
+[[0.2]
+ [0.2]
+ [0.2]]
+
+loss: 
+[[1.09861]]
+
+q1 grad: 
+[[5.96046e-08]
+ [5.96046e-08]]
