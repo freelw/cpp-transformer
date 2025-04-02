@@ -16,7 +16,7 @@ Our self - developed automatic differentiation framework simplifies the gradient
 
 The project only depends on the C++ standard library. While its performance may not be as high - end as those with advanced libraries, it clearly showcases every computational detail. This characteristic allows users to gain a profound understanding of the backpropagation algorithm and the underlying principles of the Transformer architecture.
 
-## quick start
+## Quick start
 
 ### build
 
