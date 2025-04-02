@@ -103,6 +103,10 @@ epoch 0 loss : 9.0757 emit_clip : 3
 epoch 9 loss : 3.35273 emit_clip : 3
 ```
 
+## Derivation of backpropagation gradient formulas
+
+* [Derivation](doc/equations/readme.md)
+
 ## Reference Materials
 
 * [Dive into Deep Learning](https://d2l.ai/)
