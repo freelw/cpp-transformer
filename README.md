@@ -24,7 +24,7 @@ The project only depends on the C++ standard library. While its performance may 
 ./build_all.sh 
 ```
 
-### Perform inference using a pre-trained model
+### perform inference using a pre-trained model
 
 ```
 ./test_translation.sh
@@ -70,7 +70,7 @@ congratulations ! <eos>
 translate res : <bos> à ! <eos> 
 ```
 
-### Train with a small dataset
+### train with a small dataset
 
 ```
 ./train_tiny.sh
