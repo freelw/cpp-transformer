@@ -106,7 +106,7 @@ namespace autograd {
     }
 
     std::vector<Parameters *> LazyLinear::get_parameters() {
-        assert(linear != nullptr); // adam 必须在每一轮结束获取一次参数
+        assert(linear != nullptr);
         return linear->get_parameters();
     }
     
