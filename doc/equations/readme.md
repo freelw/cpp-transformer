@@ -211,4 +211,4 @@ $\mu=\frac{1}{n}\sum_{i=1}^nx_i$
 
 令 $\hat{x_i}=\frac{x_i-\mu}{\sigma}$
 
-我们最关注 $\frac{\partial \hat{x_i}}{\partial x_j}$ 乘以 $\gamma$ 和加上 $\beta$ 的部分交给node.h中的矩阵乘法加法的自动求导即可
+我们最关注 $\frac{\partial \hat{x_i}}{\partial x_j}$ ，乘以 $\gamma$ 和加上 $\beta$ 的部分交给node.h中的矩阵乘法加法的自动求导即可
