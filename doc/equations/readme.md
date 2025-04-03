@@ -237,3 +237,7 @@ $\frac{\partial xi-\mu}{\partial x_j}=\frac{\partial x_i}{\partial x_j}-\frac{\p
 1, & \text{if } i = j
 \end{cases}
 ```
+
+再计算 $\frac{\partial\mu}{\partial x_j}=\frac{\partial \frac{1}{n}\sum_{i=1}^nx_i}{\partial x_j}=\frac{1}{n}$
+
+故 $\frac{\partial xi-\mu}{\partial x_j}=\frac{\partial x_i}{\partial x_j}-\frac{\partial\mu}{\partial x_j}=\delta_{ij}-\frac{1}{n}$
