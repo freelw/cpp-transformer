@@ -285,7 +285,7 @@ $\frac{\partial \hat{x_i}}{\partial x_j}=\frac{1}{\sigma}(\delta_{ij}-\frac{1}{n
 其中
 
 ```math
-\delta_{ij}=\begin{cases}0, & \text{if } i \neq j \\
+\delta_{ij}=\begin{cases}0, & \text{if } i \neq j\\
 1, & \text{if } i = j
 \end{cases}
 ```
