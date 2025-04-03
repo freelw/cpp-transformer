@@ -242,7 +242,7 @@ $\frac{\partial xi-\mu}{\partial x_j}=\frac{\partial x_i}{\partial x_j}-\frac{\p
 
 故 $\frac{\partial xi-\mu}{\partial x_j}=\frac{\partial x_i}{\partial x_j}-\frac{\partial\mu}{\partial x_j}=\delta_{ij}-\frac{1}{n}$ (3)
 
-$\frac{\partial g_1(x_1, x_2)}{\partial x_2}=-\frac{x_1}{x_2^2}=\frac{x_i-\mu}{\sigma^2}$ (4)
+$\frac{\partial g_1(x_1, x_2)}{\partial x_2}=-\frac{x_1}{x_2^2}=-\frac{x_i-\mu}{\sigma^2}$ (4)
 
 $\frac{\partial \sigma}{\partial x_j}=\frac{\partial sigma}{\partial var}\frac{\partial var}{\partial x_j}$ (5)
 
@@ -272,14 +272,14 @@ $\frac{\partial var}{\partial x_j}=\frac{\partial \frac{1}{n}\sum_{k=1}^n(x_k-\m
 
 将(2)(3)(4)(5) 带回 (1)
 
-$\frac{\partial \hat{x_i}}{\partial x_j}=\frac{1}{\sigma}(\delta_{ij}-\frac{1}{n})+\frac{x_i-\mu}{\sigma^2}\cdot\frac{1}{n\sigma}(x_j-\mu)$
+$\frac{\partial \hat{x_i}}{\partial x_j}=\frac{1}{\sigma}(\delta_{ij}-\frac{1}{n})-\frac{x_i-\mu}{\sigma^2}\cdot\frac{1}{n\sigma}(x_j-\mu)$
 
 观察这里的第二项 $\frac{x_i-\mu}{\sigma^2}\cdot\frac{1}{n\sigma}(x_j-\mu)=\frac{1}{n\sigma}\cdot\frac{x_i-\mu}{\sigma}\cdot\frac{x_j-\mu}{\sigma}=\frac{1}{n\sigma}\cdot\hat{x_i}\cdot\hat{x_j}$
 
 故
 
 ```math
-\frac{\partial \hat{x_i}}{\partial x_j}=\frac{1}{\sigma}(\delta_{ij}-\frac{1}{n})+\frac{1}{n\sigma}\cdot\hat{x_i}\cdot\hat{x_j}=\frac{\delta_{ij}}{\sigma}-\frac{1}{n\sigma}-\frac{1}{n\sigma}\hat{x_i}\hat{x_j}
+\frac{\partial \hat{x_i}}{\partial x_j}=\frac{1}{\sigma}(\delta_{ij}-\frac{1}{n})-\frac{1}{n\sigma}\cdot\hat{x_i}\cdot\hat{x_j}=\frac{\delta_{ij}}{\sigma}-\frac{1}{n\sigma}-\frac{1}{n\sigma}\hat{x_i}\hat{x_j}
 ```
 
 其中
