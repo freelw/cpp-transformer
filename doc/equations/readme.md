@@ -258,4 +258,8 @@ $\frac{\partial \sigma}{\partial x_j}=\frac{\partial \frac{1}{n}\sum_{k=1}^n(x_k
 
 观察第一项和第四项的和 $-\frac{1}{n}\sum_{\substack{i = 1 \\ i \neq k}}^nx_k-\frac{1}{n}\cdot x_j=-\mu$
 
-观察第二项和第五项的和 $\frac{1}{n}(n-1)\mu+\frac{1}{n}\cdot\mu=\mu$
+观察第二项和第六项的和 $\frac{1}{n}(n-1)\mu+\frac{1}{n}\cdot\mu=\mu$
+
+上面两个和相加消掉了，只剩下第三项和第五项
+
+故 $\frac{\partial \sigma}{\partial x_j}=\frac{2}{n}(x_j-\mu)$
