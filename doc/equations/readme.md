@@ -10,7 +10,7 @@ crossentropy=-\log\frac{e^{Z_{target}-max({{Z}_i})}}{\sum_{i=1}^n e^{Z_i-max({{Z
 
 ### backward
 
-这里我们关注Zi变化��Loss的影响，可以看出，当i不等于target时，Zi只作用于分母
+这里我们关注Zi变化对Loss的影响，可以看出，当i不等于target时，Zi只作用于分母
 反之则同时作用于分子分母，导数为作用于分子和分母的导数之和
 
 
