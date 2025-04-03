@@ -244,11 +244,11 @@ $\frac{\partial xi-\mu}{\partial x_j}=\frac{\partial x_i}{\partial x_j}-\frac{\p
 
 $\frac{\partial g_1(x_1, x_2)}{\partial x_2}=-\frac{x_1}{x_2^2}=\frac{x_i-\mu}{\sigma^2}$ (4)
 
-$\frac{\partial \sigma}{\partial x_j}=\frac{\partial sigma}{\partial var}\frac{\partial var}{\partial x_j}$
+$\frac{\partial \sigma}{\partial x_j}=\frac{\partial sigma}{\partial var}\frac{\partial var}{\partial x_j}$ (5)
 
 $\frac{\partial var}{\partial x_j}=\frac{\partial \frac{1}{n}\sum_{k=1}^n(x_k-\mu)^2}{\partial x_j}=\frac{1}{n}\sum_{k=1}^n2(x_k-\mu)\frac{\partial x_k-\mu}{\partial x_j}$
 
-深入分析 $\frac{1}{n}\sum_{k=1}^n2(x_k-\mu)\frac{\partial x_k-\mu}{\partial x_j}$ (5)
+深入分析 $\frac{1}{n}\sum_{k=1}^n2(x_k-\mu)\frac{\partial x_k-\mu}{\partial x_j}$
 
 ```math
 \frac{\partial x_k-\mu}{\partial x_j}=\begin{cases}-\frac{1}{n}, & \text{if } i \neq j \\
@@ -264,4 +264,9 @@ $\frac{\partial var}{\partial x_j}=\frac{\partial \frac{1}{n}\sum_{k=1}^n(x_k-\m
 
 上面两个和相加消掉了，只剩下第三项和第五项
 
-故 $\frac{\partial \sigma}{\partial x_j}=\frac{2}{n}(x_j-\mu)$
+故 $\frac{\partial var}{\partial x_j}=\frac{2}{n}(x_j-\mu)$
+
+又因为$\frac{\partial \sigma}{\partial var}=\frac{\partial \sqrt(var+\epsilon)}{\partial var}=\frac{1}{2\sqrt(var+\epsilon)}=\frac{1}{2\sigma}$
+
+故 (5)=$\frac{\partial \sigma}{\partial x_j}=\frac{\partial sigma}{\partial var}\frac{\partial var}{\partial x_j}=\frac{1}{2\sigma}\cdot\frac{2}{n}(x_j-\mu)=\frac{1}{n\sigma}(x_j-\mu)$
+
