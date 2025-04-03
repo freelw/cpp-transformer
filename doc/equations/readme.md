@@ -266,7 +266,7 @@ $\frac{\partial var}{\partial x_j}=\frac{\partial \frac{1}{n}\sum_{k=1}^n(x_k-\m
 
 故 $\frac{\partial var}{\partial x_j}=\frac{2}{n}(x_j-\mu)$
 
-又因为$\frac{\partial \sigma}{\partial var}=\frac{\partial \sqrt(var+\epsilon)}{\partial var}=\frac{1}{2\sqrt(var+\epsilon)}=\frac{1}{2\sigma}$
+又因为 $\frac{\partial \sigma}{\partial var}=\frac{\partial \sqrt(var+\epsilon)}{\partial var}=\frac{1}{2\sqrt(var+\epsilon)}=\frac{1}{2\sigma}$
 
-故 (5)=$\frac{\partial \sigma}{\partial x_j}=\frac{\partial sigma}{\partial var}\frac{\partial var}{\partial x_j}=\frac{1}{2\sigma}\cdot\frac{2}{n}(x_j-\mu)=\frac{1}{n\sigma}(x_j-\mu)$
+故 (5)= $\frac{\partial \sigma}{\partial x_j}=\frac{\partial sigma}{\partial var}\frac{\partial var}{\partial x_j}=\frac{1}{2\sigma}\cdot\frac{2}{n}(x_j-\mu)=\frac{1}{n\sigma}(x_j-\mu)$
 
