@@ -279,7 +279,7 @@ $\frac{\partial \hat{x_i}}{\partial x_j}=\frac{1}{\sigma}(\delta_{ij}-\frac{1}{n
 故
 
 ```math
-\frac{\partial \hat{x_i}}{\partial x_j}=\frac{1}{\sigma}(\delta_{ij}-\frac{1}{n})+\frac{1}{n\sigma}\cdot\hat{x_i}\cdot\hat{x_j}=\frac{\delta_{ij}}{\sigma}-\frac{1}{n\sigma}-\frac{1}{\sigma}\hat{x_i}\hat{x_j}
+\frac{\partial \hat{x_i}}{\partial x_j}=\frac{1}{\sigma}(\delta_{ij}-\frac{1}{n})+\frac{1}{n\sigma}\cdot\hat{x_i}\cdot\hat{x_j}=\frac{\delta_{ij}}{\sigma}-\frac{1}{n\sigma}-\frac{1}{n\sigma}\hat{x_i}\hat{x_j}
 ```
 
 其中
