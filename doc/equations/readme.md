@@ -270,3 +270,24 @@ $\frac{\partial var}{\partial x_j}=\frac{\partial \frac{1}{n}\sum_{k=1}^n(x_k-\m
 
 故 (5)= $\frac{\partial \sigma}{\partial x_j}=\frac{\partial sigma}{\partial var}\frac{\partial var}{\partial x_j}=\frac{1}{2\sigma}\cdot\frac{2}{n}(x_j-\mu)=\frac{1}{n\sigma}(x_j-\mu)$
 
+将(2)(3)(4)(5) 带回 (1)
+
+$\frac{\partial \hat{x_i}}{\partial x_j}=\frac{1}{\sigma}(\delta_{ij}-\frac{1}{n})+\frac{x_i-\mu}{\sigma^2}\cdot\frac{1}{n\sigma}(x_j-\mu)$
+
+观察这里的第二项 $\frac{x_i-\mu}{\sigma^2}\cdot\frac{1}{n\sigma}(x_j-\mu)=\frac{1}{n\sigma}\cdot\frac{x_i-\mu}{\sigma}\cdot\frac{x_j-\mu}{\sigma}=\frac{1}{n\sigma}\cdot\hat{x_i}\cdot\hat{x_j}$
+
+故
+
+```math
+\frac{\partial \hat{x_i}}{\partial x_j}=\frac{1}{\sigma}(\delta_{ij}-\frac{1}{n})+\frac{1}{n\sigma}\cdot\hat{x_i}\cdot\hat{x_j}=\frac{\delta_{ij}}{\sigma}-\frac{1}{n\sigma}-\frac{1}{\sigma}\hat{x_i}\hat{x_j}
+```
+
+其中
+
+```math
+\delta_{ij}=\begin{cases}0, & \text{if } i \neq j \\
+1, & \text{if } i = j
+\end{cases}
+```
+
+具体实现参见[代码](https://github.com/freelw/cpp-transformer/blob/df687a55ff57fcb8a2075283d64a5c06a41e5f5a/autograd/node.h#L488)
