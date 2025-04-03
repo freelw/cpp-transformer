@@ -257,3 +257,5 @@ $\frac{\partial \sigma}{\partial x_j}=\frac{\partial \frac{1}{n}\sum_{k=1}^n(x_k
 所以展开 $\sum_{k=1}^n2(x_k-\mu)\frac{\partial x_k-\mu}{\partial x_j}=\sum_{\substack{i = 1 \\ i \neq k}}^n-\frac{1}{n}\cdot2\cdot(x_k-\mu)+2\cdot(x_j-\mu)(1-\frac{1}{n})=2\cdot(-\frac{1}{n}\sum_{\substack{i = 1 \\ i \neq k}}^nx_k+\frac{1}{n}(n-1)\mu+x_j-\frac{1}{n}\cdot x_j-\mu+\frac{1}{n}\cdot\mu)$
 
 观察第一项和第四项的和 $-\frac{1}{n}\sum_{\substack{i = 1 \\ i \neq k}}^nx_k-\frac{1}{n}\cdot x_j=-\mu$
+
+观察第二项和第五项的和 $\frac{1}{n}(n-1)\mu+\frac{1}{n}\cdot\mu=\mu$
