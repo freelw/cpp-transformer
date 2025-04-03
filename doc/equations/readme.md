@@ -231,6 +231,9 @@ $\frac{\partial xi-\mu}{\partial x_j}=\frac{\partial x_i}{\partial x_j}-\frac{\p
 
 令 $\delta_{ij}=\frac{\partial x_i}{\partial x_j}$
 
-故 $\delta_{ij}=\begin{cases}0, & \text{if } i \neq j \\
+故 
+```math
+\delta_{ij}=\begin{cases}0, & \text{if } i \neq j \\
 1, & \text{if } i = j
-\end{cases}$
+\end{cases}
+```
