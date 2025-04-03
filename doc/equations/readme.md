@@ -223,8 +223,14 @@ $\mu=\frac{1}{n}\sum_{i=1}^nx_i$
 
 故
 
-```math
-\begin{equation} 
-  \frac{\partial \hat{x_i}}{\partial x_j}=\frac{\partial g_1(x_1, x_2)}{\partial x_1}\frac{\partial xi-\mu}{\partial x_j}+\frac{\partial g_1(x_1, x_2)}{\partial x_2}\frac{\partial \sigma}{\partial x_j}
-\end{equation}
-```
+$\frac{\partial \hat{x_i}}{\partial x_j}=\frac{\partial g_1(x_1, x_2)}{\partial x_1}\frac{\partial xi-\mu}{\partial x_j}+\frac{\partial g_1(x_1, x_2)}{\partial x_2}\frac{\partial \sigma}{\partial x_j}$ (1)
+
+$\frac{\partial g_1(x_1, x_2)}{\partial x_1}=\frac{1}{x_2}=\frac{1}{\sigma}$
+
+$\frac{\partial xi-\mu}{\partial x_j}=\frac{\partial x_i}{\partial x_j}-\frac{\partial\mu}{\partial x_j}$
+
+令 $\delta_{ij}=\frac{\partial x_i}{\partial x_j}$
+
+故 $\delta_{ij}=\begin{cases}0, & \text{if } i \neq j \\
+1, & \text{if } i = j
+\end{cases}$
