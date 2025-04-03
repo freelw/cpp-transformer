@@ -244,7 +244,9 @@ $\frac{\partial xi-\mu}{\partial x_j}=\frac{\partial x_i}{\partial x_j}-\frac{\p
 
 $\frac{\partial g_1(x_1, x_2)}{\partial x_2}=-\frac{x_1}{x_2^2}=\frac{x_i-\mu}{\sigma^2}$ (4)
 
-$\frac{\partial \sigma}{\partial x_j}=\frac{\partial \frac{1}{n}\sum_{k=1}^n(x_k-\mu)^2}{\partial x_j}=\frac{1}{n}\sum_{k=1}^n2(x_k-\mu)\frac{\partial x_k-\mu}{\partial x_j}$
+$\frac{\partial \sigma}{\partial x_j}=\frac{\partial sigma}{\partial var}\frac{\partial var}{\partial x_j}$
+
+$\frac{\partial var}{\partial x_j}=\frac{\partial \frac{1}{n}\sum_{k=1}^n(x_k-\mu)^2}{\partial x_j}=\frac{1}{n}\sum_{k=1}^n2(x_k-\mu)\frac{\partial x_k-\mu}{\partial x_j}$
 
 深入分析 $\frac{1}{n}\sum_{k=1}^n2(x_k-\mu)\frac{\partial x_k-\mu}{\partial x_j}$ (5)
 
