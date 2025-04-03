@@ -225,7 +225,7 @@ $\mu=\frac{1}{n}\sum_{i=1}^nx_i$
 
 $\frac{\partial \hat{x_i}}{\partial x_j}=\frac{\partial g_1(x_1, x_2)}{\partial x_1}\frac{\partial xi-\mu}{\partial x_j}+\frac{\partial g_1(x_1, x_2)}{\partial x_2}\frac{\partial \sigma}{\partial x_j}$ (1)
 
-$\frac{\partial g_1(x_1, x_2)}{\partial x_1}=\frac{1}{x_2}=\frac{1}{\sigma}$
+$\frac{\partial g_1(x_1, x_2)}{\partial x_1}=\frac{1}{x_2}=\frac{1}{\sigma}$ (2)
 
 $\frac{\partial xi-\mu}{\partial x_j}=\frac{\partial x_i}{\partial x_j}-\frac{\partial\mu}{\partial x_j}$
 
@@ -240,4 +240,18 @@ $\frac{\partial xi-\mu}{\partial x_j}=\frac{\partial x_i}{\partial x_j}-\frac{\p
 
 再计算 $\frac{\partial\mu}{\partial x_j}=\frac{\partial \frac{1}{n}\sum_{i=1}^nx_i}{\partial x_j}=\frac{1}{n}$
 
-故 $\frac{\partial xi-\mu}{\partial x_j}=\frac{\partial x_i}{\partial x_j}-\frac{\partial\mu}{\partial x_j}=\delta_{ij}-\frac{1}{n}$
+故 $\frac{\partial xi-\mu}{\partial x_j}=\frac{\partial x_i}{\partial x_j}-\frac{\partial\mu}{\partial x_j}=\delta_{ij}-\frac{1}{n}$ (3)
+
+$\frac{\partial g_1(x_1, x_2)}{\partial x_2}=-\frac{x_1}{x_2^2}=\frac{x_i-\mu}{\sigma^2}$ (4)
+
+$\frac{\partial \sigma}{\partial x_j}=\frac{\partial \frac{1}{n}\sum_{k=1}^n(x_k-\mu)^2}{\partial x_j}=\frac{1}{n}\sum_{k=1}^n2(x_k-\mu)\frac{\partial x_k-\mu}{\partial x_j}$
+
+深入分析 $\frac{1}{n}\sum_{k=1}^n2(x_k-\mu)\frac{\partial x_k-\mu}{\partial x_j}$ (5)
+
+```math
+\frac{\partial x_k-\mu}{\partial x_j}=\begin{cases}-\frac{1}{n}, & \text{if } i \neq j \\
+1-\frac{1}{n}, & \text{if } i = j
+\end{cases}
+```
+
+所以展开 $\sum_{k=1}^n2(x_k-\mu)\frac{\partial x_k-\mu}{\partial x_j}=\sum_{\substack{i = 1 \\ i \neq k}}^n-\frac{1}{n}\cdot2\cdot(x_k-\mu)+2\cdot(x_j-\mu)(1-\frac{1}{n})=2\cdot(-\sum_{\substack{i = 1 \\ i \neq k}}^nx_k+\frac{1}{n}(n-1)\mu+x_j-\frac{1}{n}\cdot x_j-\mu+\frac{1}{n}\cdot\mu)$
