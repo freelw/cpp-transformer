@@ -290,4 +290,4 @@ $\frac{\partial \hat{x_i}}{\partial x_j}=\frac{1}{\sigma}(\delta_{ij}-\frac{1}{n
 \end{cases}
 ```
 
-具体实现参见[代码](https://github.com/freelw/cpp-transformer/blob/df687a55ff57fcb8a2075283d64a5c06a41e5f5a/autograd/node.h#L488)
+具体实现参见[代码](https://github.com/freelw/cpp-transformer/blob/df687a55ff57fcb8a2075283d64a5c06a41e5f5a/autograd/node.h#L488), 考虑到精度问题，计算顺序有些微调整
