@@ -146,5 +146,44 @@ split -b $(($(stat -c%s ./checkpoints/checkpoint_20250402_171839_29.bin)/2)) ./c
 ## 合并文件
 
 ```
-cat checkpoint_20250402_150847_40_part_aa checkpoint_20250402_150847_40_part_ab > checkpoint_20250402_150847_40.bin
+cat checkpoint_20250402_171839_29_part_aa checkpoint_20250402_171839_29_part_ab > checkpoint_20250402_171839_29.bin
 ```
+
+## 推理
+
+```
+(base) cs@cs-desktop:~/project/cpp-transformer$ ./transformer -e 0 -c ./checkpoint_20250402_171839_29.bin 
+OMP_THREADS: 8
+epochs : 0
+dropout : 0.2
+lr : 0.001
+tiny : 0
+data loaded
+warmUp done
+parameter size = 21388
+all parameters require_grad = true
+loading from checkpoint : ./checkpoint_20250402_171839_29.bin
+loaded from checkpoint
+serving mode
+go now . <eos> 
+translate res : <bos> maintenant va aller maintenant va aller maintenant va aller maintenant va maintenant va maintenant va maintenant va maintenant va maintenant 
+i try . <eos> 
+translate res : <bos> j'essaie de essayer de m'occuper de ce que j'ai essayé de ce que j'ai essayé de j'ai essayé de j'ai 
+cheers ! <eos> 
+translate res : <bos> veuillez arrêter , vous vous vous vous vous vous vous vous vous vous vous vous vous vous vous vous vous 
+get up . <eos> 
+translate res : <bos> lève-toi <unk> <unk> d'air conditionné ! détends-toi ! <eos> 
+hug me . <eos> 
+translate res : <bos> permettez-moi de vérifier des commentaires <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> 
+i know . <eos> 
+translate res : <bos> je sais que j'ai des aventures j'ai entendu parler . <eos> 
+no way ! <eos> 
+translate res : <bos> aucun sens l'humour ne veut et ta santé et l'eau ne parfum ne parfum ne parfum ne parfum ne parfum 
+be nice . <eos> 
+translate res : <bos> soyez chouette sera sympa soyez sympa soyez sympa soyez sympa soyez sympa soyez sympa soyez sympa soyez sympa soyez sympa 
+i jumped . <eos> 
+translate res : <bos> j'ai sauté sous j'ai sauté , j'ai commandé entendu entendre , hier , j'ai sauté du réveil , j'ai sauté 
+congratulations ! <eos> 
+translate res : <bos> félicitations félicitations et félicitations félicitations félicitations félicitations félicitations félicitations félicitations félicitations félicitations félicitations félicitations félicitations félicitations félicitations félicitations félicitations félicitations
+```
+
