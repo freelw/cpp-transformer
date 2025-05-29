@@ -9,6 +9,7 @@ TRANSFORMER_TARGET = transformer
 CUDA_TOOLKIT := $(shell dirname $$(command -v nvcc))/..
 CUDA_LIBS := -L$(CUDA_TOOLKIT)/lib64 -lcudart -lcurand
 LDFLAGS = -lstdc++ $(CUDA_LIBS)
+ASAN_FLAGS = -fsanitize=address
 SRCDIR := ./tensor \
           ./graph \
           ./backends/cpu \
@@ -19,22 +20,27 @@ SRCDIR := ./tensor \
 		  ./module \
           ../utils/dataloader
 SRCS := $(wildcard *.cpp) $(wildcard $(addsuffix /*.cpp, $(SRCDIR)))
-ifeq ($(ASAN),1)
+CPU ?= $(ASAN)
+ifeq ($(CPU),1)
 	OBJECTS := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SRCS)))
 else
 	SRCS += $(wildcard *.cu) $(wildcard $(addsuffix /*.cu, $(SRCDIR)))
 	OBJECTS := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(patsubst %.cu,%.o,$(SRCS))))
 endif
-OBJECTS_MAIN := $(filter-out test.o transformer.o,$(OBJECTS))
-OBJECTS_TEST := $(filter-out main.o transformer.o,$(OBJECTS))
-OBJECTS_TRANSFORMER := $(filter-out test.o main.o,$(OBJECTS))
 
-ifeq ($(ASAN),1)
+OBJECTS_TEST := $(filter-out transformer.o,$(OBJECTS))
+OBJECTS_TRANSFORMER := $(filter-out test.o,$(OBJECTS))
+
+ifeq ($(CPU),1)
 	NVCC = g++
-	NVCC_CFLAGS = -DGCC_ASAN $(DIR_INC) $(DIR_LIB) -g -fsanitize=address -fno-omit-frame-pointer
+	NVCC_CFLAGS = -DGCC_ASAN $(DIR_INC) $(DIR_LIB) -g -fno-omit-frame-pointer
 else
 	NVCC = nvcc
 	NVCC_CFLAGS = $(DIR_INC) $(DIR_LIB) -g -G -O3
+endif
+
+ifeq ($(ASAN),1)
+	NVCC_CFLAGS += $(ASAN_FLAGS)
 endif
 
 ifeq ($(RELEASE),1)
@@ -57,13 +63,10 @@ $(TEST_TARGET) : $(OBJECTS_TEST)
 	${NVCC} -c $(NVCC_CFLAGS) $< -o $@
 
 clean:
-	@rm -f ${OBJECTS} $(TARGET) $(TEST_TARGET) $(TRANSFORMER_TARGET)
+	@rm -f ${OBJECTS}
 
-.PHONY: clean prepare_data run_test all
-prepare_data:
-	@cd ../../resources && \
-	gunzip -c train-labels-idx1-ubyte.gz > train-labels-idx1-ubyte && \
-	gunzip -c train-images-idx3-ubyte.gz > train-images-idx3-ubyte
+.PHONY: clean run_test all
+
 dbg:
 	@echo "CFLAGS is $(CFLAGS)"
 	@echo "SRCS is $(SRCS)"
