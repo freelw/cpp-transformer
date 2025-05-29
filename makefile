@@ -33,7 +33,7 @@ OBJECTS_TRANSFORMER := $(filter-out test.o,$(OBJECTS))
 
 ifeq ($(CPU),1)
 	NVCC = g++
-	NVCC_CFLAGS = -DGCC_ASAN $(DIR_INC) $(DIR_LIB) -g -fno-omit-frame-pointer
+	NVCC_CFLAGS = -DGCC_CPU $(DIR_INC) $(DIR_LIB) -g -fno-omit-frame-pointer
 else
 	NVCC = nvcc
 	NVCC_CFLAGS = $(DIR_INC) $(DIR_LIB) -g -G -O3

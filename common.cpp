@@ -32,7 +32,7 @@ void insert_boundary_action() {
 
 void init_backend() {
     if (b_use_gpu) {
-        #ifndef GCC_ASAN
+        #ifndef GCC_CPU
         g_backend_ops = new CUDAOps();
         #else
         std::cerr << "Warning: GPU backend is not available in ASAN build. Now use cpu instead!!!" << std::endl;

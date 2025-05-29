@@ -1,7 +1,7 @@
 #include "kernel.cuh"
 #include <stdio.h>
 
-#ifndef GCC_ASAN
+#ifndef GCC_CPU
 
 __global__ void fill_float(
     float *Md, int M, float value
@@ -708,4 +708,4 @@ __global__ void tensor_mul_scalar(
     }
 }
 
-#endif // GCC_ASAN
+#endif // GCC_CPU

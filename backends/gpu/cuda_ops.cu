@@ -1,6 +1,6 @@
 #include "cuda_ops.h"
 
-#ifndef GCC_ASAN
+#ifndef GCC_CPU
 
 #include "kernel.cuh"
 #include <random>
@@ -1090,4 +1090,4 @@ void CUDAOps::cp_to_device(Tensor *dst_tensor, char *src, size_t size) {
 void CUDAOps::cp_from_device(char *dst, const Tensor *src_tensor, size_t size) {
     ::cudaMemcpy(dst, src_tensor->get_data(), size, cudaMemcpyDeviceToHost);
 }
-#endif // GCC_ASAN
+#endif // GCC_CPU

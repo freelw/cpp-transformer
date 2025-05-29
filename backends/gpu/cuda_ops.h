@@ -3,7 +3,7 @@
 
 #include "backends/backend_ops.h"
 
-#ifndef GCC_ASAN
+#ifndef GCC_CPU
 #include <cuda_runtime.h>
 #include <curand.h>
 
@@ -77,6 +77,6 @@ class CUDAOps : public BackendOps {
 
 };
 
-#endif // GCC_ASAN
+#endif // GCC_CPU
 
 #endif
