@@ -1,3 +1,6 @@
 transformer
 checkpoint_20250402_150847_40.bin
 checkpoint_20250402_171839_29.bin
+*.o
+**/*.o
+test
