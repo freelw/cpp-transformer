@@ -17,16 +17,16 @@ Our self - developed automatic differentiation framework simplifies the gradient
 The project only depends on the C++ standard library. While its performance may not be as high - end as those with advanced libraries, it clearly showcases every computational detail. This characteristic allows users to gain a profound understanding of the backpropagation algorithm and the underlying principles of the Transformer architecture.
 
 ## Update Log
-V2 - [2025-05-29]​
-1. Redesigned Tensor Class​
-2. Redesigned Backend Ops Interface​
-​3. Redesigned Computation Flow​
-    *  Pre - computed Tensor Dependency Logic and Batch Memory Allocation​
-    * Compact Memory Layout​
-    * Efficient zero_grad Implementation​   
+V2 - [2025-05-29]
+1. Redesigned Tensor Class
+2. Redesigned Backend Ops Interface
+3. Redesigned Computation Flow
+    *  Pre - computed Tensor Dependency Logic and Batch Memory Allocation
+    * Compact Memory Layout
+    * Efficient zero_grad Implementation
 4. num_steps has been increased from 9 to 32
-​5. Closer Implementation to Tensor Semantics in DL2 Chapter 11​​
-6. Enhanced Test Cases​
+5. Closer Implementation to Tensor Semantics in DL2 Chapter 11
+6. Enhanced Test Cases
 
 ## Quick start
 
