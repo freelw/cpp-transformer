@@ -22,9 +22,9 @@ void print_all_tensors();
 
 #define NUM_STEPS 32
 #define MAX_POSENCODING_LEN 10000
-#define RESOURCE_NAME "../../resources/fra_preprocessed.txt"
-#define SRC_VOCAB_NAME "../fra_vocab_builder/vocab_en.txt"
-#define TGT_VOCAB_NAME "../fra_vocab_builder/vocab_fr.txt"
+#define RESOURCE_NAME "./resources/fra_preprocessed.txt"
+#define SRC_VOCAB_NAME "./vocab/fra_vocab_builder/vocab_en.txt"
+#define TGT_VOCAB_NAME "./vocab/fra_vocab_builder/vocab_fr.txt"
 #define TEST_FILE "./test.txt"
 
 #endif
