@@ -16,12 +16,49 @@ Our self - developed automatic differentiation framework simplifies the gradient
 
 The project only depends on the C++ standard library. While its performance may not be as high - end as those with advanced libraries, it clearly showcases every computational detail. This characteristic allows users to gain a profound understanding of the backpropagation algorithm and the underlying principles of the Transformer architecture.
 
+## Update Log
+V2 - [2025-05-29]​
+1. Redesigned Tensor Class​
+The tensor class has been completely redesigned to minimize memory allocation and copying operations. This optimization significantly improves memory efficiency and reduces overhead during tensor manipulation, leading to enhanced performance and faster execution times.​
+​
+​
+2. Redesigned Backend Ops Interface​
+The backend_ops interface has been revamped to support both CPU and GPU backends simultaneously. This unified interface simplifies the codebase, allowing for seamless switching between different hardware backends and providing users with the flexibility to choose the most suitable computing resource for their tasks.​
+​
+​
+3. Redesigned Computation Flow​
+a. Pre - computed Tensor Dependency Logic and Batch Memory Allocation​
+The computation flow now pre - calculates the tensor dependency logic. By doing so, it enables batch memory allocation, which optimizes memory usage and reduces the time spent on individual memory allocation calls, resulting in a more efficient overall process.​
+b. Compact Memory Layout​
+A more compact memory layout has been implemented. This layout arranges data in a more space - efficient manner, reducing memory fragmentation and improving data access speed, thus enhancing the performance of tensor - based computations.​
+c. Efficient zero_grad Implementation​
+An efficient implementation of the zero_grad function has been introduced. This new implementation clears the gradients of tensors in a more optimized way, improving the performance of gradient - based optimization algorithms and speeding up the training process.​
+​
+​
+4. Increased num_steps​
+The value of num_steps has been increased from 9 to 32. This expansion allows for longer sequences or more iterative processes in relevant algorithms, providing greater flexibility and enabling more complex computations.​
+​
+​
+5. Closer Implementation to Tensor Semantics in DL2 Chapter 11​
+a. Attention - related Improvements​
+transpose_qkv: An optimized implementation of transpose_qkv has been added, improving the performance of attention mechanisms that rely on this operation.​
+transpose_output: The transpose_output operation has been refined to better align with the tensor semantics specified in DL2 Chapter 11, enhancing the overall accuracy and efficiency of attention - based models.​
+permute: The permute operation has been updated to follow the semantic requirements more closely, enabling more precise control over tensor dimensions in attention - related computations.​
+c. Cross - Entropy in Non - reduction Mode​
+A new implementation of cross - entropy loss in non - reduction mode has been added. This mode provides more detailed information about the loss for each individual data point, which is useful for debugging and more fine - grained analysis.​
+d. Improved Embedding Implementation​
+The embedding implementation has been enhanced to better capture the semantic relationships in the data. This improvement leads to more accurate representations of input data, benefiting various natural language processing and machine learning tasks that rely on embeddings.​
+​
+​
+6. Enhanced Test Cases​
+The test suite has been strengthened with more comprehensive and robust test cases. These new test cases cover a wider range of scenarios and edge cases, ensuring the stability, reliability, and correctness of the updated features and the overall system.
+
 ## Quick start
 
 ### build
 
 ```
-./build_all.sh 
+./build_gpu.sh 
 ```
 
 ### perform inference using a pre-trained model
