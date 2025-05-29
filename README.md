@@ -16,92 +16,102 @@ Our self - developed automatic differentiation framework simplifies the gradient
 
 The project only depends on the C++ standard library. While its performance may not be as high - end as those with advanced libraries, it clearly showcases every computational detail. This characteristic allows users to gain a profound understanding of the backpropagation algorithm and the underlying principles of the Transformer architecture.
 
+## Update Log
+V2 - [2025-05-29]
+1. Redesigned Tensor Class
+2. Redesigned Backend Ops Interface
+3. Redesigned Computation Flow
+    *  Pre - computed Tensor Dependency Logic and Batch Memory Allocation
+    * Compact Memory Layout
+    * Efficient zero_grad Implementation
+4. num_steps has been increased from 9 to 32
+5. Closer Implementation to Tensor Semantics in DL2 Chapter 11
+6. Enhanced Test Cases
+
 ## Quick start
 
 ### build
 
+#### for gpu
 ```
-./build_all.sh 
+./build_gpu.sh 
 ```
+The program compiled in this way supports both CPU and GPU. You can use the -g parameter to switch between them.
 
-### perform inference using a pre-trained model
-
+#### for cpu
 ```
-./test_translation.sh
+./build_cpu.sh
 ```
+If you don't have a CUDA environment, you can also try the CPU version. Note that this version is extremely slow and is only intended for comparing and verifying the correctness of the GPU version.
 
-#### output
-
+### training
+#### use a small corpus file
 ```
-./test_translation.sh 
-~/project/cpp-transformer/checkpoints/save ~/project/cpp-transformer
-~/project/cpp-transformer
-OMP_THREADS: 8
+$ time ./transformer -e 100 -f ./resources/fra_tiny.txt 
+corpus : ./resources/fra_tiny.txt
+epochs : 100
+batch_size : 128
+gpu : 1
+learning rate : 0.001
+checkpoint : 
+enc_vocab_size : 7939
+dec_vocab_size : 13387
+bos_id : 3
+eos_id : 1
+src_pad_id : 0
+tgt_pad_id : 0
+predicting : false
+batch_size : 128
+epoch 0 :  [384/384]loss : 9.21267
+epoch 1 :  [384/384]loss : 8.16567
+epoch 2 :  [384/384]loss : 7.29368
+epoch 3 :  [384/384]loss : 6.52666
+...
+epoch 97 :  [384/384]loss : 0.211998
+epoch 98 :  [384/384]loss : 0.214285
+epoch 99 :  [384/384]loss : 0.2198
+checkpoint saved : ./checkpoints/checkpoint_20250529_181410_99.bin
+
+real    2m59.602s
+user    2m58.975s
+sys     0m0.605s
+```
+As shown above, training for 100 epochs on a small dataset takes approximately 3 minutes.
+If you want to use the full corpus, remove the -f parameter.
+
+### inference
+Perform translation inference using the checkpoint file generated earlier.
+The data will be read from the test.txt file.
+```
+$ ./transformer -e 0 -c ./checkpoints/checkpoint_20250529_181410_99.bin
+corpus : ./resources/fra_preprocessed.txt
 epochs : 0
-dropout : 0.2
-lr : 0.001
-tiny : 0
-data loaded
-warmUp done
-parameter size = 21388
-all parameters require_grad = true
-loading from checkpoint : ./checkpoints/save/checkpoint_20250402_150847_40.bin
+batch_size : 128
+gpu : 1
+learning rate : 0.001
+checkpoint : ./checkpoints/checkpoint_20250529_181410_99.bin
+enc_vocab_size : 7939
+dec_vocab_size : 13387
+bos_id : 3
+eos_id : 1
+src_pad_id : 0
+tgt_pad_id : 0
+predicting : true
+batch_size : 1
+loading from checkpoint : ./checkpoints/checkpoint_20250529_181410_99.bin
 loaded from checkpoint
 serving mode
-go now . <eos> 
-translate res : <bos> allez-y maintenant maintenant maintenant . <eos> 
-i try . <eos> 
-translate res : <bos> j'essaye . <eos> 
-cheers ! <eos> 
-translate res : <bos> santé ! <eos> 
-get up . <eos> 
-translate res : <bos> lève-toi . <eos> 
-hug me . <eos> 
-translate res : <bos> <unk> dans vos bras ! <eos> 
-i know . <eos> 
-translate res : <bos> je sais . <eos> 
-no way ! <eos> 
-translate res : <bos> en aucune manière ! <eos> 
-be nice . <eos> 
-translate res : <bos> soyez gentille ! <eos> 
-i jumped . <eos> 
-translate res : <bos> j'ai sauté . <eos> 
-congratulations ! <eos> 
-translate res : <bos> à ! <eos> 
+test file : ./test.txt
+go now . -> vas-y maintenant . 
+i know that it is highly unlikely that you'd ever want to go out -> je sais qu'il est hautement improbable que tu veuilles jamais sortir avec moi , mais j'ai tout de même besoin de demander au moins une fois . 
+good job -> bon boulot . 
+how nice ! -> comme c'est chouette ! 
 ```
 
-### train with a small dataset
+## legacy version
 
-```
-./train_tiny.sh
-```
+[v1](https://github.com/freelw/cpp-transformer/tree/v1_freeze_20250529)
 
-#### output
-
-```
-./train_tiny.sh 
-OMP_THREADS: 8
-epochs : 10
-dropout : 0.2
-lr : 0.001
-tiny : 0
-data loaded
-warmUp done
-parameter size = 21388
-all parameters require_grad = true
-[300/300]checkpoint saved : ./checkpoints/checkpoint_20250402_164906_0.bin
-epoch 0 loss : 9.0757 emit_clip : 3
-[300/300]epoch 1 loss : 7.90043 emit_clip : 3
-[300/300]epoch 2 loss : 6.8447 emit_clip : 3
-[300/300]epoch 3 loss : 5.85042 emit_clip : 3
-[300/300]epoch 4 loss : 5.00354 emit_clip : 3
-[300/300]epoch 5 loss : 4.38405 emit_clip : 3
-[300/300]epoch 6 loss : 3.96133 emit_clip : 3
-[300/300]epoch 7 loss : 3.70218 emit_clip : 3
-[300/300]epoch 8 loss : 3.51153 emit_clip : 3
-[300/300]checkpoint saved : ./checkpoints/checkpoint_20250402_164906_9.bin
-epoch 9 loss : 3.35273 emit_clip : 3
-```
 
 ## Derivation of backpropagation gradient formulas
 
