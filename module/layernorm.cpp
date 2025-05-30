@@ -7,13 +7,8 @@ LayerNorm::LayerNorm(int len, bool const_weight) {
     beta = graph::allocNode(t_beta);
     gamma->require_grad();
     beta->require_grad();
-    if (const_weight) {
-        gamma->init_weight_fill(1.0);
-        beta->init_weight_fill(0.0);
-    } else {
-        gamma->init_weight_gauss(0.01, 1);
-        beta->init_weight_gauss(0.01, 0);   
-    }
+    gamma->init_weight_fill(1.0);
+    beta->init_weight_fill(0.0);    
     Pgamma = allocParameter(gamma);
     Pbeta = allocParameter(beta);
 }
