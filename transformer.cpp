@@ -463,6 +463,14 @@ int main(int argc, char *argv[]) {
                 loss_sum += loss_v;
             }
             std::cout << "loss : " << loss_sum / cnt << std::endl;
+            for (auto &param : parameters) {
+                auto w = param->get_w();
+                auto grad = param->get_grad();
+                if (is_all_zero(grad)) {
+                    std::cout << w->get_meta_info() << " grad is all zero" << std::endl;
+                }
+            }
+            std::cout << "1" << std::endl;
         }
         std::string checkpoint_prefix = "checkpoint" + generateDateTimeSuffix();
         save_checkpoint(checkpoint_prefix, shutdown ? epoch : epoch - 1, parameters);

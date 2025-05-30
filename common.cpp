@@ -93,3 +93,21 @@ void print_all_tensors() {
         std::cout << "tensor_view " << i << " value : " << std::endl << *g_tensor_views[i] << std::endl;
     }
 }
+
+bool is_all_zero(Tensor *t) {
+    float *buffer = static_cast<float*>(::malloc(t->size()));
+    g_backend_ops->cp_from_device(
+        reinterpret_cast<char*>(buffer),
+        t,
+        t->size()
+    );
+    bool zero = true;
+    for (int i = 0; i < t->length(); i++) {
+        if (fabs(buffer[i]) > 1e-20) {
+            zero = false;
+            break;
+        }
+    }
+    ::free(buffer);
+    return zero;
+}

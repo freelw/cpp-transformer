@@ -5343,24 +5343,6 @@ void init_mask_and_valid_lens(Tensor *mask, Tensor *valid_lens) {
     );
 }
 
-bool is_all_zero(Tensor *t) {
-    float *buffer = static_cast<float*>(::malloc(t->size()));
-    g_backend_ops->cp_from_device(
-        reinterpret_cast<char*>(buffer),
-        t,
-        t->size()
-    );
-    bool zero = true;
-    for (int i = 0; i < t->length(); i++) {
-        if (fabs(buffer[i]) > 1e-20) {
-            zero = false;
-            break;
-        }
-    }
-    ::free(buffer);
-    return zero;
-}
-
 void test_encoder_decoder() {
     construct_env();
     zero_c_tensors();
@@ -5381,7 +5363,7 @@ void test_encoder_decoder() {
 
     int num_hiddens = 256;
     int num_blks = 2;
-    float dropout = 0.1f;
+    float dropout = 0.0f;
     int ffn_num_hiddens = 64;
     int num_heads = 4;
     int num_steps = NUM_STEPS;
@@ -5417,7 +5399,7 @@ void test_encoder_decoder() {
     
     Adam adam(all_params, 0.001f);
     loss->backward();
-    adam.clip_grad(1.0f);
+    // adam.clip_grad(1.0f);
     adam.step();
     graph::validateAllNodesRefCnt();
     // printAllActions();
@@ -5473,7 +5455,7 @@ void test_encoder_decoder() {
     auto dec_embedding = dec_params[0];
     assert(dec_embedding->get_w()->get_name() == "embedding");
 
-    int epochs = 5;
+    int epochs = 30;
     for (int e = 0; e < epochs; e++) {
         gDoActions();
         // std::cout << "e : " << e << " loss : " << *loss->get_tensor() << std::endl;
@@ -5482,14 +5464,20 @@ void test_encoder_decoder() {
     }
 
     for (auto &param : all_params) {
+        std::cout << param->get_w()->get_meta_info() << std::endl;
+        std::cout << param->get_grad()->get_meta_info() << std::endl;
+    }
+    std::cout << "=====================" << std::endl;
+
+    for (auto &param : all_params) {
         auto w = param->get_w();
         auto grad = param->get_grad();
         //  std::cout << w->get_name() << " : " << *w << std::endl;
         // std::cout << w->get_name() << " grad : " << *grad << std::endl;
         if (is_all_zero(grad)) {
-            std::cout << RED << w->get_name() << " grad is all zero" << RESET << std::endl;
-            std::cout << w->get_name() << " grad : " << *grad << std::endl;
-            break;
+            std::cout << RED << w->get_meta_info() << " grad is all zero" << RESET << std::endl;
+            // std::cout << w->get_name() << " grad : " << *grad << std::endl;
+            // break;
         }
     }
 

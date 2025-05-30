@@ -19,6 +19,7 @@ void destruct_env();
 void use_gpu(bool use = true);
 bool is_use_gpu();
 void print_all_tensors();
+bool is_all_zero(Tensor *t);
 
 #define NUM_STEPS 32
 #define MAX_POSENCODING_LEN 10000
