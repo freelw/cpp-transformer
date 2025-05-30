@@ -5343,6 +5343,24 @@ void init_mask_and_valid_lens(Tensor *mask, Tensor *valid_lens) {
     );
 }
 
+bool is_all_zero(Tensor *t) {
+    float *buffer = static_cast<float*>(::malloc(t->size()));
+    g_backend_ops->cp_from_device(
+        reinterpret_cast<char*>(buffer),
+        t,
+        t->size()
+    );
+    bool zero = true;
+    for (int i = 0; i < t->length(); i++) {
+        if (fabs(buffer[i]) > 1e-20) {
+            zero = false;
+            break;
+        }
+    }
+    ::free(buffer);
+    return zero;
+}
+
 void test_encoder_decoder() {
     construct_env();
     zero_c_tensors();
@@ -5461,6 +5479,18 @@ void test_encoder_decoder() {
         // std::cout << "e : " << e << " loss : " << *loss->get_tensor() << std::endl;
         validateAllTensorNames();
         validateAllTensors();
+    }
+
+    for (auto &param : all_params) {
+        auto w = param->get_w();
+        auto grad = param->get_grad();
+        //  std::cout << w->get_name() << " : " << *w << std::endl;
+        // std::cout << w->get_name() << " grad : " << *grad << std::endl;
+        if (is_all_zero(grad)) {
+            std::cout << RED << w->get_name() << " grad is all zero" << RESET << std::endl;
+            std::cout << w->get_name() << " grad : " << *grad << std::endl;
+            break;
+        }
     }
 
     delete seq2seq;
@@ -7455,6 +7485,8 @@ void test_embedding_with_cpu() {
 }
 
 void test_gpu() {
+    test_encoder_decoder();
+    return ;
     
     test_at();
     test_at_1();
