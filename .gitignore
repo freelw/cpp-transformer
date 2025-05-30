@@ -5,3 +5,4 @@ checkpoint_20250402_171839_29.bin
 **/*.o
 test
 tmp.txt
+c.log
