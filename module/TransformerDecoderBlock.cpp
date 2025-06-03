@@ -16,7 +16,7 @@ TransformerDecoderBlock::TransformerDecoderBlock(
         num_hiddens, dropout
     );
     ffn = new PositionWiseFFN(
-         ffn_num_hiddens, num_hiddens
+        ffn_num_hiddens, num_hiddens
     );
     addnorm3 = new AddNorm(
         num_hiddens, dropout
@@ -32,9 +32,9 @@ TransformerDecoderBlock::~TransformerDecoderBlock() {
     delete addnorm3;
 }
 
-graph::Node *TransformerDecoderBlock::forward(
-    graph::Node *x, graph::Node *enc_output,
-    Tensor *enc_valid_lens, Tensor *dec_valid_lens) {
+graph::Node* TransformerDecoderBlock::forward(
+    graph::Node* x, graph::Node* enc_output,
+    Tensor* enc_valid_lens, Tensor* dec_valid_lens) {
     auto y = masked_attention->forward(x, x, x, dec_valid_lens);
     y = addnorm1->forward(x, y);
     auto z = attention->forward(y, enc_output, enc_output, enc_valid_lens);
@@ -44,8 +44,8 @@ graph::Node *TransformerDecoderBlock::forward(
     return res;
 }
 
-std::vector<Parameter *> TransformerDecoderBlock::get_parameters() {
-    std::vector<Parameter *> params;
+std::vector<Parameter*> TransformerDecoderBlock::get_parameters() {
+    std::vector<Parameter*> params;
     auto masked_attention_params = masked_attention->get_parameters();
     auto addnorm1_params = addnorm1->get_parameters();
     auto attention_params = attention->get_parameters();

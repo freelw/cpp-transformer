@@ -9,7 +9,7 @@
 extern bool shutdown;
 void signal_callback_handler(int signum);
 
-void check_parameters(const std::vector<Parameter*> &parameters, int num_blks) {
+void check_parameters(const std::vector<Parameter*>& parameters, int num_blks) {
 
     int parameters_size_should_be = 0;
     parameters_size_should_be += 1; // source embedding
@@ -26,7 +26,7 @@ void check_parameters(const std::vector<Parameter*> &parameters, int num_blks) {
         1 + // encoder ffn b2
         1 + // encoder addnorm2 gamma
         1 // encoder addnorm2 beta
-    );
+        );
 
     parameters_size_should_be += 1; // target embedding
     parameters_size_should_be += num_blks * (
@@ -48,7 +48,7 @@ void check_parameters(const std::vector<Parameter*> &parameters, int num_blks) {
         1 + // decoder block ffn b2
         1 + // decoder block addnorm3 gamma
         1 // decoder block addnorm3 beta
-    );
+        );
     parameters_size_should_be += 1; // target linear w
     parameters_size_should_be += 1; // target linear b
     assert(parameters.size() == parameters_size_should_be);
@@ -60,11 +60,11 @@ void check_parameters(const std::vector<Parameter*> &parameters, int num_blks) {
     // }
 }
 
-void print_progress(const std::string &prefix, uint i, uint tot) {
+void print_progress(const std::string& prefix, uint i, uint tot) {
     std::cout << "\r" << prefix << " [" << i << "/" << tot << "]" << std::flush;
 }
 
-std::vector<uint> trim_or_padding(const std::vector<uint> &src, uint max_len, uint pad_id) {
+std::vector<uint> trim_or_padding(const std::vector<uint>& src, uint max_len, uint pad_id) {
     std::vector<uint> res = src;
     if (src.size() > max_len) {
         res.resize(max_len);
@@ -74,14 +74,14 @@ std::vector<uint> trim_or_padding(const std::vector<uint> &src, uint max_len, ui
     return res;
 }
 
-std::vector<uint> add_bos(const std::vector<uint> &src, uint bos_id) {
+std::vector<uint> add_bos(const std::vector<uint>& src, uint bos_id) {
     std::vector<uint> res = src;
     res.insert(res.begin(), bos_id);
     return res;
 }
 
-void init_dec_valid_lens(Tensor *dec_valid_lens) {
-    int32_t *dec_valid_lens_buffer = static_cast<int32_t *>(::malloc(
+void init_dec_valid_lens(Tensor* dec_valid_lens) {
+    int32_t* dec_valid_lens_buffer = static_cast<int32_t*>(::malloc(
         dec_valid_lens->size()
     ));
 
@@ -89,7 +89,7 @@ void init_dec_valid_lens(Tensor *dec_valid_lens) {
 
     for (int i = 0; i < shape[0]; ++i) {
         for (int j = 0; j < shape[1]; ++j) {
-            dec_valid_lens_buffer[i * shape[1] + j] = j+1;
+            dec_valid_lens_buffer[i * shape[1] + j] = j + 1;
         }
     }
 
@@ -103,16 +103,16 @@ void init_dec_valid_lens(Tensor *dec_valid_lens) {
 }
 
 void load_tokens_from_file(
-    seq2seq::DataLoader &loader,
-    std::vector<std::vector<uint>> &src_token_ids,
-    std::vector<std::vector<uint>> &tgt_token_ids,
-    int &enc_vocab_size,
-    int &dec_vocab_size,
-    int &bos_id,
-    int &eos_id,
-    int &src_pad_id,
-    int &tgt_pad_id
-    ) {
+    seq2seq::DataLoader& loader,
+    std::vector<std::vector<uint>>& src_token_ids,
+    std::vector<std::vector<uint>>& tgt_token_ids,
+    int& enc_vocab_size,
+    int& dec_vocab_size,
+    int& bos_id,
+    int& eos_id,
+    int& src_pad_id,
+    int& tgt_pad_id
+) {
     loader.get_token_ids(src_token_ids, tgt_token_ids);
     enc_vocab_size = loader.src_vocab_size();
     dec_vocab_size = loader.tgt_vocab_size();
@@ -122,7 +122,7 @@ void load_tokens_from_file(
     tgt_pad_id = loader.tgt_pad_id();
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
 
     shutdown = false;
 
@@ -136,28 +136,28 @@ int main(int argc, char *argv[]) {
 
     while ((opt = getopt(argc, argv, "f:c:e:l:b:g:")) != -1) {
         switch (opt) {
-            case 'f':
-                corpus = optarg;
-                break;
-            case 'c':
-                checkpoint = optarg;
-                break;
-            case 'e':
-                epochs = atoi(optarg);
-                break;
-            case 'l':
-                lr = atof(optarg);
-                break;
-            case 'b':
-                batch_size = atoi(optarg);
-                break;
-            case 'g':
-                gpu = atoi(optarg);
-                break;
-            default:
-                std::cerr << "Usage: " << argv[0] 
-                    << " -f <corpus> -c <checpoint> -e <epochs>" << std::endl;
-                return 1;
+        case 'f':
+            corpus = optarg;
+            break;
+        case 'c':
+            checkpoint = optarg;
+            break;
+        case 'e':
+            epochs = atoi(optarg);
+            break;
+        case 'l':
+            lr = atof(optarg);
+            break;
+        case 'b':
+            batch_size = atoi(optarg);
+            break;
+        case 'g':
+            gpu = atoi(optarg);
+            break;
+        default:
+            std::cerr << "Usage: " << argv[0]
+                << " -f <corpus> -c <checpoint> -e <epochs>" << std::endl;
+            return 1;
         }
     }
 
@@ -179,7 +179,7 @@ int main(int argc, char *argv[]) {
     std::string tgt_vocab_name = TGT_VOCAB_NAME;
     std::string test_file = TEST_FILE;
     seq2seq::DataLoader loader(corpus, src_vocab_name, tgt_vocab_name, test_file);
-    
+
     std::vector<std::vector<uint>> v_src_token_ids;
     std::vector<std::vector<uint>> v_tgt_token_ids;
     load_tokens_from_file(
@@ -204,8 +204,8 @@ int main(int argc, char *argv[]) {
     std::cout << "tgt_pad_id : " << tgt_pad_id << std::endl;
     std::cout << "predicting : " << (predicting ? "true" : "false") << std::endl;
     std::cout << "batch_size : " << batch_size << std::endl;
-    
-    use_gpu(gpu==1);
+
+    use_gpu(gpu == 1);
     construct_env();
     zero_c_tensors();
     zero_grad();
@@ -217,18 +217,18 @@ int main(int argc, char *argv[]) {
     int num_steps = NUM_STEPS;
     int max_posencoding_len = MAX_POSENCODING_LEN;
 
-    Seq2SeqEncoderDecoder *seq2seq = new Seq2SeqEncoderDecoder(
+    Seq2SeqEncoderDecoder* seq2seq = new Seq2SeqEncoderDecoder(
         bos_id, eos_id,
         enc_vocab_size, dec_vocab_size, num_hiddens, ffn_num_hiddens,
         num_heads, num_blks, max_posencoding_len, dropout
     );
 
-    Tensor *src_token_ids = allocTensor({batch_size, num_steps}, INT32);
-    Tensor *tgt_token_ids = allocTensor({batch_size, num_steps}, INT32);
-    Tensor *enc_valid_lens = allocTensor({batch_size}, INT32);
-    Tensor *dec_valid_lens = predicting ? allocTensor({1}, INT32) : allocTensor({batch_size, num_steps}, INT32);
-    Tensor *labels = allocTensor({batch_size * num_steps}, INT32);
-    Tensor *ce_mask = allocTensor({batch_size * num_steps});
+    Tensor* src_token_ids = allocTensor({ batch_size, num_steps }, INT32);
+    Tensor* tgt_token_ids = allocTensor({ batch_size, num_steps }, INT32);
+    Tensor* enc_valid_lens = allocTensor({ batch_size }, INT32);
+    Tensor* dec_valid_lens = predicting ? allocTensor({ 1 }, INT32) : allocTensor({ batch_size, num_steps }, INT32);
+    Tensor* labels = allocTensor({ batch_size * num_steps }, INT32);
+    Tensor* ce_mask = allocTensor({ batch_size * num_steps });
 
     // alloc input buffers
     // 1. enc_valid_lens
@@ -238,27 +238,27 @@ int main(int argc, char *argv[]) {
     // 5. ce_mask
     // 6. dec_valid_lens 在 init_dec_valid_lens 中申请，一次性构造
 
-    int32_t *enc_valid_lens_buffer = static_cast<int32_t *>(::malloc(
+    int32_t* enc_valid_lens_buffer = static_cast<int32_t*>(::malloc(
         enc_valid_lens->size()
     ));
-    int32_t *src_token_ids_buffer = static_cast<int32_t *>(::malloc(
+    int32_t* src_token_ids_buffer = static_cast<int32_t*>(::malloc(
         src_token_ids->size()
     ));
-    int32_t *tgt_token_ids_buffer = static_cast<int32_t *>(::malloc(
+    int32_t* tgt_token_ids_buffer = static_cast<int32_t*>(::malloc(
         tgt_token_ids->size()
     ));
-    int32_t *labels_buffer = static_cast<int32_t *>(::malloc(
+    int32_t* labels_buffer = static_cast<int32_t*>(::malloc(
         labels->size()
     ));
-    float *ce_mask_buffer = static_cast<float *>(::malloc(
+    float* ce_mask_buffer = static_cast<float*>(::malloc(
         ce_mask->size()
     ));
 
     auto res = seq2seq->forward(src_token_ids, tgt_token_ids, enc_valid_lens, dec_valid_lens);
-    auto loss = res->reshape({-1, dec_vocab_size})->CrossEntropy(labels)->mask(ce_mask)->avg_1d(ce_mask);
+    auto loss = res->reshape({ -1, dec_vocab_size })->CrossEntropy(labels)->mask(ce_mask)->avg_1d(ce_mask);
     insert_boundary_action();
-    
-    std::vector<Parameter *> parameters = seq2seq->get_parameters();
+
+    std::vector<Parameter*> parameters = seq2seq->get_parameters();
     check_parameters(parameters, num_blks);
     Adam adam(parameters, lr);
     loss->backward();
@@ -280,7 +280,7 @@ int main(int argc, char *argv[]) {
         std::cout << "test file : " << test_file << std::endl;
         // assert(!checkpoint.empty());
         std::vector<std::string> src_sentences = loader.get_test_sentences();
-        for (auto & sentence : src_sentences) {
+        for (auto& sentence : src_sentences) {
             std::vector<uint> v_src_token_ids = loader.to_src_token_ids(sentence);
             // std::cout << "source sentence length : " << v_src_token_ids.size() << std::endl;
             int enc_valid_len = v_src_token_ids.size();
@@ -299,7 +299,7 @@ int main(int argc, char *argv[]) {
             // std::cout << std::endl;
             assert(src_token_ids->length() == num_steps);
             assert(tgt_token_ids->length() == num_steps);
-            for (int i = 0; i < num_steps; ++ i) {
+            for (int i = 0; i < num_steps; ++i) {
                 src_token_ids_buffer[i] = src_trim_or_padding_res[i];
             }
             g_backend_ops->cp_to_device(
@@ -307,13 +307,13 @@ int main(int argc, char *argv[]) {
                 reinterpret_cast<char*>(src_token_ids_buffer),
                 src_token_ids->size()
             );
-            
+
             std::vector<uint> predicted;
             predicted.push_back(bos_id);
-            float *res_buffer = static_cast<float *>(::malloc(
+            float* res_buffer = static_cast<float*>(::malloc(
                 res->get_tensor()->size()
             ));
-            for (int i = 0; i < num_steps; ++ i) {
+            for (int i = 0; i < num_steps; ++i) {
                 std::vector<uint> tgt_trim_or_padding_res = trim_or_padding(
                     predicted, num_steps, tgt_pad_id
                 );
@@ -328,7 +328,7 @@ int main(int argc, char *argv[]) {
                 //     std::cout << loader.get_src_token(token_id) << " ";
                 // }
                 // std::cout << std::endl;
-                for (int j = 0; j < num_steps; ++ j) {
+                for (int j = 0; j < num_steps; ++j) {
                     tgt_token_ids_buffer[j] = tgt_trim_or_padding_res[j];
                 }
                 g_backend_ops->cp_to_device(
@@ -345,7 +345,7 @@ int main(int argc, char *argv[]) {
                 );
                 assert(res->get_tensor()->length() == dec_vocab_size * num_steps);
                 float max_value = res_buffer[0];
-                auto cur_step = i+1;
+                auto cur_step = i + 1;
 
                 int max_index = 0;
                 for (int j = 0; j < cur_step; ++j) {
@@ -365,7 +365,7 @@ int main(int argc, char *argv[]) {
                     break; // stop predicting if eos_id is predicted
                 }
                 predicted.push_back(max_index);
-                
+
                 // int max_index = 0;
                 // for (int j = 1; j < dec_vocab_size; ++j) {
                 //     if (res_buffer[j] > max_value) {
@@ -374,7 +374,7 @@ int main(int argc, char *argv[]) {
                 //     }
                 // }
                 // // std::cout << "predicted token id : " << max_index << " " << loader.get_tgt_token(max_index) << std::endl;
-                
+
                 // predicted.push_back(max_index);
             }
             std::cout << sentence << " -> ";
@@ -399,7 +399,7 @@ int main(int argc, char *argv[]) {
                 if (shutdown) {
                     break;
                 }
-                cnt ++;
+                cnt++;
 
                 auto end = i + batch_size;
                 if (end > v_src_token_ids.size()) {

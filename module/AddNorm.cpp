@@ -10,12 +10,12 @@ AddNorm::~AddNorm() {
     delete dropout;
 }
 
-graph::Node *AddNorm::forward(graph::Node *x, graph::Node *y) {
+graph::Node* AddNorm::forward(graph::Node* x, graph::Node* y) {
     auto drop_y = dropout->forward(y);
     auto sum = drop_y->add(x);
     return layer_norm->forward(sum);
 }
 
-std::vector<Parameter *> AddNorm::get_parameters() {
+std::vector<Parameter*> AddNorm::get_parameters() {
     return layer_norm->get_parameters();
 }

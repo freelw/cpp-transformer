@@ -11,10 +11,10 @@ CPUOps::CPUOps() {
 }
 
 void CPUOps::add(
-    Tensor *lhs, const Tensor *rhs, Tensor *res,
-    Tensor */*l_shape*/, Tensor */*l_strides*/,
-    Tensor */*r_striedes*/,
-    Tensor */*res_striedes*/
+    Tensor* lhs, const Tensor* rhs, Tensor* res,
+    Tensor*/*l_shape*/, Tensor*/*l_strides*/,
+    Tensor*/*r_striedes*/,
+    Tensor*/*res_striedes*/
 ) {
     assert(lhs != nullptr);
     assert(rhs != nullptr);
@@ -28,7 +28,7 @@ void CPUOps::add(
     auto rstrides = rhs->get_strides();
     auto res_strides = res->get_strides();
 
-     for (int i = 0; i < lhs->length(); ++i) {
+    for (int i = 0; i < lhs->length(); ++i) {
         int index_l = 0;
         int index_r = 0;
         int index_res = 0;
@@ -42,16 +42,16 @@ void CPUOps::add(
             index_res += cur_dim_index * res_strides[j];
             tmp_index %= tot_length;
         }
-        static_cast<float*>(res->get_data())[index_res] = 
+        static_cast<float*>(res->get_data())[index_res] =
             static_cast<float*>(lhs->get_data())[index_l] +
             static_cast<float*>(rhs->get_data())[index_r];
     }
 }
 
 void CPUOps::addEq(
-    Tensor *lhs, const Tensor *rhs,
-    Tensor */*l_shape*/,
-    Tensor */*l_strides*/, Tensor */*r_striedes*/
+    Tensor* lhs, const Tensor* rhs,
+    Tensor*/*l_shape*/,
+    Tensor*/*l_strides*/, Tensor*/*r_striedes*/
 ) {
     assert(lhs != nullptr);
     assert(rhs != nullptr);
@@ -70,12 +70,12 @@ void CPUOps::addEq(
             index_r += cur_dim_index * rhs->get_strides()[j];
             tmp_index %= tot_length;
         }
-        static_cast<float*>(lhs->get_data())[index_l] += 
+        static_cast<float*>(lhs->get_data())[index_l] +=
             static_cast<float*>(rhs->get_data())[index_r];
     }
 }
 
-void CPUOps::expandAdd(Tensor *lhs, const Tensor *rhs, Tensor *res) {
+void CPUOps::expandAdd(Tensor* lhs, const Tensor* rhs, Tensor* res) {
     assert(lhs != nullptr);
     assert(rhs != nullptr);
     assert(res != nullptr);
@@ -83,7 +83,7 @@ void CPUOps::expandAdd(Tensor *lhs, const Tensor *rhs, Tensor *res) {
     int size = lhs->size();
     auto shape = lhs->get_shape();
     assert(shape.size() == 2);
-    assert(rhs->get_shape().size() == 1);   
+    assert(rhs->get_shape().size() == 1);
     assert(rhs->get_shape()[0] == shape[1]);
     assert(shape == res->get_shape());
 
@@ -92,14 +92,14 @@ void CPUOps::expandAdd(Tensor *lhs, const Tensor *rhs, Tensor *res) {
 
     for (int i = 0; i < shape[0]; ++i) {
         for (int j = 0; j < shape[1]; ++j) {
-            static_cast<float*>(res->get_data())[i * res_strides[0] + j * res_strides[1]] = 
-                static_cast<float*>(lhs->get_data())[i * lstrides[0] + j * lstrides[1]] + 
+            static_cast<float*>(res->get_data())[i * res_strides[0] + j * res_strides[1]] =
+                static_cast<float*>(lhs->get_data())[i * lstrides[0] + j * lstrides[1]] +
                 static_cast<float*>(rhs->get_data())[j];
         }
     }
 }
 
-void CPUOps::expandMul(Tensor *lhs, const Tensor *rhs, Tensor *res) {
+void CPUOps::expandMul(Tensor* lhs, const Tensor* rhs, Tensor* res) {
     assert(lhs != nullptr);
     assert(rhs != nullptr);
     assert(res != nullptr);
@@ -107,7 +107,7 @@ void CPUOps::expandMul(Tensor *lhs, const Tensor *rhs, Tensor *res) {
     int size = lhs->size();
     auto shape = lhs->get_shape();
     assert(shape.size() == 2);
-    assert(rhs->get_shape().size() == 1);   
+    assert(rhs->get_shape().size() == 1);
     assert(rhs->get_shape()[0] == shape[1]);
     assert(shape == res->get_shape());
 
@@ -116,14 +116,14 @@ void CPUOps::expandMul(Tensor *lhs, const Tensor *rhs, Tensor *res) {
 
     for (int i = 0; i < shape[0]; ++i) {
         for (int j = 0; j < shape[1]; ++j) {
-            static_cast<float*>(res->get_data())[i * res_strides[0] + j * res_strides[1]] = 
+            static_cast<float*>(res->get_data())[i * res_strides[0] + j * res_strides[1]] =
                 static_cast<float*>(lhs->get_data())[i * lstrides[0] + j * lstrides[1]] *
                 static_cast<float*>(rhs->get_data())[j];
         }
     }
 }
 
-void CPUOps::at(Tensor *lhs, const Tensor *rhs, Tensor *res) {
+void CPUOps::at(Tensor* lhs, const Tensor* rhs, Tensor* res) {
     assert(lhs != nullptr);
     assert(rhs != nullptr);
     assert(res != nullptr);
@@ -138,9 +138,9 @@ void CPUOps::at(Tensor *lhs, const Tensor *rhs, Tensor *res) {
     assert(res_shape[0] == lshape[0]);
     assert(res_shape[1] == rshape[1]);
 
-    float *res_data = static_cast<float*>(res->get_data());
-    float *lhs_data = static_cast<float*>(lhs->get_data());
-    float *rhs_data = static_cast<float*>(rhs->get_data());
+    float* res_data = static_cast<float*>(res->get_data());
+    float* lhs_data = static_cast<float*>(lhs->get_data());
+    float* rhs_data = static_cast<float*>(rhs->get_data());
 
     auto lstrides = lhs->get_strides();
     auto rstrides = rhs->get_strides();
@@ -150,15 +150,15 @@ void CPUOps::at(Tensor *lhs, const Tensor *rhs, Tensor *res) {
         for (int j = 0; j < rshape[1]; ++j) {
             res_data[i * res_strides[0] + j * res_strides[1]] = 0;
             for (int k = 0; k < lshape[1]; ++k) {
-                res_data[i * res_strides[0] + j * res_strides[1]] += 
-                    lhs_data[i * lstrides[0] + k * lstrides[1]] * 
+                res_data[i * res_strides[0] + j * res_strides[1]] +=
+                    lhs_data[i * lstrides[0] + k * lstrides[1]] *
                     rhs_data[k * rstrides[0] + j * rstrides[1]];
             }
         }
     }
 }
 
-void CPUOps::embedding(Tensor *lhs, const Tensor *indices, const Tensor *res) {
+void CPUOps::embedding(Tensor* lhs, const Tensor* indices, const Tensor* res) {
     assert(lhs != nullptr);
     assert(indices != nullptr);
     assert(res != nullptr);
@@ -183,13 +183,13 @@ void CPUOps::embedding(Tensor *lhs, const Tensor *indices, const Tensor *res) {
         int index = static_cast<int32_t*>(indices->get_data())[i];
         assert(index >= 0 && index < lshape[0]);
         for (int j = 0; j < lshape[1]; ++j) {
-            static_cast<float*>(res->get_data())[i * res->get_strides()[0] + j * res->get_strides()[1]] = 
+            static_cast<float*>(res->get_data())[i * res->get_strides()[0] + j * res->get_strides()[1]] =
                 static_cast<float*>(lhs->get_data())[index * lhs->get_strides()[0] + j * lhs->get_strides()[1]];
         }
     }
 }
 
-void CPUOps::embeddingBackward(Tensor *lhs, const Tensor *indices, Tensor *res) {
+void CPUOps::embeddingBackward(Tensor* lhs, const Tensor* indices, Tensor* res) {
     assert(lhs != nullptr);
     assert(indices != nullptr);
     assert(res != nullptr);
@@ -214,17 +214,17 @@ void CPUOps::embeddingBackward(Tensor *lhs, const Tensor *indices, Tensor *res) 
         int index = static_cast<int32_t*>(indices->get_data())[i];
         assert(index >= 0 && index < rshape[0]);
         for (int j = 0; j < lshape[1]; ++j) {
-            static_cast<float*>(res->get_data())[index * res->get_strides()[0] + j * res->get_strides()[1]] += 
+            static_cast<float*>(res->get_data())[index * res->get_strides()[0] + j * res->get_strides()[1]] +=
                 static_cast<float*>(lhs->get_data())[i * lhs->get_strides()[0] + j * lhs->get_strides()[1]];
         }
     }
 }
 
 void CPUOps::mul(
-    Tensor *lhs, const Tensor *rhs, Tensor *res,
-    Tensor */*l_shape*/, Tensor */*l_strides*/,
-    Tensor */*r_striedes*/,
-    Tensor */*res_striedes*/
+    Tensor* lhs, const Tensor* rhs, Tensor* res,
+    Tensor*/*l_shape*/, Tensor*/*l_strides*/,
+    Tensor*/*r_striedes*/,
+    Tensor*/*res_striedes*/
 ) {
     assert(lhs != nullptr);
     assert(rhs != nullptr);
@@ -238,7 +238,7 @@ void CPUOps::mul(
     auto rstrides = rhs->get_strides();
     auto res_strides = res->get_strides();
 
-     for (int i = 0; i < lhs->length(); ++i) {
+    for (int i = 0; i < lhs->length(); ++i) {
         int index_l = 0;
         int index_r = 0;
         int index_res = 0;
@@ -252,13 +252,13 @@ void CPUOps::mul(
             index_res += cur_dim_index * res_strides[j];
             tmp_index %= tot_length;
         }
-        static_cast<float*>(res->get_data())[index_res] = 
-            static_cast<float*>(lhs->get_data())[index_l] * 
+        static_cast<float*>(res->get_data())[index_res] =
+            static_cast<float*>(lhs->get_data())[index_l] *
             static_cast<float*>(rhs->get_data())[index_r];
     }
 }
 
-void CPUOps::sum(Tensor *lhs, Tensor *res, int dim) {
+void CPUOps::sum(Tensor* lhs, Tensor* res, int dim) {
     assert(lhs != nullptr);
     assert(res != nullptr);
     assert(dim >= 0 && dim < lhs->get_dim());
@@ -275,35 +275,35 @@ void CPUOps::sum(Tensor *lhs, Tensor *res, int dim) {
         static_cast<float*>(res->get_data())[i] = 0;
         float tmp = 0;
         for (int j = 0; j < shape[0]; ++j) {
-             tmp += static_cast<float*>(lhs->get_data())[j * lstrides[0] + i * lstrides[1]];
+            tmp += static_cast<float*>(lhs->get_data())[j * lstrides[0] + i * lstrides[1]];
         }
         static_cast<float*>(res->get_data())[i] = tmp;
     }
 }
 
-void CPUOps::relu(Tensor *lhs, Tensor *res) {
+void CPUOps::relu(Tensor* lhs, Tensor* res) {
     assert(lhs != nullptr);
     assert(res != nullptr);
 
     int length = lhs->length();
     for (int i = 0; i < length; ++i) {
-        static_cast<float*>(res->get_data())[i] = 
+        static_cast<float*>(res->get_data())[i] =
             std::max(0.0f, static_cast<float*>(lhs->get_data())[i]);
     }
 }
 
-void CPUOps::reluPrime(Tensor *lhs, Tensor *res) {
+void CPUOps::reluPrime(Tensor* lhs, Tensor* res) {
     assert(lhs != nullptr);
     assert(res != nullptr);
 
     int length = lhs->length();
     for (int i = 0; i < length; ++i) {
-        static_cast<float*>(res->get_data())[i] = 
+        static_cast<float*>(res->get_data())[i] =
             static_cast<float*>(lhs->get_data())[i] > 0 ? 1.0f : 0.0f;
     }
 }
 
-void CPUOps::crossEntropy(Tensor *lhs, const Tensor *labels, Tensor *maxs, Tensor *sums, Tensor *res) {
+void CPUOps::crossEntropy(Tensor* lhs, const Tensor* labels, Tensor* maxs, Tensor* sums, Tensor* res) {
     assert(lhs != nullptr);
     assert(labels != nullptr);
     assert(maxs != nullptr);
@@ -317,7 +317,7 @@ void CPUOps::crossEntropy(Tensor *lhs, const Tensor *labels, Tensor *maxs, Tenso
     assert(res->get_shape().size() == 1);
     assert(lhs->get_shape()[0] == labels->get_shape()[0]);
     assert(lhs->get_shape()[0] == maxs->get_shape()[0]);
-    
+
     assert(lhs->get_shape()[0] == sums->get_shape()[0]);
     assert(res->get_shape()[0] == sums->get_shape()[0]);
 
@@ -326,8 +326,8 @@ void CPUOps::crossEntropy(Tensor *lhs, const Tensor *labels, Tensor *maxs, Tenso
     float loss_value = 0;
 
     // maxs and sums are out params
-    float *data = static_cast<float*>(lhs->get_data());
-    int32_t *labels_data = static_cast<int32_t*>(labels->get_data());
+    float* data = static_cast<float*>(lhs->get_data());
+    int32_t* labels_data = static_cast<int32_t*>(labels->get_data());
     auto lstrides = lhs->get_strides();
     for (int j = 0; j < batch_size; ++j) {
         float max = data[j * lstrides[0]];
@@ -342,7 +342,7 @@ void CPUOps::crossEntropy(Tensor *lhs, const Tensor *labels, Tensor *maxs, Tenso
         assert(target >= 0 && target < size);
         float zt = data[j * lstrides[0] + target * lstrides[1]];
         for (int i = 0; i < size; ++i) {
-            float e = data[j* lstrides[0] + i * lstrides[1]];
+            float e = data[j * lstrides[0] + i * lstrides[1]];
             e = std::exp(e - max);
             sum += e;
         }
@@ -352,10 +352,10 @@ void CPUOps::crossEntropy(Tensor *lhs, const Tensor *labels, Tensor *maxs, Tenso
 
         if (std::isnan(static_cast<float*>(res->get_data())[j])) {
             std::cerr << "CrossEntropy loss is NaN at batch " << j << ", max: " << max
-                      << ", sum: " << sum << ", zt: " << zt << std::endl;
+                << ", sum: " << sum << ", zt: " << zt << std::endl;
             std::cerr << "lstrides[0] = " << lstrides[0] << ", lstrides[1] = " << lstrides[1] << std::endl;
             for (int i = 0; i < size; ++i) {
-               auto e = data[j * lstrides[0] + i * lstrides[1]];
+                auto e = data[j * lstrides[0] + i * lstrides[1]];
                 std::cerr << "data[" << j << "][" << i << "] = " << e << std::endl;
             }
 
@@ -365,7 +365,7 @@ void CPUOps::crossEntropy(Tensor *lhs, const Tensor *labels, Tensor *maxs, Tenso
     }
 }
 
-void CPUOps::crossEntropyBackward(Tensor *lhs, const Tensor *labels, Tensor *maxs, Tensor *sums, Tensor *res) {
+void CPUOps::crossEntropyBackward(Tensor* lhs, const Tensor* labels, Tensor* maxs, Tensor* sums, Tensor* res) {
     assert(lhs != nullptr);
     assert(labels != nullptr);
     assert(maxs != nullptr);
@@ -374,8 +374,8 @@ void CPUOps::crossEntropyBackward(Tensor *lhs, const Tensor *labels, Tensor *max
 
     int batch_size = lhs->get_shape()[0];
     int size = lhs->get_shape()[1];
-    float *data = static_cast<float*>(lhs->get_data());
-    float *res_data = static_cast<float*>(res->get_data());
+    float* data = static_cast<float*>(lhs->get_data());
+    float* res_data = static_cast<float*>(res->get_data());
     auto lstrides = lhs->get_strides();
     auto res_strides = res->get_strides();
     assert(lstrides.size() == 2);
@@ -387,10 +387,10 @@ void CPUOps::crossEntropyBackward(Tensor *lhs, const Tensor *labels, Tensor *max
         auto target = static_cast<int32_t*>(labels->get_data())[j];
         for (int i = 0; i < size; ++i) {
             if (i == target) {
-                res_data[j * res_strides[0] + i * res_strides[1]] = 
+                res_data[j * res_strides[0] + i * res_strides[1]] =
                     (std::exp(data[j * lstrides[0] + i * lstrides[1]] - max) / sum - 1);
             } else {
-                res_data[j * res_strides[0] + i * res_strides[1]] = 
+                res_data[j * res_strides[0] + i * res_strides[1]] =
                     (std::exp(data[j * lstrides[0] + i * lstrides[1]] - max) / sum);
             }
         }
@@ -398,28 +398,28 @@ void CPUOps::crossEntropyBackward(Tensor *lhs, const Tensor *labels, Tensor *max
 }
 
 
-void CPUOps::calcAllGradNorm(const std::vector<Tensor*> &grads, Tensor *norm) {
+void CPUOps::calcAllGradNorm(const std::vector<Tensor*>& grads, Tensor* norm) {
     float tmp = 0;
     for (auto grad : grads) {
-        float *data = static_cast<float*>(grad->get_data());
+        float* data = static_cast<float*>(grad->get_data());
         for (int i = 0; i < grad->length(); ++i) {
-            float &value = data[i];
+            float& value = data[i];
             tmp += std::pow(value, 2);
         }
     }
     assert(norm->get_shape().size() == 1);
     assert(norm->get_shape()[0] == 1);
-    float *norm_data = static_cast<float*>(norm->get_data());
+    float* norm_data = static_cast<float*>(norm->get_data());
     norm_data[0] = tmp;
 }
 
-void CPUOps::clipGrad(Tensor *grad, const Tensor *norm, float grad_clip_val) {
+void CPUOps::clipGrad(Tensor* grad, const Tensor* norm, float grad_clip_val) {
     assert(grad != nullptr);
     assert(norm != nullptr);
     assert(norm->get_shape().size() == 1);
     assert(norm->get_shape()[0] == 1);
-    float *data = static_cast<float*>(grad->get_data());
-    float *norm_data = static_cast<float*>(norm->get_data());
+    float* data = static_cast<float*>(grad->get_data());
+    float* norm_data = static_cast<float*>(norm->get_data());
     float norm_value = std::sqrt(norm_data[0]);
     if (norm_value > grad_clip_val) {
         for (int i = 0; i < grad->length(); ++i) {
@@ -428,7 +428,7 @@ void CPUOps::clipGrad(Tensor *grad, const Tensor *norm, float grad_clip_val) {
     }
 }
 
-void CPUOps::adamStep(Tensor *w, Tensor *grad, Tensor *m, Tensor *v, int t, float lr, float beta1, float beta2, float epsilon) {
+void CPUOps::adamStep(Tensor* w, Tensor* grad, Tensor* m, Tensor* v, int t, float lr, float beta1, float beta2, float epsilon) {
     assert(w != nullptr);
     assert(grad != nullptr);
     assert(m != nullptr);
@@ -443,10 +443,10 @@ void CPUOps::adamStep(Tensor *w, Tensor *grad, Tensor *m, Tensor *v, int t, floa
     assert(w->get_shape() == m->get_shape());
     assert(w->get_shape() == v->get_shape());
 
-    float *w_data = static_cast<float*>(w->get_data());
-    float *grad_data = static_cast<float*>(grad->get_data());
-    float *m_data = static_cast<float*>(m->get_data());
-    float *v_data = static_cast<float*>(v->get_data());
+    float* w_data = static_cast<float*>(w->get_data());
+    float* grad_data = static_cast<float*>(grad->get_data());
+    float* m_data = static_cast<float*>(m->get_data());
+    float* v_data = static_cast<float*>(v->get_data());
     for (int i = 0; i < w->length(); ++i) {
         m_data[i] = beta1 * m_data[i] + (1 - beta1) * grad_data[i];
         v_data[i] = beta2 * v_data[i] + (1 - beta2) * std::pow(grad_data[i], 2);
@@ -456,62 +456,62 @@ void CPUOps::adamStep(Tensor *w, Tensor *grad, Tensor *m, Tensor *v, int t, floa
     }
 }
 
-void CPUOps::init_weight_gauss(Tensor *tensor, float mean, float sigma) {
+void CPUOps::init_weight_gauss(Tensor* tensor, float mean, float sigma) {
     unsigned seed1 = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine generator_w(seed1);
     std::normal_distribution<float> distribution_w(0.0, sigma);
-    float *data = static_cast<float*>(tensor->get_data());
+    float* data = static_cast<float*>(tensor->get_data());
     for (int i = 0; i < tensor->length(); ++i) {
         data[i] = distribution_w(generator_w) + mean;
     }
 }
 
-void CPUOps::init_weight_uniform(Tensor *tensor, float sigma) {
+void CPUOps::init_weight_uniform(Tensor* tensor, float sigma) {
     unsigned seed1 = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine generator_w(seed1);
     std::uniform_real_distribution<float> distribution_w(-sigma, sigma);
-    float *data = static_cast<float*>(tensor->get_data());
+    float* data = static_cast<float*>(tensor->get_data());
     for (int i = 0; i < tensor->length(); ++i) {
         data[i] = distribution_w(generator_w);
     }
 }
 
-void CPUOps::init_weight_for_dbg(Tensor *tensor, float scale) {
+void CPUOps::init_weight_for_dbg(Tensor* tensor, float scale) {
     assert(tensor != nullptr);
     assert(tensor->get_data() != nullptr);
     assert(tensor->length() > 0);
 
     if (tensor->get_dtype() == FLOAT32) {
-        float *data = static_cast<float*>(tensor->get_data());
+        float* data = static_cast<float*>(tensor->get_data());
         for (int i = 0; i < tensor->length(); ++i) {
             data[i] = static_cast<float>(i) * 1e-5 * scale;
         }
     } else if (tensor->get_dtype() == INT32) {
-        int32_t *data = static_cast<int32_t*>(tensor->get_data());
+        int32_t* data = static_cast<int32_t*>(tensor->get_data());
         for (int i = 0; i < tensor->length(); ++i) {
             data[i] = i % 10;
         }
     } else {
         assert(false);
     }
-    
+
 }
 
-void CPUOps::fill(Tensor *tensor, float value) {
+void CPUOps::fill(Tensor* tensor, float value) {
     assert(tensor != nullptr);
     assert(tensor->get_data() != nullptr);
     assert(tensor->length() > 0);
 
-    float *data = static_cast<float*>(tensor->get_data());
+    float* data = static_cast<float*>(tensor->get_data());
     for (int i = 0; i < tensor->length(); ++i) {
         data[i] = value;
-    }   
+    }
 }
 
 void CPUOps::reshape_deep_cp(
-    Tensor *dst_tensor, const Tensor *src_tensor,
-    const Tensor *src_shape, const Tensor *src_strides) {
-    
+    Tensor* dst_tensor, const Tensor* src_tensor,
+    const Tensor* src_shape, const Tensor* src_strides) {
+
     assert(dst_tensor->get_dtype() == src_tensor->get_dtype());
     assert(
         dst_tensor->get_dtype() == INT32 ||
@@ -546,7 +546,7 @@ void CPUOps::reshape_deep_cp(
     }
 }
 
-void CPUOps::repeat_interleave(Tensor *lhs, Tensor *res, int n) {
+void CPUOps::repeat_interleave(Tensor* lhs, Tensor* res, int n) {
     assert(lhs->get_dtype() == INT32);
     assert(res->get_dtype() == INT32);
     assert(lhs != nullptr);
@@ -556,32 +556,32 @@ void CPUOps::repeat_interleave(Tensor *lhs, Tensor *res, int n) {
     auto dim = lhs->get_dim();
     assert(dim > 0);
     int width = 0;
-    
+
     if (dim == 1) {
         width = 1;
     } else {
-        width = lshape[dim-1];   
+        width = lshape[dim - 1];
     }
     auto l_length = lhs->length();
     auto r_length = res->length();
     assert(l_length * n == r_length);
     assert(l_length % width == 0);
     auto blocks = l_length / width;
-    
-    for (int i = 0; i < blocks; ++ i) {
+
+    for (int i = 0; i < blocks; ++i) {
         int src_offset = i * width;
         int tgt_offset = i * width * n;
-        for (int j = 0; j < n; ++ j) {
-            for (int k = 0; k < width; ++ k) {
-                static_cast<int32_t*>(res->get_data())[tgt_offset+k] = 
-                static_cast<int32_t*>(lhs->get_data())[src_offset+k];
+        for (int j = 0; j < n; ++j) {
+            for (int k = 0; k < width; ++k) {
+                static_cast<int32_t*>(res->get_data())[tgt_offset + k] =
+                    static_cast<int32_t*>(lhs->get_data())[src_offset + k];
             }
             tgt_offset += width;
         }
     }
 }
 
-void CPUOps::sequence_mask(Tensor *lhs, const Tensor *mask, Tensor *res, float value) {
+void CPUOps::sequence_mask(Tensor* lhs, const Tensor* mask, Tensor* res, float value) {
     assert(lhs != nullptr);
     assert(mask != nullptr);
     assert(res != nullptr);
@@ -608,14 +608,14 @@ void CPUOps::sequence_mask(Tensor *lhs, const Tensor *mask, Tensor *res, float v
 
     for (int i = 0; i < lshape[0]; ++i) {
         for (int j = 0; j < lshape[1]; ++j) {
-            static_cast<float*>(res->get_data())[i * rstrides[0] + j * rstrides[1]] = 
-                static_cast<int32_t*>(mask->get_data())[i * mstrides[0]] <= j ? value : 
+            static_cast<float*>(res->get_data())[i * rstrides[0] + j * rstrides[1]] =
+                static_cast<int32_t*>(mask->get_data())[i * mstrides[0]] <= j ? value :
                 static_cast<float*>(lhs->get_data())[i * lstrides[0] + j * lstrides[1]];
         }
     }
 }
 
-void CPUOps::softmax(Tensor *lhs, Tensor *res) {
+void CPUOps::softmax(Tensor* lhs, Tensor* res) {
     auto l_shape = lhs->get_shape();
     auto r_shape = res->get_shape();
     assert(l_shape == r_shape);
@@ -648,7 +648,7 @@ void CPUOps::softmax(Tensor *lhs, Tensor *res) {
     }
 }
 
-void CPUOps::softmax_bacward(Tensor *target_grad, const Tensor *softmax_res, Tensor *grad) {
+void CPUOps::softmax_bacward(Tensor* target_grad, const Tensor* softmax_res, Tensor* grad) {
     assert(target_grad != nullptr);
     assert(softmax_res != nullptr);
     assert(grad != nullptr);
@@ -672,9 +672,9 @@ void CPUOps::softmax_bacward(Tensor *target_grad, const Tensor *softmax_res, Ten
     auto s_strides = softmax_res->get_strides();
     auto g_strides = grad->get_strides();
 
-    float *target_grad_data = static_cast<float*>(target_grad->get_data());
-    float *softmax_res_data = static_cast<float*>(softmax_res->get_data());
-    float *grad_data = static_cast<float*>(grad->get_data());
+    float* target_grad_data = static_cast<float*>(target_grad->get_data());
+    float* softmax_res_data = static_cast<float*>(softmax_res->get_data());
+    float* grad_data = static_cast<float*>(grad->get_data());
 
     for (int i = 0; i < t_shape[0]; ++i) {
         for (int j = 0; j < t_shape[1]; ++j) {
@@ -702,18 +702,18 @@ void CPUOps::softmax_bacward(Tensor *target_grad, const Tensor *softmax_res, Ten
     }
 }
 
-void CPUOps::div(Tensor *dst, Tensor *src, float value) {
+void CPUOps::div(Tensor* dst, Tensor* src, float value) {
     assert(dst->length() == src->length());
     auto length = dst->length();
     for (int i = 0; i < length; ++i) {
-        static_cast<float*>(dst->get_data())[i] = 
+        static_cast<float*>(dst->get_data())[i] =
             static_cast<float*>(src->get_data())[i] / value;
     }
 }
 
 void CPUOps::build_dropout_mask(
-    Tensor *mask, float p,
-    Tensor */*shape*/, Tensor */*strides*/
+    Tensor* mask, float p,
+    Tensor*/*shape*/, Tensor*/*strides*/
 ) {
     assert(mask != nullptr);
     // assert(mask->get_dim() == 1);
@@ -732,7 +732,7 @@ void CPUOps::build_dropout_mask(
     }
 }
 
-void CPUOps::pos_encoding(Tensor *res) {
+void CPUOps::pos_encoding(Tensor* res) {
     assert(res != nullptr);
     auto shape = res->get_shape();
     auto max_len = shape[0];
@@ -740,17 +740,17 @@ void CPUOps::pos_encoding(Tensor *res) {
     for (int pos = 0; pos < max_len; ++pos) {
         for (int i = 0; i < num_hidden; ++i) {
             if (i % 2 == 0) {
-                static_cast<float*>(res->get_data())[pos * res->get_strides()[0] + i * res->get_strides()[1]] = 
+                static_cast<float*>(res->get_data())[pos * res->get_strides()[0] + i * res->get_strides()[1]] =
                     std::sin(pos * 1. / std::pow(10000, (1.0f * i / num_hidden)));
             } else {
-                static_cast<float*>(res->get_data())[pos * res->get_strides()[0] + i * res->get_strides()[1]] = 
+                static_cast<float*>(res->get_data())[pos * res->get_strides()[0] + i * res->get_strides()[1]] =
                     std::cos(pos * 1. / std::pow(10000, (1.0f * (i & ~1) / num_hidden)));
             }
         }
     }
 }
 
-void CPUOps::avg(Tensor *lhs, Tensor *res) {
+void CPUOps::avg(Tensor* lhs, Tensor* res) {
     assert(lhs != nullptr);
     assert(res != nullptr);
     assert(lhs->get_dim() == 2);
@@ -767,7 +767,7 @@ void CPUOps::avg(Tensor *lhs, Tensor *res) {
     }
 }
 
-void CPUOps::var(Tensor *lhs, const Tensor *_avg, Tensor *res) {
+void CPUOps::var(Tensor* lhs, const Tensor* _avg, Tensor* res) {
     assert(lhs != nullptr);
     assert(_avg != nullptr);
     assert(res != nullptr);
@@ -778,7 +778,7 @@ void CPUOps::var(Tensor *lhs, const Tensor *_avg, Tensor *res) {
     assert(lhs->get_shape()[0] == _avg->get_shape()[0]);
 
     auto shape = lhs->get_shape();
-    float *avg = static_cast<float*>(_avg->get_data());
+    float* avg = static_cast<float*>(_avg->get_data());
     for (int i = 0; i < shape[0]; ++i) {
         float sum = 0;
         for (int j = 0; j < shape[1]; ++j) {
@@ -790,7 +790,7 @@ void CPUOps::var(Tensor *lhs, const Tensor *_avg, Tensor *res) {
     }
 }
 
-void CPUOps::norm(const Tensor *src, const Tensor *avg, const Tensor *var, Tensor *res) {
+void CPUOps::norm(const Tensor* src, const Tensor* avg, const Tensor* var, Tensor* res) {
     assert(src->get_dim() == 2);
     assert(avg->get_dim() == 1);
     assert(var->get_dim() == 1);
@@ -815,8 +815,8 @@ void CPUOps::norm(const Tensor *src, const Tensor *avg, const Tensor *var, Tenso
 }
 
 void CPUOps::normBackward(
-    const Tensor *src_grad, const Tensor *norm_res, const Tensor *var_res, Tensor *tgt_grad
-)  {
+    const Tensor* src_grad, const Tensor* norm_res, const Tensor* var_res, Tensor* tgt_grad
+) {
     assert(src_grad != nullptr);
     assert(norm_res != nullptr);
     assert(tgt_grad != nullptr);
@@ -833,9 +833,9 @@ void CPUOps::normBackward(
     auto norm_res_strides = norm_res->get_strides();
     auto src_grad_strides = src_grad->get_strides();
     auto tgt_grad_strides = tgt_grad->get_strides();
-    float *norm_res_data = static_cast<float*>(norm_res->get_data());
-    float *src_grad_data = static_cast<float*>(src_grad->get_data());
-    float *tgt_grad_data = static_cast<float*>(tgt_grad->get_data());
+    float* norm_res_data = static_cast<float*>(norm_res->get_data());
+    float* src_grad_data = static_cast<float*>(src_grad->get_data());
+    float* tgt_grad_data = static_cast<float*>(tgt_grad->get_data());
 
     for (int k = 0; k < shape[0]; ++k) {
         float var_value = static_cast<float*>(var_res->get_data())[k];
@@ -856,11 +856,11 @@ void CPUOps::normBackward(
     }
 }
 
-void CPUOps::mulSV(Tensor *dst, Tensor *src, float value) {
+void CPUOps::mulSV(Tensor* dst, Tensor* src, float value) {
     assert(dst->length() == src->length());
     auto length = dst->length();
     for (int i = 0; i < length; ++i) {
-        static_cast<float*>(dst->get_data())[i] = 
+        static_cast<float*>(dst->get_data())[i] =
             static_cast<float*>(src->get_data())[i] * value;
     }
 }
@@ -881,7 +881,7 @@ void CPUOps::free(void* ptr) {
     ::free(ptr);
 }
 
-void CPUOps::cp_to_device(Tensor *dst_tensor, char *src, size_t size) {
+void CPUOps::cp_to_device(Tensor* dst_tensor, char* src, size_t size) {
     assert(dst_tensor != nullptr);
     assert(src != nullptr);
     assert(size > 0);
@@ -890,7 +890,7 @@ void CPUOps::cp_to_device(Tensor *dst_tensor, char *src, size_t size) {
     memcpy(dst_tensor->get_data(), src, size);
 }
 
-void CPUOps::cp_from_device(char *dst, const Tensor *src_tensor, size_t size) {
+void CPUOps::cp_from_device(char* dst, const Tensor* src_tensor, size_t size) {
     assert(dst != nullptr);
     assert(src_tensor != nullptr);
     assert(size > 0);

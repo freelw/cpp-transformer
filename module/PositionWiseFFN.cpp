@@ -10,15 +10,15 @@ PositionWiseFFN::~PositionWiseFFN() {
     delete dense2;
 }
 
-graph::Node *PositionWiseFFN::forward(graph::Node *x) {
+graph::Node* PositionWiseFFN::forward(graph::Node* x) {
     x = dense1->forward(x);
     x = x->relu();
     x = dense2->forward(x);
     return x;
 }
 
-std::vector<Parameter *> PositionWiseFFN::get_parameters() {
-    std::vector<Parameter *> params;
+std::vector<Parameter*> PositionWiseFFN::get_parameters() {
+    std::vector<Parameter*> params;
     auto dense1_params = dense1->get_parameters();
     auto dense2_params = dense2->get_parameters();
     params.insert(params.end(), dense1_params.begin(), dense1_params.end());

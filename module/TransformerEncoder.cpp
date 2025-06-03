@@ -11,7 +11,7 @@ TransformerEncoder::TransformerEncoder(
     pos_encoding = new PosEncoding(max_posencoding_len, num_hiddens, dropout);
     for (int i = 0; i < num_blks; i++) {
         blks.push_back(new TransformerEncoderBlock(num_hiddens, ffn_num_hiddens, num_heads, dropout, bias));
-    }   
+    }
 }
 
 TransformerEncoder::~TransformerEncoder() {
@@ -22,7 +22,7 @@ TransformerEncoder::~TransformerEncoder() {
     }
 }
 
-graph::Node *TransformerEncoder::forward(Tensor *indices, Tensor *valid_lens) {
+graph::Node* TransformerEncoder::forward(Tensor* indices, Tensor* valid_lens) {
     assert(indices->get_dim() == 2); // shape : (batch_size, seq_len)
     auto indices_shape = indices->get_shape();
     auto x = embedding->forward(indices);
@@ -37,8 +37,8 @@ graph::Node *TransformerEncoder::forward(Tensor *indices, Tensor *valid_lens) {
     return x;
 }
 
-std::vector<Parameter *> TransformerEncoder::get_parameters() {
-    std::vector<Parameter *> parameters;
+std::vector<Parameter*> TransformerEncoder::get_parameters() {
+    std::vector<Parameter*> parameters;
     auto embedding_params = embedding->get_parameters();
     parameters.insert(parameters.end(), embedding_params.begin(), embedding_params.end());
     for (auto blk : blks) {

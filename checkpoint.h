@@ -5,7 +5,7 @@
 
 
 std::string generateDateTimeSuffix();
-void save_checkpoint(const std::string & prefix, int epoch, const std::vector<Parameter*> &parameters);
-void loadfrom_checkpoint(const std::string &filename, std::vector<Parameter*> &parameters);
+void save_checkpoint(const std::string& prefix, int epoch, const std::vector<Parameter*>& parameters);
+void loadfrom_checkpoint(const std::string& filename, std::vector<Parameter*>& parameters);
 
 #endif

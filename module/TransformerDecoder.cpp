@@ -13,7 +13,7 @@ TransformerDecoder::TransformerDecoder(
 ) : num_hiddens(_num_hiddens) {
     embedding = new Embedding(vocab_size, num_hiddens);
     pos_encoding = new PosEncoding(max_posencoding_len, num_hiddens, dropout);
-    
+
     for (int i = 0; i < num_blks; i++) {
         blks.push_back(new TransformerDecoderBlock(
             num_hiddens, ffn_num_hiddens, num_heads, dropout, bias
@@ -35,11 +35,11 @@ TransformerDecoder::~TransformerDecoder() {
     delete dense;
 }
 
-graph::Node *TransformerDecoder::forward(
-    Tensor *tgt_token_ids,
-    graph::Node *enc_outputs,
-    Tensor *enc_valid_lens,
-    Tensor *dec_valid_lens
+graph::Node* TransformerDecoder::forward(
+    Tensor* tgt_token_ids,
+    graph::Node* enc_outputs,
+    Tensor* enc_valid_lens,
+    Tensor* dec_valid_lens
 ) {
     auto x = embedding->forward(tgt_token_ids)->mulsv(std::sqrt(num_hiddens));
     x = pos_encoding->forward(x);
@@ -50,8 +50,8 @@ graph::Node *TransformerDecoder::forward(
     return dense_res;
 }
 
-std::vector<Parameter *> TransformerDecoder::get_parameters() {
-    std::vector<Parameter *> parameters;
+std::vector<Parameter*> TransformerDecoder::get_parameters() {
+    std::vector<Parameter*> parameters;
     auto embedding_params = embedding->get_parameters();
     parameters.insert(parameters.end(), embedding_params.begin(), embedding_params.end());
     for (auto blk : blks) {
