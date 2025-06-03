@@ -5481,17 +5481,17 @@ void test_encoder_decoder() {
         validateAllTensors();
     }
 
-    for (auto &param : all_params) {
-        auto w = param->get_w();
-        auto grad = param->get_grad();
-        //  std::cout << w->get_name() << " : " << *w << std::endl;
-        // std::cout << w->get_name() << " grad : " << *grad << std::endl;
-        if (is_all_zero(grad)) {
-            std::cout << RED << w->get_name() << " grad is all zero" << RESET << std::endl;
-            std::cout << w->get_name() << " grad : " << *grad << std::endl;
-            break;
-        }
-    }
+    // for (auto &param : all_params) {
+    //     auto w = param->get_w();
+    //     auto grad = param->get_grad();
+    //     //  std::cout << w->get_name() << " : " << *w << std::endl;
+    //     // std::cout << w->get_name() << " grad : " << *grad << std::endl;
+    //     if (is_all_zero(grad)) {
+    //         std::cout << RED << w->get_name() << " grad is all zero" << RESET << std::endl;
+    //         std::cout << w->get_name() << " grad : " << *grad << std::endl;
+    //         break;
+    //     }
+    // }
 
     delete seq2seq;
     destruct_env();
@@ -7485,8 +7485,6 @@ void test_embedding_with_cpu() {
 }
 
 void test_gpu() {
-    test_encoder_decoder();
-    return ;
     
     test_at();
     test_at_1();
