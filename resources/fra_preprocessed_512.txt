@@ -1,0 +1,512 @@
+go .	va !
+hi .	salut !
+run !	cours !
+run !	courez !
+who ?	qui ?
+wow !	ça alors !
+fire !	au feu !
+help !	à l'aide !
+jump .	saute .
+stop !	ça suffit !
+stop !	stop !
+stop !	arrête-toi !
+wait !	attends !
+wait !	attendez !
+go on .	poursuis .
+go on .	continuez .
+go on .	poursuivez .
+hello !	bonjour !
+hello !	salut !
+i see .	je comprends .
+i try .	j'essaye .
+i won !	j'ai gagné !
+i won !	je l'ai emporté !
+i won .	j’ai gagné .
+oh no !	oh non !
+attack !	attaque !
+attack !	attaquez !
+cheers !	santé !
+cheers !	à votre santé !
+cheers !	merci !
+cheers !	tchin-tchin !
+get up .	lève-toi .
+go now .	va , maintenant .
+go now .	allez-y maintenant .
+go now .	vas-y maintenant .
+got it !	j'ai pigé !
+got it !	compris !
+got it ?	pigé ?
+got it ?	compris ?
+got it ?	t'as capté ?
+hop in .	monte .
+hop in .	montez .
+hug me .	serre-moi dans tes bras !
+hug me .	serrez-moi dans vos bras !
+i fell .	je suis tombée .
+i fell .	je suis tombé .
+i know .	je sais .
+i left .	je suis parti .
+i left .	je suis partie .
+i lost .	j'ai perdu .
+i paid .	j’ai payé .
+i'm 19 .	j'ai 19 ans .
+i'm ok .	je vais bien .
+i'm ok .	ça va .
+listen .	écoutez !
+no way !	c'est pas possible !
+no way !	impossible !
+no way !	en aucun cas .
+no way !	sans façons !
+no way !	c'est hors de question !
+no way !	il n'en est pas question !
+no way !	c'est exclu !
+no way !	en aucune manière !
+no way !	hors de question !
+really ?	vraiment ?
+really ?	vrai ?
+really ?	ah bon ?
+thanks .	merci !
+we try .	on essaye .
+we won .	nous avons gagné .
+we won .	nous gagnâmes .
+we won .	nous l'avons emporté .
+we won .	nous l'emportâmes .
+ask tom .	demande à tom .
+awesome !	fantastique !
+be calm .	sois calme !
+be calm .	soyez calme !
+be calm .	soyez calmes !
+be cool .	sois détendu !
+be fair .	sois juste !
+be fair .	soyez juste !
+be fair .	soyez justes !
+be fair .	sois équitable !
+be fair .	soyez équitable !
+be fair .	soyez équitables !
+be kind .	sois gentil .
+be nice .	sois gentil !
+be nice .	sois gentille !
+be nice .	soyez gentil !
+be nice .	soyez gentille !
+be nice .	soyez gentils !
+be nice .	soyez gentilles !
+beat it .	dégage !
+call me .	appelle-moi !
+call me .	appellez-moi !
+call us .	appelle-nous !
+call us .	appelez-nous !
+come in .	entrez !
+come in .	entre .
+come in .	entre !
+come in .	entrez !
+come on !	allez !
+come on .	allez !
+come on .	viens !
+come on .	venez !
+drop it !	laisse tomber !
+drop it !	laissez tomber !
+drop it !	laisse-le tomber !
+drop it !	laissez-le tomber !
+get tom .	va chercher tom .
+get out !	sortez !
+get out !	sors !
+get out !	sortez !
+get out .	sors .
+get out .	casse-toi .
+go away !	dégage !
+go away !	pars !
+go away .	va te faire foutre !
+go away .	pars !
+go away .	dégage !
+go away .	fous le camp !
+go away .	pars d'ici .
+go away .	va t'en !
+go away .	disparais !
+go away .	allez-vous en !
+go home .	rentrez à la maison .
+go home .	rentre à la maison .
+go home .	rentre chez toi .
+go home .	rentrez chez vous .
+go slow .	va doucement !
+go slow .	allez doucement !
+goodbye !	à la revoyure .
+hang on !	attends un peu !
+hang on !	attendez un peu !
+hang on .	tiens bon !
+hang on .	tenez bon !
+he quit .	il laissa tomber .
+he quit .	il a laissé tomber .
+he runs .	il court .
+help me !	aide-moi !
+help me .	aide-moi .
+help me .	aidez-moi .
+help us .	aidez-nous !
+help us .	aide-nous !
+hold it !	ne bouge plus !
+hold on .	ne quittez pas .
+hug tom .	fais un câlin à tom .
+i agree .	je suis du même avis .
+i cried .	j'ai pleuré .
+i dozed .	je me suis assoupi .
+i dozed .	je me suis assoupie .
+i drive .	je conduis .
+i smoke .	je fume .
+i snore .	je ronfle .
+i stink .	je pue .
+i stood .	je me suis tenu debout .
+i stood .	je me suis tenue debout .
+i swore .	j’ai promis .
+i swore .	j’ai juré .
+i tried .	j'essayai .
+i tried .	j'ai essayé .
+i tried .	j'ai tenté .
+i waved .	j’ai fait signe .
+i'll go .	j'irai .
+i'm tom .	je suis tom .
+i'm fat .	je suis gras .
+i'm fat .	je suis gros .
+i'm fit .	je suis en forme .
+i'm hit !	je suis touché !
+i'm hit !	je suis touchée !
+i'm ill .	je suis malade .
+i'm sad .	je suis triste .
+i'm shy .	je suis timide .
+i'm wet .	je suis mouillé .
+i'm wet .	je suis mouillée .
+it's me !	c'est bibi !
+join us .	joignez-vous .
+join us .	joignez-vous à nous .
+keep it .	garde-le !
+keep it .	gardez-le !
+kiss me .	embrasse-moi .
+kiss me .	embrassez-moi .
+me , too .	moi aussi .
+open up .	ouvre-moi !
+open up .	ouvre .
+perfect !	parfait !
+see you .	à plus .
+show me .	montre-moi !
+show me .	montrez-moi !
+shut up !	taisez-vous !
+shut up !	ferme-la !
+shut up !	tais-toi !
+shut up !	ferme-la !
+shut up !	la ferme !
+so long .	à plus tard !
+take it .	prends-le !
+take it .	prenez-le !
+tell me .	dis-moi !
+tell me .	dites-moi !
+tom won .	tom a gagné .
+wake up !	réveille-toi !
+wake up !	réveille-toi !
+wake up !	réveillez-vous !
+wake up .	réveille-toi !
+wake up .	réveillez-vous !
+wash up .	lave-toi !
+wash up .	lavez-vous !
+we know .	nous savons .
+we lost .	nous perdîmes .
+we lost .	nous avons perdu .
+we lost .	nous fûmes battus .
+we lost .	nous fûmes battues .
+we lost .	nous fûmes défaits .
+we lost .	nous fûmes défaites .
+we lost .	nous avons été défaits .
+we lost .	nous avons été défaites .
+we lost .	nous avons été battus .
+we lost .	nous avons été battues .
+welcome .	bienvenue !
+who won ?	qui a gagné ?
+who won ?	qui l'a emporté ?
+you run .	tu cours .
+am i fat ?	suis-je gros ?
+am i fat ?	suis-je grosse ?
+ask them .	demande-leur .
+ask them .	demandez-leur .
+back off !	recule  !
+back off !	reculez .
+back off .	recule  !
+back off .	reculez .
+back off .	retire-toi  !
+back off .	retirez-vous .
+be a man .	sois un homme !
+be a man .	soyez un homme !
+be still .	sois calme !
+be still .	soyez calme !
+be still .	soyez calmes !
+beats me .	aucune idée .
+beats me .	j'en sais foutre rien .
+call tom .	appelle tom .
+call tom .	appelez tom .
+cheer up !	courage !
+cool off !	détends-toi !
+cuff him .	menottez-le .
+drive on .	avance !
+drive on .	avancez !
+drive on .	continue à rouler !
+drive on .	continuez à rouler !
+find tom .	trouve tom .
+find tom .	trouvez tom .
+fix this .	réparez ceci .
+fix this .	répare ça .
+get down !	lâche-toi !
+get down .	descends !
+get down .	descendez !
+get down .	lâche-toi !
+get down .	lâchez-vous !
+get lost !	va voir ailleurs si j'y suis !
+get lost !	dégage !
+get lost !	va au diable !
+get real !	sois réaliste !
+go ahead .	vas-y .
+go ahead .	poursuis !
+go ahead .	passe devant !
+go ahead .	vas-y !
+good job !	bien joué !
+good job !	bon boulot !
+good job !	beau travail !
+grab him .	attrape-le .
+grab him .	attrapez-le .
+have fun .	amuse-toi bien !
+have fun .	amusez-vous bien !
+he tries .	il essaye .
+he's wet .	il est mouillé .
+help tom .	aide tom .
+help tom .	aidez tom .
+hi , guys .	salut , les mecs !
+how cute !	comme c'est mignon !
+how deep ?	quelle profondeur ?
+how nice !	comme c'est chouette !
+how nice !	comme c'est gentil !
+how nice !	c'est du joli !
+how nice !	comme c'est agréable !
+humor me .	fais-moi rire .
+hurry up .	dépêche-toi .
+hurry up .	grouille !
+hurry up .	pressez-vous !
+hurry up .	fiça !
+i am fat .	je suis gras .
+i did ok .	je m'en suis bien sorti .
+i did ok .	je m'en suis bien sortie .
+i did it .	je l'ai fait .
+i did it .	c'est moi qui l'ai fait .
+i failed .	j'ai échoué .
+i forgot .	j'ai oublié .
+i get it .	j'ai compris .
+i got it .	j'ai compris .
+i got it .	j'ai capté .
+i helped .	j'ai aidé .
+i jumped .	j'ai sauté .
+i looked .	j’ai regardé .
+i moaned .	j’ai râlé .
+i nodded .	j’ai fait signe de la tête .
+i obeyed .	j’ai obéi .
+i phoned .	je téléphonai .
+i phoned .	j'ai téléphoné .
+i refuse .	je refuse .
+i refuse .	je le refuse .
+i rested .	je me suis reposé .
+i rested .	je me suis reposée .
+i saw it .	je l'ai vu .
+i saw it .	je l’ai vu .
+i sighed .	j’ai soupiré .
+i stayed .	je suis resté .
+i stayed .	je suis restée .
+i talked .	j’ai parlé .
+i use it .	je l'utilise .
+i use it .	j'en fais usage .
+i use it .	je m'en sers .
+i'll pay .	je paierai .
+i'll try .	je vais essayer .
+i'll try .	j'essaierai .
+i'm back .	je suis revenu .
+i'm back .	me revoilà .
+i'm bald .	je suis chauve .
+i'm busy .	je suis occupé .
+i'm busy .	je suis occupée .
+i'm calm .	je suis calme .
+i'm cold .	j'ai froid .
+i'm cool .	je suis détendu .
+i'm cool .	je suis détendue .
+i'm deaf .	je suis sourd .
+i'm deaf .	je suis sourde .
+i'm done .	j'en ai fini .
+i'm fair .	je suis juste .
+i'm fair .	j'ai la peau claire .
+i'm fair .	j'ai le teint clair .
+i'm fast .	je suis rapide .
+i'm fine .	tout va bien .
+i'm fine .	je vais bien .
+i'm fine .	ça va .
+i'm free !	je suis libre !
+i'm free .	je suis libre .
+i'm free .	je suis disponible .
+i'm full .	je suis repu !
+i'm full .	je suis rassasié !
+i'm game .	j'en suis .
+i'm game .	je suis de la partie .
+i'm glad .	je suis content .
+i'm home .	je suis chez moi .
+i'm late .	je suis en retard .
+i'm lazy .	je suis paresseux .
+i'm lazy .	je suis fainéant .
+i'm lazy .	je suis paresseuse .
+i'm lazy .	je suis fainéante .
+i'm okay .	je vais bien .
+i'm okay .	je me porte bien .
+i'm rich .	je suis riche .
+i'm safe .	je suis en sécurité .
+i'm sick .	je suis malade .
+i'm sure .	j'en suis certain .
+i'm sure .	je suis certain .
+i'm sure .	j'en suis sûr .
+i'm sure .	j'en suis sûre .
+i'm tall .	je suis grande .
+i'm thin .	je suis mince .
+i'm tidy .	je suis ordonné .
+i'm tidy .	je suis ordonnée .
+i'm ugly .	je suis laid .
+i'm ugly .	je suis laide .
+i'm weak .	je suis faible .
+i'm well .	je vais bien .
+i'm well .	je me porte bien .
+i've won .	j'ai gagné .
+i've won .	je l'ai emporté .
+it helps .	ça aide .
+it hurts .	ça fait mal .
+it works .	elle marche .
+it works .	ça fonctionne .
+it's tom .	c'est tom .
+it's fun .	c'est marrant .
+it's fun .	c'est rigolo .
+it's his .	c'est le sien .
+it's his .	c'est la sienne .
+it's new .	c'est nouveau .
+it's new .	c'est neuf .
+it's odd .	c'est bizarre .
+it's red .	il est rouge .
+it's sad .	c’est triste .
+keep out !	défense d'entrer .
+keep out .	n'entrez pas .
+kiss tom .	embrasse tom .
+leave it .	laisse tomber !
+leave it .	laissez tomber !
+leave me .	laissez-moi !
+leave us .	laisse-nous !
+leave us .	laissez-nous !
+let's go !	allons-y !
+let's go .	allons-y !
+look out !	attention !
+look out !	regarde donc !
+marry me .	épouse-moi !
+marry me .	épousez-moi !
+may i go ?	puis-je partir ?
+may i go ?	puis-je y aller ?
+may i go ?	puis-je m'y rendre ?
+save tom .	sauve tom .
+save tom .	sauvez tom .
+she came .	elle est venue .
+she died .	elle est morte .
+she runs .	elle court .
+sit down !	assieds-toi !
+sit down !	asseyez-vous !
+sit down .	assieds-toi .
+sit here .	assieds-toi ici .
+sit here .	asseyez-vous ici .
+speak up !	parle plus fort !
+speak up !	parlez plus fort !
+stop tom .	arrête tom .
+stop tom .	stoppez tom .
+taste it .	goûte-le .
+taste it .	goûte-la .
+taste it .	goûtez-le .
+taste it .	goûtez-la .
+tell tom .	dis-le à tom .
+tell tom .	informez-en tom .
+terrific !	génial !
+terrific !	excellent !
+terrific !	formidable !
+they won .	ils gagnèrent .
+they won .	elles gagnèrent .
+they won .	ils ont gagné .
+they won .	elles ont gagné .
+tom came .	tom est venu .
+tom died .	tom est mort .
+tom died .	tom muera .
+tom knew .	tom savait .
+tom left .	tom est parti .
+tom left .	tom partit .
+tom lied .	tom a menti .
+tom lies .	tom ment .
+tom lost .	tom a perdu .
+tom paid .	tom a payé .
+too late .	trop tard .
+trust me .	faites-moi confiance .
+trust me .	fais-moi confiance .
+try hard .	fais un effort .
+try some .	essaies-en !
+try some .	essayez-en !
+try this .	essaie ceci !
+try this .	essayez ceci !
+use this .	utilise ceci .
+use this .	utilisez ceci .
+use this .	emploie ceci !
+use this .	employez ceci !
+warn tom .	avertis tom .
+warn tom .	préviens tom .
+watch me .	regarde-moi !
+watch me .	regardez-moi !
+watch us .	regardez-nous !
+watch us .	regarde-nous !
+we agree .	nous sommes d'accord .
+we'll go .	nous irons .
+what for ?	pour quoi faire ?
+what for ?	à quoi bon ?
+what fun !	qu'est-ce qu'on s'est marrés !
+what fun !	qu'est-ce qu'on s'est marrées !
+who came ?	qui est venu ?
+who died ?	qui est mort ?
+who fell ?	qui est tombé ?
+who quit ?	qui démissionne ?
+who's he ?	qui est-il ?
+write me .	écris-moi !
+write me .	écrivez-moi !
+you lost .	tu as perdu .
+you lost .	vous avez perdu .
+after you .	après vous .
+aim . fire !	en joue ! feu !
+am i late ?	suis-je en retard ?
+answer me .	répondez-moi .
+be seated .	assieds-toi !
+be seated .	asseyez-vous !
+birds fly .	les oiseaux volent .
+bless you .	à tes souhaits !
+call home !	appelle à la maison !
+calm down !	calmez-vous !
+calm down .	calme-toi .
+can we go ?	pouvons-nous partir ?
+can we go ?	pouvons-nous nous en aller ?
+can we go ?	pouvons-nous y aller ?
+catch tom .	attrape tom .
+catch tom .	attrapez tom .
+catch him .	rattrape-le .
+come back .	reviens !
+come back .	revenez !
+come here .	viens ici .
+come here .	venez là .
+come over !	viens !
+come over !	venez !
+come over .	venez ici !
+come over .	viens chez nous !
+come over .	venez chez nous !
+come over .	viens chez moi !
+come over .	venez chez moi !
+come soon .	viens bientôt !
+come soon .	venez bientôt !
+cool down .	calmez-vous !
+did i win ?	ai-je gagné ?
+did i win ?	l'ai-je emporté ?
+did i win ?	est-ce moi qui ai gagné ?
+do it now .	faites-le maintenant .
+dogs bark .	des chiens aboient .

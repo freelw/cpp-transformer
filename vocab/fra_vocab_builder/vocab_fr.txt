@@ -128,6 +128,7 @@ mort
 mouillé
 mouvement
 ne
+non
 nous
 occupé
 ont
@@ -157,8 +158,8 @@ question
 qui
 quoi
 recul
-recule
 reculez
+recule 
 refuse
 rentre
 rentrez
