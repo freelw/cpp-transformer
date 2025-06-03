@@ -20,7 +20,7 @@ void use_gpu(bool use = true);
 bool is_use_gpu();
 void print_all_tensors();
 
-#define NUM_STEPS 9
+#define NUM_STEPS 9 // 对齐 dl2 dataloader
 #define MAX_POSENCODING_LEN 10000
 #define RESOURCE_NAME "./resources/fra_preprocessed_640.txt"
 #define SRC_VOCAB_NAME "./vocab/fra_vocab_builder/vocab_en.txt"
