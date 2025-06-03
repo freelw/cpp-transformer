@@ -92,6 +92,9 @@ extern std::vector<Tensor*> g_tensors;
 extern std::vector<Tensor*> g_c_tensors;
 extern std::vector<Tensor*> g_tensor_views;
 extern std::vector<Tensor*> g_grad_tensors;
+extern size_t tensors_data_capacity;
+extern size_t c_tensors_data_capacity;
+extern size_t grad_tensors_data_capacity;
 
 Tensor* allocTensor(const std::vector<int>& shape, const std::string& name, TensorDType _dtype = FLOAT32);
 Tensor* callocTensor(const std::vector<int>& shape, const std::string& name, TensorDType _dtype = FLOAT32);

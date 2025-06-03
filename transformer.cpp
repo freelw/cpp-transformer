@@ -267,6 +267,10 @@ int main(int argc, char* argv[]) {
     graph::validateAllNodesRefCnt(0);
     // printAllActions();
     allocMemAndInitTensors();
+    std::cout << "Allocating memory  " << std::endl
+        << "for tensors : " << tensors_data_capacity << " bytes, " << std::endl
+        << "for c_tensors: " << c_tensors_data_capacity << " bytes " << std::endl
+        << "for grad_tensors: " << grad_tensors_data_capacity << " bytes" << std::endl;
     gDoOnceActions();
 
     if (!checkpoint.empty()) {
