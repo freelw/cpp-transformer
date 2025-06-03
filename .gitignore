@@ -6,3 +6,7 @@ checkpoint_20250402_171839_29.bin
 test
 tmp.txt
 c.log
+p.log
+vocab/data/**
+vocab/fra_vocab_builder/tgt_vocab.txt
+vocab/fra_vocab_builder/src_vocab.txt
