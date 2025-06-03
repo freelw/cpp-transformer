@@ -1,7 +1,7 @@
 #include "common.h"
 #include "optimizers/parameter.h"
 
-BackendOps *g_backend_ops = nullptr;
+BackendOps* g_backend_ops = nullptr;
 bool g_training = true;
 
 bool b_use_gpu = false;
@@ -32,12 +32,12 @@ void insert_boundary_action() {
 
 void init_backend() {
     if (b_use_gpu) {
-        #ifndef GCC_CPU
+#ifndef GCC_CPU
         g_backend_ops = new CUDAOps();
-        #else
+#else
         std::cerr << "Warning: GPU backend is not available in CPU build. Now use cpu instead!!!" << std::endl;
         g_backend_ops = new CPUOps();
-        #endif
+#endif
     } else {
         g_backend_ops = new CPUOps();
     }
@@ -84,11 +84,11 @@ void print_all_tensors() {
         std::cout << "grad_tensor " << i << " name : " << g_grad_tensors[i]->get_meta_info() << std::endl;
         std::cout << "grad_tensor " << i << " value : " << std::endl << *g_grad_tensors[i] << std::endl;
     }
-    for (int i = 0; i < g_tensors.size(); ++ i) {
+    for (int i = 0; i < g_tensors.size(); ++i) {
         std::cout << "tensor " << i << " name : " << g_tensors[i]->get_meta_info() << std::endl;
         std::cout << "tensor " << i << " value : " << std::endl << *g_tensors[i] << std::endl;
     }
-    for (int i = 0; i < g_tensor_views.size(); ++ i) {
+    for (int i = 0; i < g_tensor_views.size(); ++i) {
         std::cout << "tensor_view " << i << " name : " << g_tensor_views[i]->get_meta_info() << std::endl;
         std::cout << "tensor_view " << i << " value : " << std::endl << *g_tensor_views[i] << std::endl;
     }

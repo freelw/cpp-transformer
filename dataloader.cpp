@@ -2,7 +2,7 @@
 
 namespace seq2seq {
 
-    Vocab::Vocab(const std::string &vocab_file) {
+    Vocab::Vocab(const std::string& vocab_file) {
         id2token.push_back("<pad>");
         token2id["<pad>"] = 0;
         id2token.push_back("<eos>");
@@ -24,7 +24,7 @@ namespace seq2seq {
 
     Vocab::~Vocab() {}
 
-    uint Vocab::get_token_id(const std::string &token) {
+    uint Vocab::get_token_id(const std::string& token) {
         auto it = token2id.find(token);
         if (it == token2id.end()) {
             return token2id["<unk>"];
@@ -44,10 +44,10 @@ namespace seq2seq {
     }
 
     DataLoader::DataLoader(
-        const std::string &_corpus_path,
-        const std::string &_src_vocab_path,
-        const std::string &_tgt_vocab_path,
-        const std::string &_test_file
+        const std::string& _corpus_path,
+        const std::string& _src_vocab_path,
+        const std::string& _tgt_vocab_path,
+        const std::string& _test_file
     ) : corpus_path(_corpus_path),
         src_vocab_path(_src_vocab_path),
         tgt_vocab_path(_tgt_vocab_path),
@@ -60,12 +60,12 @@ namespace seq2seq {
             test_sentences.push_back(line);
         }
     }
-    
+
     DataLoader::~DataLoader() {}
     void DataLoader::get_token_ids(
-                std::vector<std::vector<uint>> &src_token_ids,
-                std::vector<std::vector<uint>> &tgt_token_ids
-            ) {
+        std::vector<std::vector<uint>>& src_token_ids,
+        std::vector<std::vector<uint>>& tgt_token_ids
+    ) {
         std::ifstream ifs(corpus_path);
         std::string line;
         std::vector<uint> src_token_id;
@@ -125,7 +125,7 @@ namespace seq2seq {
         return tgt_vocab.size();
     }
 
-    std::vector<uint> DataLoader::to_src_token_ids(const std::string &sentence) {
+    std::vector<uint> DataLoader::to_src_token_ids(const std::string& sentence) {
         std::vector<uint> token_ids;
         std::istringstream iss(sentence);
         std::string token;

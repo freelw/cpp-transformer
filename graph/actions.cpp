@@ -21,35 +21,35 @@ int Action::get_exec_times() const {
     return exec_times;
 }
 
-std::ostream &operator<<(std::ostream &output, const Action &a) {
+std::ostream& operator<<(std::ostream& output, const Action& a) {
     output << a.to_string();
     return output;
 }
 
-AddAction::AddAction(Tensor *_lhs, const Tensor *_rhs, Tensor *_res)
+AddAction::AddAction(Tensor* _lhs, const Tensor* _rhs, Tensor* _res)
     : Action(_lhs, _rhs, _res) {
-    
+
     assert(_lhs->get_dim() == _rhs->get_dim());
     assert(_lhs->get_shape() == _rhs->get_shape());
     auto dim = _lhs->get_dim();
 
     lhs_shape = callocTensor(
-        {dim},
+        { dim },
         _lhs->get_name() + "_shape",
         INT32
     );
     lhs_strides = callocTensor(
-        {dim},
+        { dim },
         _lhs->get_name() + "_strides",
         INT32
     );
     rhs_strides = callocTensor(
-        {dim},
+        { dim },
         _rhs->get_name() + "_strides",
         INT32
     );
     res_strides = callocTensor(
-        {dim},
+        { dim },
         _res->get_name() + "_strides",
         INT32
     );
@@ -99,23 +99,23 @@ std::string AddAction::to_string() const {
     return oss.str();
 }
 
-AddEqAction::AddEqAction(Tensor *_lhs, const Tensor *_rhs)
+AddEqAction::AddEqAction(Tensor* _lhs, const Tensor* _rhs)
     : Action(_lhs, _rhs, nullptr) {
     assert(_lhs->get_dim() == _rhs->get_dim());
     assert(_lhs->get_shape() == _rhs->get_shape());
     auto dim = _lhs->get_dim();
     lhs_shape = callocTensor(
-        {dim},
+        { dim },
         _lhs->get_name() + "_shape",
         INT32
     );
     lhs_strides = callocTensor(
-        {dim},
+        { dim },
         _lhs->get_name() + "_strides",
         INT32
     );
     rhs_strides = callocTensor(
-        {dim},
+        { dim },
         _rhs->get_name() + "_strides",
         INT32
     );
@@ -141,7 +141,7 @@ void AddEqAction::execute() {
     assert(lhs != nullptr);
     assert(rhs != nullptr);
     assert(lhs->get_shape() == rhs->get_shape());
-    g_backend_ops->addEq(lhs, rhs, lhs_shape, lhs_strides, rhs_strides);    
+    g_backend_ops->addEq(lhs, rhs, lhs_shape, lhs_strides, rhs_strides);
 }
 
 std::string AddEqAction::to_string() const {
@@ -189,29 +189,29 @@ std::string AtAction::to_string() const {
     return oss.str();
 }
 
-MulAction::MulAction(Tensor *_lhs, const Tensor *_rhs, Tensor *_res)
+MulAction::MulAction(Tensor* _lhs, const Tensor* _rhs, Tensor* _res)
     : Action(_lhs, _rhs, _res) {
     assert(_lhs->get_dim() == _rhs->get_dim());
     assert(_lhs->get_shape() == _rhs->get_shape());
     auto dim = _lhs->get_dim();
 
     lhs_shape = callocTensor(
-        {dim},
+        { dim },
         _lhs->get_name() + "_shape",
         INT32
     );
     lhs_strides = callocTensor(
-        {dim},
+        { dim },
         _lhs->get_name() + "_strides",
         INT32
     );
     rhs_strides = callocTensor(
-        {dim},
+        { dim },
         _rhs->get_name() + "_strides",
         INT32
     );
     res_strides = callocTensor(
-        {dim},
+        { dim },
         _res->get_name() + "_strides",
         INT32
     );
@@ -312,7 +312,7 @@ void CrossEntropyAction::execute() {
 
 std::string CrossEntropyAction::to_string() const {
     std::ostringstream oss;
-    oss << "CrossEntropyAction: " << 
+    oss << "CrossEntropyAction: " <<
         lhs->get_meta_info() << " with labels " <<
         rhs->get_meta_info() << " -> " <<
         res->get_meta_info() << " context : " <<
@@ -335,10 +335,10 @@ void CrossEntropyBackwardAction::execute() {
 
 std::string CrossEntropyBackwardAction::to_string() const {
     std::ostringstream oss;
-    oss << "CrossEntropyBackwardAction: " << 
-        lhs->get_meta_info() <<" with labels " <<
+    oss << "CrossEntropyBackwardAction: " <<
+        lhs->get_meta_info() << " with labels " <<
         rhs->get_meta_info() << " -> " <<
-        res->get_meta_info() <<" context : " <<
+        res->get_meta_info() << " context : " <<
         maxs->get_meta_info() << ", " <<
         sums->get_meta_info();
     return oss.str();
@@ -370,10 +370,10 @@ std::string ClipGradAction::to_string() const {
 void AdamStepAction::execute() {
     param->inc_t();
     int t = param->get_t();
-    Tensor *w = param->get_w();
-    Tensor *grad = param->get_grad();
-    Tensor *m = param->get_m();
-    Tensor *v = param->get_v();
+    Tensor* w = param->get_w();
+    Tensor* grad = param->get_grad();
+    Tensor* m = param->get_m();
+    Tensor* v = param->get_v();
 
     g_backend_ops->adamStep(w, grad, m, v, t, lr, beta1, beta2, epsilon);
 }
@@ -401,8 +401,8 @@ std::string ZeroCTensorsAction::to_string() const {
 }
 
 void PrintNoZeroTensorNamesAction::execute() {
-    for (const auto &tensor : g_c_tensors) {
-        char *data = static_cast<char*>(::malloc(tensor->size()));
+    for (const auto& tensor : g_c_tensors) {
+        char* data = static_cast<char*>(::malloc(tensor->size()));
         g_backend_ops->cp_from_device(
             data,
             tensor,
@@ -451,7 +451,7 @@ void FillWeightAction::execute() {
 
 std::string FillWeightAction::to_string() const {
     std::ostringstream oss;
-    oss << "FillWeightAction: initializing " << lhs->get_meta_info() 
+    oss << "FillWeightAction: initializing " << lhs->get_meta_info()
         << " with type " << init_type
         << " sigma " << sigma
         << " mean " << mean;
@@ -460,7 +460,7 @@ std::string FillWeightAction::to_string() const {
 
 std::string InitWeightAction::to_string() const {
     std::ostringstream oss;
-    oss << "InitWeightAction: initializing " << lhs->get_meta_info() 
+    oss << "InitWeightAction: initializing " << lhs->get_meta_info()
         << " with type " << init_type
         << " sigma " << sigma
         << " mean " << mean;
@@ -480,12 +480,12 @@ bool BoundaryAction::is_backward_boundary() const {
 }
 
 AssignShapeAndStridesAction::AssignShapeAndStridesAction(
-    Tensor *tensor_shape,
-    Tensor *tensor_strides,
-    const std::vector<int> &shape,
-    const std::vector<int> &strides
+    Tensor* tensor_shape,
+    Tensor* tensor_strides,
+    const std::vector<int>& shape,
+    const std::vector<int>& strides
 ) : Action(tensor_shape, nullptr, tensor_strides) {
-    if (tensor_shape != nullptr) {    
+    if (tensor_shape != nullptr) {
         shape_data = static_cast<int32_t*>(::malloc(sizeof(int32_t) * shape.size()));
         for (size_t i = 0; i < shape.size(); ++i) {
             shape_data[i] = static_cast<int32_t>(shape[i]);
@@ -634,16 +634,16 @@ std::string LazyDivAction::to_string() const {
     return oss.str();
 }
 
-DropoutMaskAction::DropoutMaskAction(Tensor *mask, float _p)
+DropoutMaskAction::DropoutMaskAction(Tensor* mask, float _p)
     : Action(nullptr, nullptr, mask), p(_p) {
     assert(mask != nullptr);
     shape = callocTensor(
-        {mask->get_dim()},
+        { mask->get_dim() },
         mask->get_name() + "_shape",
         INT32
     );
     strides = callocTensor(
-        {mask->get_dim()},
+        { mask->get_dim() },
         mask->get_name() + "_strides",
         INT32
     );
@@ -737,9 +737,9 @@ void NormBackwardAction::execute() {
     assert(rhs != nullptr); // norm res
     assert(res != nullptr); // tgt grad
     assert(var_tensor != nullptr);
-    const Tensor *src_grad = lhs;
-    const Tensor *norm_res = rhs;
-    Tensor *tgt_grad = res;
+    const Tensor* src_grad = lhs;
+    const Tensor* norm_res = rhs;
+    Tensor* tgt_grad = res;
     g_backend_ops->normBackward(src_grad, norm_res, var_tensor, tgt_grad);
 }
 
@@ -818,9 +818,9 @@ std::string ClearAction::to_string() const {
 
 std::vector<Action*> g_actions;
 
-std::vector<Action *> getOnceActions() {
-    std::vector<Action *> once_actions;
-    for (Action *action : g_actions) {
+std::vector<Action*> getOnceActions() {
+    std::vector<Action*> once_actions;
+    for (Action* action : g_actions) {
         if (action->is_do_once() && !action->executed_once()) {
             once_actions.push_back(action);
         }
@@ -828,13 +828,13 @@ std::vector<Action *> getOnceActions() {
     return once_actions;
 }
 
-void gCreateAction(Action *action) {
+void gCreateAction(Action* action) {
     g_actions.push_back(action);
 }
 
 bool validateBoundaryFound() {
     bool boundary_found = false;
-    for (Action *action : g_actions) {
+    for (Action* action : g_actions) {
         if (action->is_backward_boundary()) {
             boundary_found = true;
         }
@@ -867,7 +867,7 @@ void gDoActions() {
     assert(validteZeroCTensorsFound());
     assert(validateZeroGradFound());
     g_training = true;
-    for (Action *action : g_actions) {
+    for (Action* action : g_actions) {
         if (action->is_do_once() && action->executed_once()) {
             continue;
         }
@@ -877,7 +877,7 @@ void gDoActions() {
 }
 
 void gDoOnceActions() {
-    for (Action *action : g_actions) {
+    for (Action* action : g_actions) {
         if (!action->is_do_once() || action->executed_once()) {
             continue;
         }
@@ -888,7 +888,7 @@ void gDoOnceActions() {
 
 void gDoForwardActions(bool training) {
     g_training = training;
-    for (Action *action : g_actions) {
+    for (Action* action : g_actions) {
         if (action->is_do_once() && action->executed_once()) {
             continue;
         }
@@ -903,7 +903,7 @@ void gDoForwardActions(bool training) {
 void gDoBackwardActions() {
     g_training = true;
     bool start = false;
-    for (Action *action : g_actions) {
+    for (Action* action : g_actions) {
         if (action->is_do_once() && action->executed_once()) {
             continue;
         }
@@ -920,7 +920,7 @@ void gDoBackwardActions() {
 
 void printAllActions() {
     std::cout << "Actions:" << std::endl;
-    for (Action *action : g_actions) {
+    for (Action* action : g_actions) {
         if (action->is_do_once()) {
             std::cout << "[once]";
         }
@@ -929,14 +929,14 @@ void printAllActions() {
 }
 
 void freeAllActions() {
-    for (Action *action : g_actions) {
+    for (Action* action : g_actions) {
         delete action;
     }
     g_actions.clear();
 }
 
 void disableInitWeightAction() {
-    for (Action *action : g_actions) {
+    for (Action* action : g_actions) {
         if (action->is_init_weight()) {
             action->increase_exec_times();
         }
@@ -944,7 +944,7 @@ void disableInitWeightAction() {
 }
 
 void disableOnceAction() {
-    for (Action *action : g_actions) {
+    for (Action* action : g_actions) {
         if (action->is_do_once()) {
             action->increase_exec_times();
         }

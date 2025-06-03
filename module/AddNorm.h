@@ -7,14 +7,14 @@
 #include "module/layernorm.h"
 
 class AddNorm {
-    public:
-        AddNorm(int len, float p);
-        ~AddNorm();
-        graph::Node *forward(graph::Node *x, graph::Node *y);
-        std::vector<Parameter *> get_parameters();
-    private:
-        LayerNorm *layer_norm;
-        Dropout *dropout;
+public:
+    AddNorm(int len, float p);
+    ~AddNorm();
+    graph::Node* forward(graph::Node* x, graph::Node* y);
+    std::vector<Parameter*> get_parameters();
+private:
+    LayerNorm* layer_norm;
+    Dropout* dropout;
 };
 
 #endif

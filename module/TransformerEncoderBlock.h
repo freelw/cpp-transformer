@@ -6,19 +6,19 @@
 #include "module/AddNorm.h"
 
 class TransformerEncoderBlock {
-    public:
-        TransformerEncoderBlock(
-            int num_hiddens, int ffn_num_hiddens, int num_heads,
-            float dropout, bool bias = false
-        );
-        ~TransformerEncoderBlock();
-        graph::Node *forward(graph::Node *x, Tensor *valid_lens = nullptr);
-        std::vector<Parameter *> get_parameters();
-    private:
-        MHA *attention;
-        AddNorm *addnorm1;
-        PositionWiseFFN *ffn;
-        AddNorm *addnorm2;
+public:
+    TransformerEncoderBlock(
+        int num_hiddens, int ffn_num_hiddens, int num_heads,
+        float dropout, bool bias = false
+    );
+    ~TransformerEncoderBlock();
+    graph::Node* forward(graph::Node* x, Tensor* valid_lens = nullptr);
+    std::vector<Parameter*> get_parameters();
+private:
+    MHA* attention;
+    AddNorm* addnorm1;
+    PositionWiseFFN* ffn;
+    AddNorm* addnorm2;
 };
 
 #endif

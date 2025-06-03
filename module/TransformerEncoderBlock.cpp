@@ -17,8 +17,8 @@ TransformerEncoderBlock::~TransformerEncoderBlock() {
     delete addnorm2;
 }
 
-graph::Node *TransformerEncoderBlock::forward(
-    graph::Node *x, Tensor *valid_lens) {
+graph::Node* TransformerEncoderBlock::forward(
+    graph::Node* x, Tensor* valid_lens) {
     auto y = attention->forward(x, x, x, valid_lens);
     y = addnorm1->forward(x, y);
     auto z = ffn->forward(y);
@@ -26,8 +26,8 @@ graph::Node *TransformerEncoderBlock::forward(
     return res;
 }
 
-std::vector<Parameter *> TransformerEncoderBlock::get_parameters() {
-    std::vector<Parameter *> params;
+std::vector<Parameter*> TransformerEncoderBlock::get_parameters() {
+    std::vector<Parameter*> params;
     auto attention_params = attention->get_parameters();
     auto addnorm1_params = addnorm1->get_parameters();
     auto ffn_params = ffn->get_parameters();

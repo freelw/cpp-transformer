@@ -3,7 +3,7 @@
 
 MLP::MLP(
     int32_t _input,
-    const std::vector<int32_t> &_outputs,
+    const std::vector<int32_t>& _outputs,
     float dropout_p,
     bool const_weight
 ) {
@@ -32,7 +32,7 @@ std::vector<Parameter*> MLP::get_parameters() {
     return params;
 }
 
-graph::Node *MLP::forward(graph::Node *input) {
+graph::Node* MLP::forward(graph::Node* input) {
     auto x = l1->forward(input);
     x = x->relu();
     x = l2->forward(x);

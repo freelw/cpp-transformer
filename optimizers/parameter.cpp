@@ -3,28 +3,28 @@
 
 #include <cstring>
 
-Parameter::Parameter(graph::Node *_node)
+Parameter::Parameter(graph::Node* _node)
     : node(_node), t(0) {
-    Tensor *t = _node->get_tensor();
-    m = allocTensor(t->get_shape(), t->get_name()+"_m"); // do not calloc
-    v = allocTensor(t->get_shape(), t->get_name()+"_v"); // do not calloc
+    Tensor* t = _node->get_tensor();
+    m = allocTensor(t->get_shape(), t->get_name() + "_m"); // do not calloc
+    v = allocTensor(t->get_shape(), t->get_name() + "_v"); // do not calloc
 }
 
-Tensor *Parameter::get_w() {
+Tensor* Parameter::get_w() {
     return node->get_tensor();
 }
 
-Tensor *Parameter::get_grad() {
+Tensor* Parameter::get_grad() {
     assert(node->is_require_grad());
     assert(node->get_grad() != nullptr);
     return node->get_grad();
 }
 
-Tensor *Parameter::get_m() {
+Tensor* Parameter::get_m() {
     return m;
 }
 
-Tensor *Parameter::get_v() {
+Tensor* Parameter::get_v() {
     return v;
 }
 
@@ -48,8 +48,8 @@ std::string Parameter::serialize() {
     tot_size += grad_size;
     tot_size += m_size;
     tot_size += v_size;
-    
-    char *buffer = static_cast<char *>(::malloc(tot_size)); 
+
+    char* buffer = static_cast<char*>(::malloc(tot_size));
     int offset = 0;
 
     ::memcpy(buffer + offset, &weight_size, sizeof(weight_size));
@@ -88,12 +88,12 @@ std::string Parameter::serialize() {
     );
     offset += v_size;
     assert(offset == tot_size);
-    std::string res((char *)buffer, tot_size);
+    std::string res((char*)buffer, tot_size);
     ::free(buffer);
     return res;
 }
 
-void Parameter::deserialize(char *buffer) {
+void Parameter::deserialize(char* buffer) {
     int weight_size, grad_size, m_size, v_size;
     int offset = 0;
 
@@ -141,14 +141,14 @@ void Parameter::deserialize(char *buffer) {
 }
 
 int Parameter::get_serialized_size() {
-    return sizeof(int) * 4 + sizeof(t) + 
-           get_w()->size() + get_grad()->size() + m->size() + v->size();
+    return sizeof(int) * 4 + sizeof(t) +
+        get_w()->size() + get_grad()->size() + m->size() + v->size();
 }
 
-std::vector<Parameter *> g_parameters;
+std::vector<Parameter*> g_parameters;
 
-Parameter *allocParameter(graph::Node *_node) {
-    Parameter *param = new Parameter(_node);
+Parameter* allocParameter(graph::Node* _node) {
+    Parameter* param = new Parameter(_node);
     g_parameters.push_back(param);
     return param;
 }
