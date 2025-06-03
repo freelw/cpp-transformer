@@ -24,9 +24,8 @@ V2 - [2025-05-29]
     *  Pre - computed Tensor Dependency Logic and Batch Memory Allocation
     * Compact Memory Layout
     * Efficient zero_grad Implementation
-4. num_steps has been increased from 9 to 32
-5. Closer Implementation to Tensor Semantics in DL2 Chapter 11
-6. Enhanced Test Cases
+4. Closer Implementation to Tensor Semantics in DL2 Chapter 11
+5. Enhanced Test Cases
 
 ## Quick start
 
@@ -45,67 +44,88 @@ The program compiled in this way supports both CPU and GPU. You can use the -g p
 If you don't have a CUDA environment, you can also try the CPU version. Note that this version is extremely slow and is only intended for comparing and verifying the correctness of the GPU version.
 
 ### training
-#### use a small corpus file
+Align the training data volume (512 pairs) of Chapter 11 Transformer in d2l.
 ```
-$ time ./transformer -e 100 -f ./resources/fra_tiny.txt 
-corpus : ./resources/fra_tiny.txt
-epochs : 100
+$ time ./transformer -e 30
+corpus : ./resources/fra_preprocessed_512.txt
+epochs : 30
 batch_size : 128
 gpu : 1
 learning rate : 0.001
-checkpoint : 
-enc_vocab_size : 7939
-dec_vocab_size : 13387
+checkpoint :
+enc_vocab_size : 195
+dec_vocab_size : 214
 bos_id : 3
 eos_id : 1
 src_pad_id : 0
 tgt_pad_id : 0
 predicting : false
 batch_size : 128
-epoch 0 :  [384/384]loss : 9.21267
-epoch 1 :  [384/384]loss : 8.16567
-epoch 2 :  [384/384]loss : 7.29368
-epoch 3 :  [384/384]loss : 6.52666
-...
-epoch 97 :  [384/384]loss : 0.211998
-epoch 98 :  [384/384]loss : 0.214285
-epoch 99 :  [384/384]loss : 0.2198
-checkpoint saved : ./checkpoints/checkpoint_20250529_181410_99.bin
+epoch 0 :  [512/512]loss : 4.62015
+epoch 1 :  [512/512]loss : 3.39543
+epoch 2 :  [512/512]loss : 2.96776
+epoch 3 :  [512/512]loss : 2.45226
+epoch 4 :  [512/512]loss : 2.20506
+epoch 5 :  [512/512]loss : 1.94157
+epoch 6 :  [512/512]loss : 1.76016
+epoch 7 :  [512/512]loss : 1.58783
+epoch 8 :  [512/512]loss : 1.46
+epoch 9 :  [512/512]loss : 1.35267
+epoch 10 :  [512/512]loss : 1.23456
+epoch 11 :  [512/512]loss : 1.11818
+epoch 12 :  [512/512]loss : 1.02721
+epoch 13 :  [512/512]loss : 0.930991
+epoch 14 :  [512/512]loss : 0.868043
+epoch 15 :  [512/512]loss : 0.797028
+epoch 16 :  [512/512]loss : 0.730525
+epoch 17 :  [512/512]loss : 0.685426
+epoch 18 :  [512/512]loss : 0.670126
+epoch 19 :  [512/512]loss : 0.635286
+epoch 20 :  [512/512]loss : 0.580065
+epoch 21 :  [512/512]loss : 0.558903
+epoch 22 :  [512/512]loss : 0.528207
+epoch 23 :  [512/512]loss : 0.49648
+epoch 24 :  [512/512]loss : 0.482626
+epoch 25 :  [512/512]loss : 0.456417
+epoch 26 :  [512/512]loss : 0.452462
+epoch 27 :  [512/512]loss : 0.432102
+epoch 28 :  [512/512]loss : 0.408004
+epoch 29 :  [512/512]loss : 0.395327
+checkpoint saved : ./checkpoints/checkpoint_20250603_111836_29.bin
 
-real    2m59.602s
-user    2m58.975s
-sys     0m0.605s
+real    0m44.835s
+user    0m44.531s
+sys     0m0.272s
+
 ```
-As shown above, training for 100 epochs on a small dataset takes approximately 3 minutes.
-If you want to use the full corpus, remove the -f parameter.
 
 ### inference
 Perform translation inference using the checkpoint file generated earlier.
 The data will be read from the test.txt file.
 ```
-$ ./transformer -e 0 -c ./checkpoints/checkpoint_20250529_181410_99.bin
-corpus : ./resources/fra_preprocessed.txt
+$ ./transformer -e 0 -c ./checkpoints/checkpoint_20250603_111836_29.bin
+corpus : ./resources/fra_preprocessed_512.txt
 epochs : 0
 batch_size : 128
 gpu : 1
 learning rate : 0.001
-checkpoint : ./checkpoints/checkpoint_20250529_181410_99.bin
-enc_vocab_size : 7939
-dec_vocab_size : 13387
+checkpoint : ./checkpoints/checkpoint_20250603_111836_29.bin
+enc_vocab_size : 195
+dec_vocab_size : 214
 bos_id : 3
 eos_id : 1
 src_pad_id : 0
 tgt_pad_id : 0
 predicting : true
 batch_size : 1
-loading from checkpoint : ./checkpoints/checkpoint_20250529_181410_99.bin
+loading from checkpoint : ./checkpoints/checkpoint_20250603_111836_29.bin
 loaded from checkpoint
 serving mode
 test file : ./test.txt
-go now . -> vas-y maintenant . 
-i know that it is highly unlikely that you'd ever want to go out -> je sais qu'il est hautement improbable que tu veuilles jamais sortir avec moi , mais j'ai tout de même besoin de demander au moins une fois . 
-good job -> bon boulot . 
-how nice ! -> comme c'est chouette ! 
+go . -> va .
+i lost . -> j'ai perdu .
+he's calm . -> il est mouillé .
+i'm home . -> je suis chez moi .
 ```
 
 ## legacy version

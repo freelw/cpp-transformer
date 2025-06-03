@@ -6,7 +6,7 @@
 #include "backends/gpu/cuda_ops.h"
 #include "graph/node.h"
 
-extern BackendOps *g_backend_ops;
+extern BackendOps* g_backend_ops;
 extern bool g_training;
 void zero_grad();
 void zero_c_tensors();
@@ -20,9 +20,9 @@ void use_gpu(bool use = true);
 bool is_use_gpu();
 void print_all_tensors();
 
-#define NUM_STEPS 32
-#define MAX_POSENCODING_LEN 10000
-#define RESOURCE_NAME "./resources/fra_preprocessed.txt"
+#define NUM_STEPS 9 // 对齐 dl2 dataloader
+#define MAX_POSENCODING_LEN 1000 // 对齐 dl2
+#define RESOURCE_NAME "./resources/fra_preprocessed_512.txt"
 #define SRC_VOCAB_NAME "./vocab/fra_vocab_builder/vocab_en.txt"
 #define TGT_VOCAB_NAME "./vocab/fra_vocab_builder/vocab_fr.txt"
 #define TEST_FILE "./test.txt"

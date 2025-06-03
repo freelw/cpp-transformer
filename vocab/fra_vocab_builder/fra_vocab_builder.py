@@ -1,5 +1,5 @@
 def get_fra_preprocessed():
-    with open("../../resources/fra_preprocessed.txt") as f:
+    with open("../../resources/fra_preprocessed_640.txt") as f:
         return f.read()
 
 if '__main__' == __name__:
@@ -46,14 +46,19 @@ if '__main__' == __name__:
     # print(vocab_en)
 
     filterd_vocab_en = {k: v for k, v in vocab_en.items() if v >= 2}
-    print(len(vocab_en))
-    print(len(filterd_vocab_en))
+    print("len(vocab_en):", len(vocab_en))
+    print("len(filterd_vocab_en):", len(filterd_vocab_en))
 
     # Print the French vocabulary
     #print(vocab_fr)
     filterd_vocab_fr = {k: v for k, v in vocab_fr.items() if v >= 2}
-    print(len(vocab_fr))
-    print(len(filterd_vocab_fr))
+    print("len(vocab_fr):", len(vocab_fr))
+    print("len(filterd_vocab_fr):", len(filterd_vocab_fr))
+
+    #sort filterd_vocab_en
+    filterd_vocab_en = sorted(filterd_vocab_en.keys())
+    #sort filterd_vocab_fr
+    filterd_vocab_fr = sorted(filterd_vocab_fr.keys())
 
     with open("./vocab_en.txt", "w") as f:
         for token in filterd_vocab_en:
