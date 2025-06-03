@@ -45,13 +45,13 @@ if '__main__' == __name__:
     # Print the English vocabulary
     # print(vocab_en)
 
-    filterd_vocab_en = {k: v for k, v in vocab_en.items() if v > 2}
+    filterd_vocab_en = {k: v for k, v in vocab_en.items() if v >= 2}
     print(len(vocab_en))
     print(len(filterd_vocab_en))
 
     # Print the French vocabulary
     #print(vocab_fr)
-    filterd_vocab_fr = {k: v for k, v in vocab_fr.items() if v > 2}
+    filterd_vocab_fr = {k: v for k, v in vocab_fr.items() if v >= 2}
     print(len(vocab_fr))
     print(len(filterd_vocab_fr))
 
