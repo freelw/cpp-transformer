@@ -2,7 +2,7 @@
 #define TRANSFORMERDECODER_H
 
 #include "module/embedding.h"
-#include "module/posencoding.h"
+#include "module/pos_encoding.h"
 #include "module/linear.h"
 #include "module/transformer_decoder_block.h"
 

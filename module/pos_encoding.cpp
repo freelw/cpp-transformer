@@ -1,4 +1,4 @@
-#include "posencoding.h"
+#include "pos_encoding.h"
 #include "graph/actions.h"
 
 PosEncoding::PosEncoding(int _max_len, int _num_hidden, float p)

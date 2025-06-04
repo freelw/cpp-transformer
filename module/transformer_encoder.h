@@ -3,7 +3,7 @@
 
 #include "module/transformer_encoder_block.h"
 #include "module/embedding.h"
-#include "module/posencoding.h"
+#include "module/pos_encoding.h"
 
 class TransformerEncoder {
 public:

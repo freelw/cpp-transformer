@@ -8,7 +8,7 @@
 #include "module/attention.h"
 #include "module/mha.h"
 #include "module/embedding.h"
-#include "module/posencoding.h"
+#include "module/pos_encoding.h"
 #include "module/layernorm.h"
 #include "module/seq2seq.h"
 #include "common.h"
