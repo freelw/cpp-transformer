@@ -8,9 +8,9 @@
 #include "module/attention.h"
 #include "module/mha.h"
 #include "module/embedding.h"
-#include "module/posencoding.h"
+#include "module/pos_encoding.h"
 #include "module/layernorm.h"
-#include "module/Seq2Seq.h"
+#include "module/seq2seq.h"
 #include "common.h"
 #include <iomanip>
 #include <cmath>

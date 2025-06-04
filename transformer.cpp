@@ -1,7 +1,7 @@
 #include "common.h"
 #include "checkpoint.h"
 #include "dataloader.h"
-#include "module/Seq2Seq.h"
+#include "module/seq2seq.h"
 #include "optimizers/adam.h"
 #include <unistd.h>
 #include <signal.h>

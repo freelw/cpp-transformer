@@ -1,4 +1,4 @@
-#include "PositionWiseFFN.h"
+#include "position_wise_ffn.h"
 
 PositionWiseFFN::PositionWiseFFN(int ffn_num_hiddens, int ffn_num_outputs) {
     dense1 = new LazyLinear(ffn_num_hiddens, "ffn_dense1", -0.1f, -0.1f, RELU);

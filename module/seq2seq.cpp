@@ -1,4 +1,4 @@
-#include "Seq2Seq.h"
+#include "seq2seq.h"
 
 Seq2SeqEncoderDecoder::Seq2SeqEncoderDecoder(
     uint _bos_id,
