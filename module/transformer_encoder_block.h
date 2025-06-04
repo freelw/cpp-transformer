@@ -3,7 +3,7 @@
 
 #include "module/mha.h"
 #include "module/position_wise_ffn.h"
-#include "module/add_norm.h"
+#include "module/addnorm.h"
 
 class TransformerEncoderBlock {
 public:
