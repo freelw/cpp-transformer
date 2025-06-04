@@ -63,7 +63,7 @@ $(TEST_TARGET) : $(OBJECTS_TEST)
 	${NVCC} -c $(NVCC_CFLAGS) $< -o $@
 
 clean:
-	@rm -f ${OBJECTS}
+	@rm -f ${OBJECTS} ${TEST_TARGET} ${TRANSFORMER_TARGET}
 
 .PHONY: clean run_test all
 
