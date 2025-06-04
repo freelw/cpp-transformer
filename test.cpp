@@ -79,7 +79,7 @@ void init_w_wt_for_bmm(Tensor* w, Tensor* wt) {
         wt->size()
     );
     ::free(wt_tmp_buffer);
-    ::free(w_tmp_buffer);xx
+    ::free(w_tmp_buffer);
 }
 
 bool compare_res_wi_wt_ans(
