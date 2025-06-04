@@ -1,4 +1,4 @@
-#include "TransformerDecoderBlock.h"
+#include "transformer_decoder_block.h"
 
 TransformerDecoderBlock::TransformerDecoderBlock(
     int num_hiddens, int ffn_num_hiddens, int num_heads,

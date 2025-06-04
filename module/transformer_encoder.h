@@ -1,7 +1,7 @@
 #ifndef TRANSFORMERENCODER_H
 #define TRANSFORMERENCODER_H
 
-#include "module/TransformerEncoderBlock.h"
+#include "module/transformer_encoder_block.h"
 #include "module/embedding.h"
 #include "module/posencoding.h"
 

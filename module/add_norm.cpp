@@ -1,4 +1,4 @@
-#include "AddNorm.h"
+#include "add_norm.h"
 
 AddNorm::AddNorm(int len, float p) {
     layer_norm = new LayerNorm(len);

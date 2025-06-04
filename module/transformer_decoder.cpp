@@ -1,4 +1,4 @@
-#include "TransformerDecoder.h"
+#include "transformer_decoder.h"
 #include <cmath>
 
 TransformerDecoder::TransformerDecoder(

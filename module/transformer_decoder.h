@@ -4,7 +4,7 @@
 #include "module/embedding.h"
 #include "module/posencoding.h"
 #include "module/linear.h"
-#include "module/TransformerDecoderBlock.h"
+#include "module/transformer_decoder_block.h"
 
 class TransformerDecoder {
 public:

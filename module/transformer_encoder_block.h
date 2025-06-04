@@ -2,8 +2,8 @@
 #define TRANSFORMERENCODERBLOCK_H
 
 #include "module/mha.h"
-#include "module/PositionWiseFFN.h"
-#include "module/AddNorm.h"
+#include "module/position_wise_ffn.h"
+#include "module/add_norm.h"
 
 class TransformerEncoderBlock {
 public:
