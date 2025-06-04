@@ -8,7 +8,7 @@ TEST_TARGET = test
 TRANSFORMER_TARGET = transformer
 CUDA_TOOLKIT := $(shell dirname $$(command -v nvcc))/..
 CUDA_LIBS := -L$(CUDA_TOOLKIT)/lib64 -lcudart -lcurand
-LDFLAGS = -lstdc++ $(CUDA_LIBS)
+LDFLAGS = -lstdc++
 ASAN_FLAGS = -fsanitize=address
 SRCDIR := ./tensor \
           ./graph \
@@ -26,6 +26,7 @@ ifeq ($(CPU),1)
 else
 	SRCS += $(wildcard *.cu) $(wildcard $(addsuffix /*.cu, $(SRCDIR)))
 	OBJECTS := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(patsubst %.cu,%.o,$(SRCS))))
+	LDFLAGS += $(CUDA_LIBS)
 endif
 
 OBJECTS_TEST := $(filter-out transformer.o,$(OBJECTS))
