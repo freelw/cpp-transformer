@@ -238,7 +238,7 @@ int main(int argc, char* argv[]) {
         std::cout << "test file : " << test_file << std::endl;
         std::vector<std::string> src_sentences = loader.get_test_sentences();
         for (auto& sentence : src_sentences) {
-            // std::cout << "sentence : " << sentence << std::endl;
+            std::cout << "sentence : " << sentence << std::endl;
             std::vector<uint> src_token_ids;
             std::istringstream iss(sentence);
             std::string token;
@@ -247,16 +247,19 @@ int main(int argc, char* argv[]) {
                 src_token_ids.push_back(loader.get_tgt_token_id(token));
             }
             auto origin_size = src_token_ids.size();
-            for (int i = 0; i < origin_size; ++i) {
-                std::cout << loader.get_tgt_token(src_token_ids[i]) << " ";
-            }
-            std::cout << std::endl;
+            // for (int i = 0; i < origin_size; ++i) {
+            //     std::cout << loader.get_tgt_token(src_token_ids[i]) << " ";
+            // }
+            // std::cout << std::endl;
             if (src_token_ids.size() < num_steps) {
                 src_token_ids.resize(num_steps, loader.get_pad_id());
             } else if (src_token_ids.size() > num_steps) {
                 src_token_ids.erase(src_token_ids.begin(), src_token_ids.end() - num_steps);
             }
             auto cur_step = origin_size;
+            float* res_buffer = static_cast<float*>(::malloc(
+                res->get_tensor()->size()
+            ));
             for (int i = 0; i < LM_PREDICT_CNT; ++i) {
                 for (int j = 0; j < num_steps; ++j) {
                     tgt_token_ids_buffer[j] = src_token_ids[j];
@@ -272,22 +275,31 @@ int main(int argc, char* argv[]) {
                     tgt_token_ids->size()
                 );
                 gDoForwardActions();
-                float* res_buffer = static_cast<float*>(::malloc(
-                    res->get_tensor()->size()
-                ));
+
                 g_backend_ops->cp_from_device(
                     reinterpret_cast<char*>(res_buffer),
                     res->get_tensor(),
                     res->get_tensor()->size()
                 );
                 assert(res->get_tensor()->length() == dec_vocab_size * num_steps);
-                int offset = (cur_step-1) * dec_vocab_size;
+                int offset = (cur_step - 1) * dec_vocab_size;
+                int max_index = 0;
+                float max_value = res_buffer[offset];
                 for (int i = 0; i < loader.tgt_vocab_size(); ++i) {
-                    
+                    if (res_buffer[offset + i] > max_value) {
+                        max_value = res_buffer[offset + i];
+                        max_index = i;
+                    }
                 }
-                ::free(res_buffer);
-
+                src_token_ids.push_back(max_index);
+                std::cout << loader.get_tgt_token(max_index) << " ";
+                if (src_token_ids.size() > num_steps) {
+                    src_token_ids.erase(src_token_ids.begin(), src_token_ids.end() - num_steps);
+                }
             }
+            std::cout << std::endl;
+            std::cout << "-----------------" << std::endl;
+            ::free(res_buffer);
             // src_token_ids.erase(src_token_ids.begin(), src_token_ids.end() - num_steps);
             // for (auto& token_id : src_token_ids) {
             //     std::cout << loader.get_tgt_token(token_id) << " ";
