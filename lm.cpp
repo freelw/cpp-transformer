@@ -48,13 +48,14 @@ std::vector<uint> trim_or_padding(const std::vector<uint>& src, uint max_len, ui
 
 void load_tokens_from_file(
     LMDataLoader& loader,
-    std::vector<uint>& tgt_token_ids,
+    std::vector<std::vector<uint>>& v_src_token_ids,
+    std::vector<std::vector<uint>>& v_tgt_token_ids,
     int& dec_vocab_size,
-    int& tgt_pad_id
+    int& pad_id
 ) {
-    loader.get_token_ids(tgt_token_ids);
+    loader.get_token_ids(v_src_token_ids, v_tgt_token_ids);
     dec_vocab_size = loader.tgt_vocab_size();
-    tgt_pad_id = loader.tgt_pad_id();
+    pad_id = loader.get_pad_id();
 }
 
 void init_dec_valid_lens(Tensor* dec_valid_lens) {
@@ -135,17 +136,19 @@ int main(int argc, char* argv[]) {
 
     std::string tgt_vocab_name = TIMEMACHINE_VOCAB_NAME;
     std::string test_file = TEST_FILE;
-    LMDataLoader loader(corpus, tgt_vocab_name, test_file);
+    LMDataLoader loader(corpus, tgt_vocab_name, test_file, num_steps);
 
     int dec_vocab_size = 0;
-    int tgt_pad_id = 0;
+    int pad_id = 0;
 
-    std::vector<uint> v_tgt_token_ids;
+    std::vector<std::vector<uint>> v_tgt_token_ids;
+    std::vector<std::vector<uint>> v_src_token_ids;
     load_tokens_from_file(
         loader,
+        v_src_token_ids,
         v_tgt_token_ids,
         dec_vocab_size,
-        tgt_pad_id
+        pad_id
     );
 
     bool predicting = epochs == 0;
@@ -211,10 +214,36 @@ int main(int argc, char* argv[]) {
         signal(SIGINT, signal_callback_handler);
         int epoch = 0;
         for (; epoch < epochs; ++epoch) {
-
+            if (shutdown) {
+                break;
+            }
+            float loss_sum = 0;
+            int cnt = 0;
+            std::string prefix = "epoch " + std::to_string(epoch) + " : ";
+            for (int i = 0; i + num_steps < v_tgt_token_ids.size(); i += batch_size) {
+                if (shutdown) {
+                    break;
+                }
+                cnt++;
+                auto end = i + batch_size;
+                if (end > v_src_token_ids.size()) {
+                    break;
+                }
+                for (int j = i; j < end; ++j) {
+                    auto tgt_j_trim_or_padding_res = trim_or_padding(
+                        v_src_token_ids[j], num_steps, pad_id
+                    );
+                    auto tgt_j_labels_res = trim_or_padding(
+                        v_tgt_token_ids[j], num_steps, pad_id
+                    );
+                    for (int k = 0; k < num_steps; ++k) {
+                        tgt_token_ids_buffer[(j - i) * num_steps + k] = tgt_j_trim_or_padding_res[k];
+                        labels_buffer[(j - i) * num_steps + k] = tgt_j_labels_res[k];
+                        ce_mask_buffer[(j - i) * num_steps + k] = (tgt_j_labels_res[k] != pad_id) ? 1.0f : 0.0f;
+                    }
+                }
+            }
         }
-
-
     }
     ::free(tgt_token_ids_buffer);
     ::free(labels_buffer);

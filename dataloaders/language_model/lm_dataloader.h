@@ -14,14 +14,16 @@ public:
     LMDataLoader(
         const std::string& _corpus_path,
         const std::string& _tgt_vocab_path,
-        const std::string& _test_file
+        const std::string& _test_file,
+        const int _num_steps
     );
     ~LMDataLoader() = default;
     void get_token_ids(
-        std::vector<uint>& tgt_token_ids
+        std::vector<std::vector<uint>>& v_src_token_ids,
+        std::vector<std::vector<uint>>& v_tgt_token_ids
     );
     std::string get_tgt_token(uint token_id);
-    uint tgt_pad_id();
+    uint get_pad_id();
     uint tgt_vocab_size();
     std::vector<std::string> get_test_sentences();
 private:
@@ -30,5 +32,6 @@ private:
     std::string test_file;
     Vocab tgt_vocab;
     std::vector<std::string> test_sentences;
+    int num_steps;
 };
 #endif
