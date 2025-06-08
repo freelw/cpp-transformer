@@ -246,8 +246,8 @@ int main(int argc, char* argv[]) {
                     for (int len = 0; len < num_steps; ++len) {
                         for (int k = 0; k < num_steps; ++k) {
                             auto base = (j - i) * num_steps * num_steps + len * num_steps;
-                            tgt_token_ids_buffer[base + k] = v_src_token_ids[j][k];
-                            labels_buffer[base + k] = v_tgt_token_ids[j][k];
+                            tgt_token_ids_buffer[base + k] = v_src_token_ids[j - i][k];
+                            labels_buffer[base + k] = v_tgt_token_ids[j - i][k];
                             ce_mask_buffer[base + k] = (k <= len) ? 1.0f : 0.0f;
                         }
                     }

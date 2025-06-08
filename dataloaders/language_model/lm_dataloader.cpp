@@ -30,7 +30,7 @@ void LMDataLoader::get_token_ids(
         token_ids.push_back(tgt_vocab.get_token_id(token));
     }
 
-    int token_ids_size = std::min((int)token_ids.size(), 5);
+    int token_ids_size = std::min((int)token_ids.size(), 256);
 
     for (size_t i = 0; i < token_ids_size; ++i) {
         std::vector<uint> src_step_tokens;
