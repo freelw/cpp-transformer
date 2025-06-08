@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
 
     int opt;
     int epochs = 10;
-    int batch_size = 128;
+    int batch_size = 16;
     int gpu = 1;
     float lr = 0.001f;
     std::string checkpoint;
