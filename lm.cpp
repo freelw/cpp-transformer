@@ -151,18 +151,18 @@ int main(int argc, char* argv[]) {
         pad_id
     );
 
-    for (int i = 0; i < 100; ++i) {
-        for (int j = 0; j < v_src_token_ids[i].size(); ++j) {
-            std::cout << loader.get_tgt_token(v_src_token_ids[i][j]) << " ";
-        }
-        std::cout << " -> ";
-        for (int j = 0; j < v_tgt_token_ids[i].size(); ++j) {
-            std::cout << loader.get_tgt_token(v_tgt_token_ids[i][j]) << " ";
-        }
-        std::cout << std::endl;
-    }
+    // for (int i = 0; i < 100; ++i) {
+    //     for (int j = 0; j < v_src_token_ids[i].size(); ++j) {
+    //         std::cout << loader.get_tgt_token(v_src_token_ids[i][j]) << " ";
+    //     }
+    //     std::cout << " -> ";
+    //     for (int j = 0; j < v_tgt_token_ids[i].size(); ++j) {
+    //         std::cout << loader.get_tgt_token(v_tgt_token_ids[i][j]) << " ";
+    //     }
+    //     std::cout << std::endl;
+    // }
 
-    exit(0);
+    // exit(0);
 
     bool predicting = epochs == 0;
     g_training = !predicting;
@@ -180,10 +180,10 @@ int main(int argc, char* argv[]) {
         num_heads, num_blks, max_posencoding_len, dropout
     );
 
-    Tensor* tgt_token_ids = allocTensor({ batch_size, num_steps }, INT32);
-    Tensor* dec_valid_lens = predicting ? allocTensor({ 1 }, INT32) : allocTensor({ batch_size, num_steps }, INT32);
-    Tensor* labels = allocTensor({ batch_size * num_steps }, INT32);
-    Tensor* ce_mask = allocTensor({ batch_size * num_steps });
+    Tensor* tgt_token_ids = allocTensor({ batch_size, num_steps * num_steps }, INT32);
+    Tensor* dec_valid_lens = predicting ? allocTensor({ 1 }, INT32) : allocTensor({ batch_size, num_steps * num_steps }, INT32);
+    Tensor* labels = allocTensor({ batch_size * num_steps * num_steps }, INT32);
+    Tensor* ce_mask = allocTensor({ batch_size * num_steps * num_steps });
 
     int32_t* tgt_token_ids_buffer = static_cast<int32_t*>(::malloc(
         tgt_token_ids->size()
@@ -250,9 +250,9 @@ int main(int argc, char* argv[]) {
                         v_tgt_token_ids[j], num_steps, pad_id
                     );
                     for (int k = 0; k < num_steps; ++k) {
-                        tgt_token_ids_buffer[(j - i) * num_steps + k] = tgt_j_trim_or_padding_res[k];
-                        labels_buffer[(j - i) * num_steps + k] = tgt_j_labels_res[k];
-                        ce_mask_buffer[(j - i) * num_steps + k] = (tgt_j_labels_res[k] != pad_id) ? 1.0f : 0.0f;
+                        tgt_token_ids_buffer[(j - i) * num_steps * num_steps + k] = v_src_token_ids[j][k];
+                        labels_buffer[(j - i) * num_steps * num_steps + k] = v_tgt_token_ids[j][k];
+                        ce_mask_buffer[(j - i) * num_steps * num_steps + k] = (k <= j - i) ? 1.0f : 0.0f;
                     }
                 }
             }
