@@ -180,8 +180,8 @@ int main(int argc, char* argv[]) {
         num_heads, num_blks, max_posencoding_len, dropout
     );
 
-    Tensor* tgt_token_ids = allocTensor({ batch_size, num_steps * num_steps }, INT32);
-    Tensor* dec_valid_lens = predicting ? allocTensor({ 1 }, INT32) : allocTensor({ batch_size, num_steps * num_steps }, INT32);
+    Tensor* tgt_token_ids = allocTensor({ batch_size * num_steps, num_steps }, INT32);
+    Tensor* dec_valid_lens = predicting ? allocTensor({ 1 }, INT32) : allocTensor({ batch_size * num_steps, num_steps }, INT32);
     Tensor* labels = allocTensor({ batch_size * num_steps * num_steps }, INT32);
     Tensor* ce_mask = allocTensor({ batch_size * num_steps * num_steps });
 
@@ -243,20 +243,64 @@ int main(int argc, char* argv[]) {
                     break;
                 }
                 for (int j = i; j < end; ++j) {
-                    auto tgt_j_trim_or_padding_res = trim_or_padding(
-                        v_src_token_ids[j], num_steps, pad_id
-                    );
-                    auto tgt_j_labels_res = trim_or_padding(
-                        v_tgt_token_ids[j], num_steps, pad_id
-                    );
-                    for (int k = 0; k < num_steps; ++k) {
-                        tgt_token_ids_buffer[(j - i) * num_steps * num_steps + k] = v_src_token_ids[j][k];
-                        labels_buffer[(j - i) * num_steps * num_steps + k] = v_tgt_token_ids[j][k];
-                        ce_mask_buffer[(j - i) * num_steps * num_steps + k] = (k <= j - i) ? 1.0f : 0.0f;
+                    for (int len = 0; len < num_steps; ++len) {
+                        for (int k = 0; k < num_steps; ++k) {
+                            auto base = (j - i) * num_steps * num_steps + len * num_steps;
+                            tgt_token_ids_buffer[base + k] = v_src_token_ids[j][k];
+                            labels_buffer[base + k] = v_tgt_token_ids[j][k];
+                            ce_mask_buffer[base + k] = (k <= len) ? 1.0f : 0.0f;
+                        }
                     }
                 }
+                // for (int j = i; j < end; ++j) {
+                //     for (int len = 0; len < num_steps; ++len) {
+                //         auto base = (j - i) * num_steps * num_steps + len * num_steps;
+                //         for (int k = 0; k < num_steps; ++k) {
+                //             std::cout << tgt_token_ids_buffer[base + k] << " ";
+                //         }
+                //         std::cout << std::endl;
+                //         for (int k = 0; k < num_steps; ++k) {
+                //             std::cout << labels_buffer[base + k] << " ";
+                //         }
+                //         std::cout << std::endl;
+                //         for (int k = 0; k < num_steps; ++k) {
+                //             std::cout << ce_mask_buffer[base + k] << " ";
+                //         }
+                //         std::cout << std::endl;
+                //     }
+                // }
+                // exit(0);
+
+
+                g_backend_ops->cp_to_device(
+                    tgt_token_ids,
+                    reinterpret_cast<char*>(tgt_token_ids_buffer),
+                    tgt_token_ids->size()
+                );
+                g_backend_ops->cp_to_device(
+                    labels,
+                    reinterpret_cast<char*>(labels_buffer),
+                    labels->size()
+                );
+                g_backend_ops->cp_to_device(
+                    ce_mask,
+                    reinterpret_cast<char*>(ce_mask_buffer),
+                    ce_mask->size()
+                );
+                gDoActions();
+                print_progress(prefix, end, v_src_token_ids.size());
+                float loss_v = 0;
+                g_backend_ops->cp_from_device(
+                    reinterpret_cast<char*>(&loss_v),
+                    loss->get_tensor(),
+                    loss->get_tensor()->size()
+                );
+                loss_sum += loss_v;
             }
+            std::cout << "loss : " << loss_sum / cnt << std::endl;
         }
+        std::string checkpoint_prefix = "checkpoint" + generateDateTimeSuffix();
+        save_checkpoint(checkpoint_prefix, shutdown ? epoch : epoch - 1, parameters);
     }
     ::free(tgt_token_ids_buffer);
     ::free(labels_buffer);
