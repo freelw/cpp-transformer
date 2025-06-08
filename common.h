@@ -26,5 +26,7 @@ void print_all_tensors();
 #define SRC_VOCAB_NAME "./vocab/fra_vocab_builder/vocab_en.txt"
 #define TGT_VOCAB_NAME "./vocab/fra_vocab_builder/vocab_fr.txt"
 #define TEST_FILE "./test.txt"
+#define TIMEMACHINE_VOCAB_NAME "./vocab/timemachine_vocab_builder/vocab.txt"
+#define TIMEMACHINE_RESOURCE_NAME "./resources/timemachine_preprocessed.txt"
 
 #endif

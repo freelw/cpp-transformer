@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
     int gpu = 1;
     float lr = 0.001f;
     std::string checkpoint;
-    std::string corpus = RESOURCE_NAME;
+    std::string corpus = TIMEMACHINE_RESOURCE_NAME;
 
     while ((opt = getopt(argc, argv, "f:c:e:l:b:g:")) != -1) {
         switch (opt) {
@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
     int max_posencoding_len = MAX_POSENCODING_LEN;
 
     std::string src_vocab_name = SRC_VOCAB_NAME;
-    std::string tgt_vocab_name = TGT_VOCAB_NAME;
+    std::string tgt_vocab_name = TIMEMACHINE_VOCAB_NAME;
     std::string test_file = TEST_FILE;
     seq2seq::DataLoader loader(corpus, src_vocab_name, tgt_vocab_name, test_file);
 
