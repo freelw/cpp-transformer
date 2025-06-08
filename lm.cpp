@@ -1,6 +1,6 @@
 #include "common.h"
 #include "checkpoint.h"
-#include "dataloader.h"
+#include "dataloaders/translation/dataloader.h"
 #include "module/language_model/lm_decoder.h"
 #include "optimizers/adam.h"
 #include <unistd.h>
@@ -34,6 +34,16 @@ void check_parameters(const std::vector<Parameter*>& parameters, int num_blks) {
 
 void print_progress(const std::string& prefix, uint i, uint tot) {
     std::cout << "\r" << prefix << " [" << i << "/" << tot << "]" << std::flush;
+}
+
+std::vector<uint> trim_or_padding(const std::vector<uint>& src, uint max_len, uint pad_id) {
+    std::vector<uint> res = src;
+    if (src.size() > max_len) {
+        res.resize(max_len);
+    } else {
+        res.resize(max_len, pad_id);
+    }
+    return res;
 }
 
 void load_tokens_from_file(
@@ -216,8 +226,14 @@ int main(int argc, char* argv[]) {
     if (predicting) {
     } else {
         init_dec_valid_lens(dec_valid_lens);
-    }
+        signal(SIGINT, signal_callback_handler);
+        int epoch = 0;
+        for (; epoch < epochs; ++epoch) {
 
+        }
+
+
+    }
     ::free(tgt_token_ids_buffer);
     ::free(labels_buffer);
     ::free(ce_mask_buffer);
