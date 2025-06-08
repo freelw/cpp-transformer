@@ -49,6 +49,11 @@ ifeq ($(RELEASE),1)
 	NVCC_CFLAGS := $(filter-out -G,$(NVCC_CFLAGS))
 endif
 
+ifeq ($(MACOS), 1)
+	SDK_PATH := $(shell xcrun --sdk macosx --show-sdk-path)
+	NVCC_CFLAGS += -isysroot $(SDK_PATH)
+endif
+
 all: $(TEST_TARGET) $(TRANSFORMER_TARGET)
 
 $(TRANSFORMER_TARGET) : $(OBJECTS_TRANSFORMER)
