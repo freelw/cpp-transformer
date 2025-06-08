@@ -48,6 +48,10 @@ std::string LMDataLoader::get_tgt_token(uint token_id) {
     return tgt_vocab.get_token(token_id);
 }
 
+uint LMDataLoader::get_tgt_token_id(const std::string& token) {
+    return tgt_vocab.get_token_id(token);
+}
+
 uint LMDataLoader::get_pad_id() {
     return tgt_vocab.get_token_id("<pad>");
 }

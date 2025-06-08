@@ -5,6 +5,7 @@
 #include "optimizers/adam.h"
 #include <unistd.h>
 #include <signal.h>
+#include <sstream>
 
 extern bool shutdown;
 void signal_callback_handler(int signum);
@@ -135,7 +136,7 @@ int main(int argc, char* argv[]) {
     int max_posencoding_len = MAX_POSENCODING_LEN;
 
     std::string tgt_vocab_name = TIMEMACHINE_VOCAB_NAME;
-    std::string test_file = TEST_FILE;
+    std::string test_file = TEST_LM_FILE;
     LMDataLoader loader(corpus, tgt_vocab_name, test_file, num_steps);
 
     int dec_vocab_size = 0;
@@ -222,6 +223,34 @@ int main(int argc, char* argv[]) {
     }
 
     if (predicting) {
+        std::cout << "serving mode" << std::endl;
+        std::cout << "test file : " << test_file << std::endl;
+        std::vector<std::string> src_sentences = loader.get_test_sentences();
+        for (auto& sentence : src_sentences) {
+            // std::cout << "sentence : " << sentence << std::endl;
+            std::vector<uint> src_token_ids;
+            std::istringstream iss(sentence);
+            std::string token;
+            while (iss >> token) {
+                // std::cout << "token : " << token << std::endl;
+                src_token_ids.push_back(loader.get_tgt_token_id(token));
+            }
+            auto origin_size = src_token_ids.size();
+            for (int i = 0; i < origin_size; ++i) {
+                std::cout << loader.get_tgt_token(src_token_ids[i]) << " ";
+            }
+            std::cout << std::endl;
+            if (src_token_ids.size() < num_steps) {
+                src_token_ids.resize(num_steps, loader.get_pad_id());
+            } else if (src_token_ids.size() > num_steps) {
+                src_token_ids.erase(src_token_ids.begin(), src_token_ids.end() - num_steps);
+            }
+            // src_token_ids.erase(src_token_ids.begin(), src_token_ids.end() - num_steps);
+            // for (auto& token_id : src_token_ids) {
+            //     std::cout << loader.get_tgt_token(token_id) << " ";
+            // }
+            // std::cout << std::endl;
+        }
     } else {
         init_dec_valid_lens(dec_valid_lens);
         signal(SIGINT, signal_callback_handler);

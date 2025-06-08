@@ -23,6 +23,7 @@ public:
         std::vector<std::vector<uint>>& v_tgt_token_ids
     );
     std::string get_tgt_token(uint token_id);
+    uint get_tgt_token_id(const std::string& token);
     uint get_pad_id();
     uint tgt_vocab_size();
     std::vector<std::string> get_test_sentences();
