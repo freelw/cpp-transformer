@@ -264,16 +264,10 @@ int main(int argc, char* argv[]) {
 
                 for (int j = 0; j < num_steps; ++j) {
                     tgt_token_ids_buffer[j] = src_token_ids[j];
-                    std::cout << loader.get_tgt_token(src_token_ids[j]) << " ";
+                    // std::cout << loader.get_tgt_token(src_token_ids[j]) << " ";
                 }
-                std::cout << std::endl;
+                // std::cout << std::endl;
                 init_dec_valid_lens_for_predict(dec_valid_lens, cur_step + 1);
-
-                if (cur_step < num_steps - 1) {
-                    cur_step++;
-                }
-                std::cout << "cur_step: " << cur_step << std::endl;
-
                 g_backend_ops->cp_to_device(
                     tgt_token_ids,
                     reinterpret_cast<char*>(tgt_token_ids_buffer),
@@ -287,7 +281,7 @@ int main(int argc, char* argv[]) {
                     res->get_tensor()->size()
                 );
                 assert(res->get_tensor()->length() == dec_vocab_size * num_steps);
-                int offset = (cur_step - 1) * dec_vocab_size;
+                int offset = cur_step * dec_vocab_size;
                 int max_index = 0;
                 float max_value = res_buffer[offset];
                 for (int i = 0; i < loader.tgt_vocab_size(); ++i) {
@@ -296,23 +290,17 @@ int main(int argc, char* argv[]) {
                         max_index = i;
                     }
                 }
-
-                // std::cout << loader.get_tgt_token(max_index) << " ";
+                std::cout << loader.get_tgt_token(max_index) << " ";
                 if (cur_step >= num_steps - 1) {
                     src_token_ids.push_back(max_index);
                     src_token_ids.erase(src_token_ids.begin(), src_token_ids.end() - num_steps);
                 } else {
-                    src_token_ids[cur_step] = max_index;
+                    src_token_ids[++cur_step] = max_index;
                 }
             }
             std::cout << std::endl;
             std::cout << "-----------------" << std::endl;
             ::free(res_buffer);
-            // src_token_ids.erase(src_token_ids.begin(), src_token_ids.end() - num_steps);
-            // for (auto& token_id : src_token_ids) {
-            //     std::cout << loader.get_tgt_token(token_id) << " ";
-            // }
-            // std::cout << std::endl;
         }
     } else {
         init_dec_valid_lens_for_training(dec_valid_lens);
