@@ -16,7 +16,7 @@ public:
         const std::string& _tgt_vocab_path,
         const std::string& _test_file
     );
-    ~LMDataLoader();
+    ~LMDataLoader() = default;
     void get_token_ids(
         std::vector<uint>& tgt_token_ids
     );
