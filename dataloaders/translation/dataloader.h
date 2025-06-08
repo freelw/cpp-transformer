@@ -7,20 +7,9 @@
 #include <fstream>
 #include <sstream>
 #include <map>
+#include "dataloaders/vocab.h"
 
 namespace seq2seq {
-
-    class Vocab {
-    public:
-        Vocab(const std::string& vocab_file);
-        ~Vocab();
-        uint get_token_id(const std::string& token);
-        std::string get_token(uint token_id);
-        uint size();
-    private:
-        std::map<std::string, uint> token2id;
-        std::vector<std::string> id2token;
-    };
 
     class DataLoader {
     public:
@@ -50,8 +39,8 @@ namespace seq2seq {
         std::string src_vocab_path;
         std::string tgt_vocab_path;
         std::string test_file;
-        Vocab src_vocab;
-        Vocab tgt_vocab;
+        ::Vocab src_vocab;
+        ::Vocab tgt_vocab;
         std::vector<std::string> test_sentences;
     };
 } // namespace seq2seq

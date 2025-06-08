@@ -6,6 +6,7 @@ DIR_INC = -I./ \
 DIR_LIB = -L./
 TEST_TARGET = test
 TRANSFORMER_TARGET = transformer
+LM_TARGET = lm
 CUDA_TOOLKIT := $(shell dirname $$(command -v nvcc))/..
 CUDA_LIBS := -L$(CUDA_TOOLKIT)/lib64 -lcudart -lcurand
 LDFLAGS = -lstdc++
@@ -17,7 +18,12 @@ SRCDIR := ./tensor \
           ./backends/ \
           ./optimizers \
           ./model \
-		  ./module \
+          ./module \
+          ./module/translation \
+          ./module/language_model \
+          ./dataloaders/translation \
+          ./dataloaders/language_model \
+          ./dataloaders \
           ../utils/dataloader
 SRCS := $(wildcard *.cpp) $(wildcard $(addsuffix /*.cpp, $(SRCDIR)))
 CPU ?= $(ASAN)
@@ -29,8 +35,9 @@ else
 	LDFLAGS += $(CUDA_LIBS)
 endif
 
-OBJECTS_TEST := $(filter-out transformer.o,$(OBJECTS))
-OBJECTS_TRANSFORMER := $(filter-out test.o,$(OBJECTS))
+OBJECTS_TEST := $(filter-out transformer.o lm.o,$(OBJECTS))
+OBJECTS_TRANSFORMER := $(filter-out test.o lm.o,$(OBJECTS))
+OBJECTS_LM := $(filter-out test.o transformer.o,$(OBJECTS))
 
 ifeq ($(CPU),1)
 	NVCC = g++
@@ -54,11 +61,11 @@ ifeq ($(MACOS), 1)
 	NVCC_CFLAGS += -isysroot $(SDK_PATH)
 endif
 
-all: $(TEST_TARGET) $(TRANSFORMER_TARGET)
+all: $(TEST_TARGET) $(TRANSFORMER_TARGET) $(LM_TARGET)
 
 $(TRANSFORMER_TARGET) : $(OBJECTS_TRANSFORMER)
 	${NVCC} $(NVCC_CFLAGS) $^ -o $@ $(LDFLAGS)
-$(TARGET) : $(OBJECTS_MAIN)
+$(LM_TARGET) : $(OBJECTS_LM)
 	${NVCC} $(NVCC_CFLAGS) $^ -o $@ $(LDFLAGS)
 $(TEST_TARGET) : $(OBJECTS_TEST)
 	${NVCC} $(NVCC_CFLAGS) $^ -o $@ $(LDFLAGS)

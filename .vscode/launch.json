@@ -1,0 +1,21 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch cpu lm",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/home/cs/project/cpp-transformer/lm",
+            "args": [
+                "-b",
+                "1"
+            ],
+            "cwd": "/home/cs/project/cpp-transformer",
+            "stopAtEntry": false,
+            "environment": []
+        }
+    ]
+}

@@ -1,7 +1,7 @@
 #ifndef TRANSFORMER_SEQ2SEQ_H
 #define TRANSFORMER_SEQ2SEQ_H
-#include "module/transformer_encoder.h"
-#include "module/transformer_decoder.h"
+#include "module/translation/transformer_encoder.h"
+#include "module/translation/transformer_decoder.h"
 
 class Seq2SeqEncoderDecoder {
 public:

@@ -26,5 +26,10 @@ void print_all_tensors();
 #define SRC_VOCAB_NAME "./vocab/fra_vocab_builder/vocab_en.txt"
 #define TGT_VOCAB_NAME "./vocab/fra_vocab_builder/vocab_fr.txt"
 #define TEST_FILE "./test.txt"
+#define TEST_LM_FILE "./test_lm.txt"
+#define LM_PREDICT_CNT 50
+#define LM_NUM_STEPS 32
+#define TIMEMACHINE_VOCAB_NAME "./vocab/time_machine/vocab.txt"
+#define TIMEMACHINE_RESOURCE_NAME "./resources/time_machine/timemachine_preprocessed.txt"
 
 #endif

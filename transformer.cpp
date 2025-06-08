@@ -1,7 +1,7 @@
 #include "common.h"
 #include "checkpoint.h"
-#include "dataloader.h"
-#include "module/seq2seq.h"
+#include "dataloaders/translation/dataloader.h"
+#include "module/translation/seq2seq.h"
 #include "optimizers/adam.h"
 #include <unistd.h>
 #include <signal.h>
@@ -282,11 +282,9 @@ int main(int argc, char* argv[]) {
     if (predicting) {
         std::cout << "serving mode" << std::endl;
         std::cout << "test file : " << test_file << std::endl;
-        // assert(!checkpoint.empty());
         std::vector<std::string> src_sentences = loader.get_test_sentences();
         for (auto& sentence : src_sentences) {
             std::vector<uint> v_src_token_ids = loader.to_src_token_ids(sentence);
-            // std::cout << "source sentence length : " << v_src_token_ids.size() << std::endl;
             int enc_valid_len = v_src_token_ids.size();
             assert(enc_valid_lens->size() == sizeof(int32_t));
             g_backend_ops->cp_to_device(
@@ -297,10 +295,6 @@ int main(int argc, char* argv[]) {
             auto src_trim_or_padding_res = trim_or_padding(
                 v_src_token_ids, num_steps, src_pad_id
             );
-            // for (auto &token_id : src_trim_or_padding_res) {
-            //     std::cout << loader.get_src_token(token_id) << " ";
-            // }
-            // std::cout << std::endl;
             assert(src_token_ids->length() == num_steps);
             assert(tgt_token_ids->length() == num_steps);
             for (int i = 0; i < num_steps; ++i) {
@@ -328,10 +322,6 @@ int main(int argc, char* argv[]) {
                     reinterpret_cast<char*>(&dec_valid_len),
                     dec_valid_lens->size()
                 );
-                // for (auto &token_id : tgt_trim_or_padding_res) {
-                //     std::cout << loader.get_src_token(token_id) << " ";
-                // }
-                // std::cout << std::endl;
                 for (int j = 0; j < num_steps; ++j) {
                     tgt_token_ids_buffer[j] = tgt_trim_or_padding_res[j];
                 }
@@ -341,7 +331,6 @@ int main(int argc, char* argv[]) {
                     tgt_token_ids->size()
                 );
                 gDoForwardActions();
-                // std::cout << "res : " << std::endl << *res->get_tensor() << std::endl;
                 g_backend_ops->cp_from_device(
                     reinterpret_cast<char*>(res_buffer),
                     res->get_tensor(),
@@ -362,24 +351,11 @@ int main(int argc, char* argv[]) {
                             max_index = k;
                         }
                     }
-                    // std::cout << loader.get_tgt_token(max_index) << " ";
                 }
-                // std::cout << std::endl;
                 if (max_index == eos_id) {
                     break; // stop predicting if eos_id is predicted
                 }
                 predicted.push_back(max_index);
-
-                // int max_index = 0;
-                // for (int j = 1; j < dec_vocab_size; ++j) {
-                //     if (res_buffer[j] > max_value) {
-                //         max_value = res_buffer[j];
-                //         max_index = j;
-                //     }
-                // }
-                // // std::cout << "predicted token id : " << max_index << " " << loader.get_tgt_token(max_index) << std::endl;
-
-                // predicted.push_back(max_index);
             }
             std::cout << sentence << " -> ";
             for (int i = 1; i < predicted.size(); ++i) {

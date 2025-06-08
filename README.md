@@ -27,6 +27,9 @@ V2 - [2025-05-29]
 4. Closer Implementation to Tensor Semantics in DL2 Chapter 11
 5. Enhanced Test Cases
 
+V2.01 - [2025-06-08]
+1. Supported a simple language model.
+
 ## Quick start
 
 ### build
@@ -47,6 +50,10 @@ If you don't have a CUDA environment, you can also try the CPU version. Note tha
 ```
 ./build_mac_cpu.sh
 ```
+
+## Translation
+
+A language model built with a two-layer decoder, trained on the first 256 tokens from timemachine_preprocessed.txt, reads the text starting from test_lm.txt during inference.
 
 ### training
 Align the training data volume (512 pairs) of Chapter 11 Transformer in d2l.
@@ -131,6 +138,58 @@ go . -> va .
 i lost . -> j'ai perdu .
 he's calm . -> il est mouillé .
 i'm home . -> je suis chez moi .
+```
+
+## Language Model
+
+### training
+```
+$ ./lm -e 10 -m 256
+corpus : ./resources/time_machine/timemachine_preprocessed.txt
+epochs : 10
+batch_size : 16
+gpu : 1
+learning rate : 0.001
+checkpoint : 
+max_words_cnt : 256
+Allocating memory  
+for tensors : 36609236 bytes, 
+for c_tensors: 3194706328 bytes 
+for grad_tensors: 1241779004 bytes
+epoch 0 :  [224/256]loss : 5.54111
+epoch 1 :  [224/256]loss : 1.36544
+epoch 2 :  [224/256]loss : 0.178868
+epoch 3 :  [224/256]loss : 0.0472531
+epoch 4 :  [224/256]loss : 0.0245251
+epoch 5 :  [224/256]loss : 0.0195127
+epoch 6 :  [224/256]loss : 0.0174135
+epoch 7 :  [224/256]loss : 0.0162055
+epoch 8 :  [224/256]loss : 0.0154597
+epoch 9 :  [224/256]loss : 0.0147902
+checkpoint saved : ./checkpoints/checkpoint_20250608_200259_9.bin
+```
+
+### inference
+```
+$ ./lm -e 0 -c ./checkpoints/checkpoint_20250608_200259_9.bin
+corpus : ./resources/time_machine/timemachine_preprocessed.txt
+epochs : 0
+batch_size : 16
+gpu : 1
+learning rate : 0.001
+checkpoint : ./checkpoints/checkpoint_20250608_200259_9.bin
+max_words_cnt : 256
+Allocating memory  
+for tensors : 36355416 bytes, 
+for c_tensors: 17206900 bytes 
+for grad_tensors: 14209596 bytes
+loading from checkpoint : ./checkpoints/checkpoint_20250608_200259_9.bin
+loaded from checkpoint
+serving mode
+test file : ./test_lm.txt
+sentence : the time machine
+by h g wells i the time traveller for so it will be convenient to speak of him was expounding a recondite matter to us his grey eyes shone and twinkled and his usually pale face was flushed and animated the fire burned brightly and animated the fire burned brightly 
+-----------------
 ```
 
 ## legacy version
