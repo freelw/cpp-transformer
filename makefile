@@ -18,9 +18,9 @@ SRCDIR := ./tensor \
           ./backends/ \
           ./optimizers \
           ./model \
-		  ./module \
-		  ./module/translation \
-		  ./module/language_model \
+          ./module \
+          ./module/translation \
+          ./module/language_model \
           ../utils/dataloader
 SRCS := $(wildcard *.cpp) $(wildcard $(addsuffix /*.cpp, $(SRCDIR)))
 CPU ?= $(ASAN)
