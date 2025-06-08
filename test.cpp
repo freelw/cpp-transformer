@@ -10,7 +10,7 @@
 #include "module/embedding.h"
 #include "module/pos_encoding.h"
 #include "module/layernorm.h"
-#include "module/seq2seq.h"
+#include "module/translation/seq2seq.h"
 #include "common.h"
 #include <iomanip>
 #include <cmath>

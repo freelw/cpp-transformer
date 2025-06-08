@@ -5,7 +5,7 @@ DIR_INC = -I./ \
 
 DIR_LIB = -L./
 TEST_TARGET = test
-TRANSFORMER_TARGET = transformer
+TRANSFORMER_TARGET = translation
 CUDA_TOOLKIT := $(shell dirname $$(command -v nvcc))/..
 CUDA_LIBS := -L$(CUDA_TOOLKIT)/lib64 -lcudart -lcurand
 LDFLAGS = -lstdc++
@@ -18,6 +18,7 @@ SRCDIR := ./tensor \
           ./optimizers \
           ./model \
 		  ./module \
+		  ./module/translation \
           ../utils/dataloader
 SRCS := $(wildcard *.cpp) $(wildcard $(addsuffix /*.cpp, $(SRCDIR)))
 CPU ?= $(ASAN)
@@ -29,7 +30,7 @@ else
 	LDFLAGS += $(CUDA_LIBS)
 endif
 
-OBJECTS_TEST := $(filter-out transformer.o,$(OBJECTS))
+OBJECTS_TEST := $(filter-out translation.o,$(OBJECTS))
 OBJECTS_TRANSFORMER := $(filter-out test.o,$(OBJECTS))
 
 ifeq ($(CPU),1)
