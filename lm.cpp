@@ -187,10 +187,6 @@ int main(int argc, char* argv[]) {
         ce_mask->size()
     ));
 
-    // auto res = seq2seq->forward(src_token_ids, tgt_token_ids, enc_valid_lens, dec_valid_lens);
-    // auto loss = res->reshape({ -1, dec_vocab_size })->CrossEntropy(labels)->mask(ce_mask)->avg_1d(ce_mask);
-    // insert_boundary_action();
-
     auto res = lm_decoder->forward(tgt_token_ids, dec_valid_lens);
     auto loss = res->reshape({ -1, dec_vocab_size })->CrossEntropy(labels)->mask(ce_mask)->avg_1d(ce_mask);
     insert_boundary_action();
@@ -210,6 +206,21 @@ int main(int argc, char* argv[]) {
         << "for grad_tensors: " << grad_tensors_data_capacity << " bytes" << std::endl;
     gDoOnceActions();
 
+    if (!checkpoint.empty()) {
+        std::cout << "loading from checkpoint : " << checkpoint << std::endl;
+        disableInitWeightAction();
+        loadfrom_checkpoint(checkpoint, parameters);
+        std::cout << "loaded from checkpoint" << std::endl;
+    }
+
+    if (predicting) {
+    } else {
+        init_dec_valid_lens(dec_valid_lens);
+    }
+
+    ::free(tgt_token_ids_buffer);
+    ::free(labels_buffer);
+    ::free(ce_mask_buffer);
     delete lm_decoder;
     destruct_env();
     return 0;
