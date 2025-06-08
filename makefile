@@ -30,7 +30,7 @@ else
 	LDFLAGS += $(CUDA_LIBS)
 endif
 
-OBJECTS_TEST := $(filter-out translation.o,$(OBJECTS))
+OBJECTS_TEST := $(filter-out transformer.o,$(OBJECTS))
 OBJECTS_TRANSFORMER := $(filter-out test.o,$(OBJECTS))
 
 ifeq ($(CPU),1)
