@@ -53,8 +53,6 @@ If you don't have a CUDA environment, you can also try the CPU version. Note tha
 
 ## Translation
 
-A language model built with a two-layer decoder, trained on the first 256 tokens from timemachine_preprocessed.txt, reads the text starting from test_lm.txt during inference.
-
 ### training
 Align the training data volume (512 pairs) of Chapter 11 Transformer in d2l.
 ```
@@ -141,6 +139,8 @@ i'm home . -> je suis chez moi .
 ```
 
 ## Language Model
+
+A language model built with a two-layer decoder, trained on the first 256 tokens from timemachine_preprocessed.txt, reads the text starting from test_lm.txt during inference.
 
 ### training
 ```
