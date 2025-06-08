@@ -59,7 +59,7 @@ void load_tokens_from_file(
     pad_id = loader.get_pad_id();
 }
 
-void init_dec_valid_lens(Tensor* dec_valid_lens) {
+void init_dec_valid_lens_for_training(Tensor* dec_valid_lens) {
     int32_t* dec_valid_lens_buffer = static_cast<int32_t*>(::malloc(
         dec_valid_lens->size()
     ));
@@ -79,6 +79,16 @@ void init_dec_valid_lens(Tensor* dec_valid_lens) {
     );
 
     ::free(dec_valid_lens_buffer);
+}
+
+void init_dec_valid_lens_for_predict(Tensor* dec_valid_lens, int cur_step) {
+    auto shape = dec_valid_lens->get_shape();
+    assert(shape.size() == 1 && shape[0] == 1);
+    g_backend_ops->cp_to_device(
+        dec_valid_lens,
+        reinterpret_cast<char*>(&cur_step),
+        dec_valid_lens->size()
+    );
 }
 
 int main(int argc, char* argv[]) {
@@ -181,7 +191,7 @@ int main(int argc, char* argv[]) {
         num_heads, num_blks, max_posencoding_len, dropout
     );
 
-    Tensor* tgt_token_ids = allocTensor({ batch_size * num_steps, num_steps }, INT32);
+    Tensor* tgt_token_ids = predicting ? allocTensor({ batch_size, num_steps }, INT32) : allocTensor({ batch_size * num_steps, num_steps }, INT32);
     Tensor* dec_valid_lens = predicting ? allocTensor({ 1 }, INT32) : allocTensor({ batch_size * num_steps, num_steps }, INT32);
     Tensor* labels = allocTensor({ batch_size * num_steps * num_steps }, INT32);
     Tensor* ce_mask = allocTensor({ batch_size * num_steps * num_steps });
@@ -223,6 +233,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (predicting) {
+        assert(batch_size == 1);
         std::cout << "serving mode" << std::endl;
         std::cout << "test file : " << test_file << std::endl;
         std::vector<std::string> src_sentences = loader.get_test_sentences();
@@ -245,6 +256,38 @@ int main(int argc, char* argv[]) {
             } else if (src_token_ids.size() > num_steps) {
                 src_token_ids.erase(src_token_ids.begin(), src_token_ids.end() - num_steps);
             }
+            auto cur_step = origin_size;
+            for (int i = 0; i < LM_PREDICT_CNT; ++i) {
+                for (int j = 0; j < num_steps; ++j) {
+                    tgt_token_ids_buffer[j] = src_token_ids[j];
+
+                }
+                init_dec_valid_lens_for_predict(dec_valid_lens, cur_step);
+                if (cur_step < num_steps - 1) {
+                    cur_step++;
+                }
+                g_backend_ops->cp_to_device(
+                    tgt_token_ids,
+                    reinterpret_cast<char*>(tgt_token_ids_buffer),
+                    tgt_token_ids->size()
+                );
+                gDoForwardActions();
+                float* res_buffer = static_cast<float*>(::malloc(
+                    res->get_tensor()->size()
+                ));
+                g_backend_ops->cp_from_device(
+                    reinterpret_cast<char*>(res_buffer),
+                    res->get_tensor(),
+                    res->get_tensor()->size()
+                );
+                assert(res->get_tensor()->length() == dec_vocab_size * num_steps);
+                int offset = (cur_step-1) * dec_vocab_size;
+                for (int i = 0; i < loader.tgt_vocab_size(); ++i) {
+                    
+                }
+                ::free(res_buffer);
+
+            }
             // src_token_ids.erase(src_token_ids.begin(), src_token_ids.end() - num_steps);
             // for (auto& token_id : src_token_ids) {
             //     std::cout << loader.get_tgt_token(token_id) << " ";
@@ -252,7 +295,7 @@ int main(int argc, char* argv[]) {
             // std::cout << std::endl;
         }
     } else {
-        init_dec_valid_lens(dec_valid_lens);
+        init_dec_valid_lens_for_training(dec_valid_lens);
         signal(SIGINT, signal_callback_handler);
         int epoch = 0;
         for (; epoch < epochs; ++epoch) {
