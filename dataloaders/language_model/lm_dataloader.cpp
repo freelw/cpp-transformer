@@ -1,4 +1,5 @@
 #include "lm_dataloader.h"
+#include <algorithm>
 
 LMDataLoader::LMDataLoader(
     const std::string& _corpus_path,
@@ -29,10 +30,12 @@ void LMDataLoader::get_token_ids(
         token_ids.push_back(tgt_vocab.get_token_id(token));
     }
 
-    for (size_t i = 0; i < token_ids.size(); ++i) {
+    int token_ids_size = std::min((int)token_ids.size(), 5);
+
+    for (size_t i = 0; i < token_ids_size; ++i) {
         std::vector<uint> src_step_tokens;
         std::vector<uint> tgt_step_tokens;
-        for (size_t j = 0; j < num_steps && (i + j) < token_ids.size() - 1; ++j) {
+        for (size_t j = 0; j < num_steps && (i + j) < token_ids_size - 1; ++j) {
             src_step_tokens.push_back(token_ids[i + j]);
             tgt_step_tokens.push_back(token_ids[i + j + 1]);
         }
