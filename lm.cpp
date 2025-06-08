@@ -297,7 +297,7 @@ int main(int argc, char* argv[]) {
                     }
                 }
 
-                std::cout << loader.get_tgt_token(max_index) << " ";
+                // std::cout << loader.get_tgt_token(max_index) << " ";
                 if (cur_step >= num_steps - 1) {
                     src_token_ids.push_back(max_index);
                     src_token_ids.erase(src_token_ids.begin(), src_token_ids.end() - num_steps);
