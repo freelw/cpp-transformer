@@ -22,16 +22,12 @@ public:
     );
     std::string get_tgt_token(uint token_id);
     uint tgt_pad_id();
-    uint tgt_bos_id();
-    uint tgt_eos_id();
     uint tgt_vocab_size();
     std::vector<std::string> get_test_sentences();
 private:
     std::string corpus_path;
-    std::string src_vocab_path;
     std::string tgt_vocab_path;
     std::string test_file;
-    Vocab src_vocab;
     Vocab tgt_vocab;
     std::vector<std::string> test_sentences;
 };
