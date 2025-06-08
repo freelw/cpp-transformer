@@ -21,7 +21,8 @@ LMDataLoader::LMDataLoader(
 
 void LMDataLoader::get_token_ids(
     std::vector<std::vector<uint>>& v_src_token_ids,
-    std::vector<std::vector<uint>>& v_tgt_token_ids
+    std::vector<std::vector<uint>>& v_tgt_token_ids,
+    int max_token_ids_size
 ) {
     std::ifstream ifs(corpus_path);
     std::string token;
@@ -30,7 +31,7 @@ void LMDataLoader::get_token_ids(
         token_ids.push_back(tgt_vocab.get_token_id(token));
     }
 
-    int token_ids_size = std::min((int)token_ids.size(), 256);
+    int token_ids_size = std::min((int)token_ids.size(), max_token_ids_size);
 
     for (size_t i = 0; i < token_ids_size; ++i) {
         std::vector<uint> src_step_tokens;

@@ -52,9 +52,10 @@ void load_tokens_from_file(
     std::vector<std::vector<uint>>& v_src_token_ids,
     std::vector<std::vector<uint>>& v_tgt_token_ids,
     int& dec_vocab_size,
-    int& pad_id
+    int& pad_id,
+    int max_words_cnt
 ) {
-    loader.get_token_ids(v_src_token_ids, v_tgt_token_ids);
+    loader.get_token_ids(v_src_token_ids, v_tgt_token_ids, max_words_cnt);
     dec_vocab_size = loader.tgt_vocab_size();
     pad_id = loader.get_pad_id();
 }
@@ -99,11 +100,12 @@ int main(int argc, char* argv[]) {
     int epochs = 10;
     int batch_size = 16;
     int gpu = 1;
+    int max_words_cnt = 256;
     float lr = 0.001f;
     std::string checkpoint;
     std::string corpus = TIMEMACHINE_RESOURCE_NAME;
 
-    while ((opt = getopt(argc, argv, "f:c:e:l:b:g:")) != -1) {
+    while ((opt = getopt(argc, argv, "f:c:e:l:b:g:m:")) != -1) {
         switch (opt) {
         case 'f':
             corpus = optarg;
@@ -123,6 +125,9 @@ int main(int argc, char* argv[]) {
         case 'g':
             gpu = atoi(optarg);
             break;
+        case 'm':
+            max_words_cnt = atoi(optarg);
+            break;
         default:
             std::cerr << "Usage: " << argv[0]
                 << " -f <corpus> -c <checpoint> -e <epochs>" << std::endl;
@@ -136,6 +141,7 @@ int main(int argc, char* argv[]) {
     std::cout << "gpu : " << gpu << std::endl;
     std::cout << "learning rate : " << lr << std::endl;
     std::cout << "checkpoint : " << checkpoint << std::endl;
+    std::cout << "max_words_cnt : " << max_words_cnt << std::endl;
 
     int num_hiddens = 256;
     int num_blks = 2;
@@ -159,21 +165,9 @@ int main(int argc, char* argv[]) {
         v_src_token_ids,
         v_tgt_token_ids,
         dec_vocab_size,
-        pad_id
+        pad_id,
+        max_words_cnt
     );
-
-    // for (int i = 0; i < 100; ++i) {
-    //     for (int j = 0; j < v_src_token_ids[i].size(); ++j) {
-    //         std::cout << loader.get_tgt_token(v_src_token_ids[i][j]) << " ";
-    //     }
-    //     std::cout << " -> ";
-    //     for (int j = 0; j < v_tgt_token_ids[i].size(); ++j) {
-    //         std::cout << loader.get_tgt_token(v_tgt_token_ids[i][j]) << " ";
-    //     }
-    //     std::cout << std::endl;
-    // }
-
-    // exit(0);
 
     bool predicting = epochs == 0;
     g_training = !predicting;
@@ -243,14 +237,9 @@ int main(int argc, char* argv[]) {
             std::istringstream iss(sentence);
             std::string token;
             while (iss >> token) {
-                // std::cout << "token : " << token << std::endl;
                 src_token_ids.push_back(loader.get_tgt_token_id(token));
             }
             auto origin_size = src_token_ids.size();
-            // for (int i = 0; i < origin_size; ++i) {
-            //     std::cout << loader.get_tgt_token(src_token_ids[i]) << " ";
-            // }
-            // std::cout << std::endl;
             if (src_token_ids.size() < num_steps) {
                 src_token_ids.resize(num_steps, loader.get_pad_id());
             } else if (src_token_ids.size() > num_steps) {
@@ -261,12 +250,9 @@ int main(int argc, char* argv[]) {
                 res->get_tensor()->size()
             ));
             for (int i = 0; i < LM_PREDICT_CNT; ++i) {
-
                 for (int j = 0; j < num_steps; ++j) {
                     tgt_token_ids_buffer[j] = src_token_ids[j];
-                    // std::cout << loader.get_tgt_token(src_token_ids[j]) << " ";
                 }
-                // std::cout << std::endl;
                 init_dec_valid_lens_for_predict(dec_valid_lens, cur_step + 1);
                 g_backend_ops->cp_to_device(
                     tgt_token_ids,
@@ -332,25 +318,6 @@ int main(int argc, char* argv[]) {
                         }
                     }
                 }
-                // for (int j = i; j < end; ++j) {
-                //     for (int len = 0; len < num_steps; ++len) {
-                //         auto base = (j - i) * num_steps * num_steps + len * num_steps;
-                //         for (int k = 0; k < num_steps; ++k) {
-                //             std::cout << tgt_token_ids_buffer[base + k] << " ";
-                //         }
-                //         std::cout << std::endl;
-                //         for (int k = 0; k < num_steps; ++k) {
-                //             std::cout << labels_buffer[base + k] << " ";
-                //         }
-                //         std::cout << std::endl;
-                //         for (int k = 0; k < num_steps; ++k) {
-                //             std::cout << ce_mask_buffer[base + k] << " ";
-                //         }
-                //         std::cout << std::endl;
-                //     }
-                // }
-                // exit(0);
-
 
                 g_backend_ops->cp_to_device(
                     tgt_token_ids,

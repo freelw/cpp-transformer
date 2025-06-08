@@ -20,7 +20,8 @@ public:
     ~LMDataLoader() = default;
     void get_token_ids(
         std::vector<std::vector<uint>>& v_src_token_ids,
-        std::vector<std::vector<uint>>& v_tgt_token_ids
+        std::vector<std::vector<uint>>& v_tgt_token_ids,
+        int max_token_ids_size = 256
     );
     std::string get_tgt_token(uint token_id);
     uint get_tgt_token_id(const std::string& token);
