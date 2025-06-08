@@ -131,7 +131,7 @@ int main(int argc, char* argv[]) {
     float dropout = 0.2f;
     int ffn_num_hiddens = 64;
     int num_heads = 4;
-    int num_steps = NUM_STEPS;
+    int num_steps = LM_NUM_STEPS;
     int max_posencoding_len = MAX_POSENCODING_LEN;
 
     std::string tgt_vocab_name = TIMEMACHINE_VOCAB_NAME;
@@ -150,6 +150,19 @@ int main(int argc, char* argv[]) {
         dec_vocab_size,
         pad_id
     );
+
+    for (int i = 0; i < 100; ++i) {
+        for (int j = 0; j < v_src_token_ids[i].size(); ++j) {
+            std::cout << loader.get_tgt_token(v_src_token_ids[i][j]) << " ";
+        }
+        std::cout << " -> ";
+        for (int j = 0; j < v_tgt_token_ids[i].size(); ++j) {
+            std::cout << loader.get_tgt_token(v_tgt_token_ids[i][j]) << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    exit(0);
 
     bool predicting = epochs == 0;
     g_training = !predicting;
