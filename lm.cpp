@@ -56,6 +56,28 @@ void load_tokens_from_file(
     tgt_pad_id = loader.tgt_pad_id();
 }
 
+void init_dec_valid_lens(Tensor* dec_valid_lens) {
+    int32_t* dec_valid_lens_buffer = static_cast<int32_t*>(::malloc(
+        dec_valid_lens->size()
+    ));
+
+    auto shape = dec_valid_lens->get_shape();
+
+    for (int i = 0; i < shape[0]; ++i) {
+        for (int j = 0; j < shape[1]; ++j) {
+            dec_valid_lens_buffer[i * shape[1] + j] = j + 1;
+        }
+    }
+
+    g_backend_ops->cp_to_device(
+        dec_valid_lens,
+        reinterpret_cast<char*>(dec_valid_lens_buffer),
+        dec_valid_lens->size()
+    );
+
+    ::free(dec_valid_lens_buffer);
+}
+
 int main(int argc, char* argv[]) {
 
     shutdown = false;
@@ -102,7 +124,6 @@ int main(int argc, char* argv[]) {
     std::cout << "learning rate : " << lr << std::endl;
     std::cout << "checkpoint : " << checkpoint << std::endl;
 
-
     int num_hiddens = 256;
     int num_blks = 2;
     float dropout = 0.2f;
@@ -135,6 +156,12 @@ int main(int argc, char* argv[]) {
         tgt_pad_id
     );
 
+    bool predicting = epochs == 0;
+    g_training = !predicting;
+    if (predicting) {
+        batch_size = 1; // set batch size to 1 for predicting
+    }
+
     use_gpu(gpu == 1);
     construct_env();
     zero_c_tensors();
@@ -144,6 +171,44 @@ int main(int argc, char* argv[]) {
         dec_vocab_size, num_hiddens, ffn_num_hiddens,
         num_heads, num_blks, max_posencoding_len, dropout
     );
+
+    Tensor* tgt_token_ids = allocTensor({ batch_size, num_steps }, INT32);
+    Tensor* dec_valid_lens = predicting ? allocTensor({ 1 }, INT32) : allocTensor({ batch_size, num_steps }, INT32);
+    Tensor* labels = allocTensor({ batch_size * num_steps }, INT32);
+    Tensor* ce_mask = allocTensor({ batch_size * num_steps });
+
+    int32_t* tgt_token_ids_buffer = static_cast<int32_t*>(::malloc(
+        tgt_token_ids->size()
+    ));
+    int32_t* labels_buffer = static_cast<int32_t*>(::malloc(
+        labels->size()
+    ));
+    float* ce_mask_buffer = static_cast<float*>(::malloc(
+        ce_mask->size()
+    ));
+
+    // auto res = seq2seq->forward(src_token_ids, tgt_token_ids, enc_valid_lens, dec_valid_lens);
+    // auto loss = res->reshape({ -1, dec_vocab_size })->CrossEntropy(labels)->mask(ce_mask)->avg_1d(ce_mask);
+    // insert_boundary_action();
+
+    auto res = lm_decoder->forward(tgt_token_ids, dec_valid_lens);
+    auto loss = res->reshape({ -1, dec_vocab_size })->CrossEntropy(labels)->mask(ce_mask)->avg_1d(ce_mask);
+    insert_boundary_action();
+
+    std::vector<Parameter*> parameters = lm_decoder->get_parameters();
+    check_parameters(parameters, num_blks);
+    Adam adam(parameters, lr);
+    loss->backward();
+    adam.clip_grad(1.0f);
+    adam.step();
+    graph::validateAllNodesRefCnt(0);
+    // printAllActions();
+    allocMemAndInitTensors();
+    std::cout << "Allocating memory  " << std::endl
+        << "for tensors : " << tensors_data_capacity << " bytes, " << std::endl
+        << "for c_tensors: " << c_tensors_data_capacity << " bytes " << std::endl
+        << "for grad_tensors: " << grad_tensors_data_capacity << " bytes" << std::endl;
+    gDoOnceActions();
 
     delete lm_decoder;
     destruct_env();
