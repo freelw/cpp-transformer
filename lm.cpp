@@ -6,6 +6,9 @@
 #include <unistd.h>
 #include <signal.h>
 
+extern bool shutdown;
+void signal_callback_handler(int signum);
+
 int main(int argc, char* argv[]) {
 
     shutdown = false;
