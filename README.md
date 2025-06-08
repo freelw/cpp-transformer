@@ -43,6 +43,11 @@ The program compiled in this way supports both CPU and GPU. You can use the -g p
 ```
 If you don't have a CUDA environment, you can also try the CPU version. Note that this version is extremely slow and is only intended for comparing and verifying the correctness of the GPU version.
 
+#### for mac
+```
+./build_mac_cpu.sh
+```
+
 ### training
 Align the training data volume (512 pairs) of Chapter 11 Transformer in d2l.
 ```
