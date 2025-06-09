@@ -32,6 +32,7 @@ void LMDataLoader::get_token_ids(
     }
 
     int token_ids_size = std::min((int)token_ids.size(), max_token_ids_size);
+    std::cout << "token_ids_size : " << token_ids_size << std::endl;
 
     for (size_t i = 0; i < token_ids_size; ++i) {
         std::vector<uint> src_step_tokens;
