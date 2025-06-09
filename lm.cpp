@@ -102,10 +102,11 @@ int main(int argc, char* argv[]) {
     int gpu = 1;
     int max_words_cnt = 256;
     float lr = 0.001f;
+    int lm_predict_cnt = LM_PREDICT_CNT;
     std::string checkpoint;
     std::string corpus = TIMEMACHINE_RESOURCE_NAME;
 
-    while ((opt = getopt(argc, argv, "f:c:e:l:b:g:m:")) != -1) {
+    while ((opt = getopt(argc, argv, "f:c:e:l:b:g:m:p:")) != -1) {
         switch (opt) {
         case 'f':
             corpus = optarg;
@@ -127,6 +128,9 @@ int main(int argc, char* argv[]) {
             break;
         case 'm':
             max_words_cnt = atoi(optarg);
+            break;
+        case 'p':
+            lm_predict_cnt = atoi(optarg);
             break;
         default:
             std::cerr << "Usage: " << argv[0]
@@ -249,7 +253,7 @@ int main(int argc, char* argv[]) {
             float* res_buffer = static_cast<float*>(::malloc(
                 res->get_tensor()->size()
             ));
-            for (int i = 0; i < LM_PREDICT_CNT; ++i) {
+            for (int i = 0; i < lm_predict_cnt; ++i) {
                 for (int j = 0; j < num_steps; ++j) {
                     tgt_token_ids_buffer[j] = src_token_ids[j];
                 }
