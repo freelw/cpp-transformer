@@ -194,8 +194,9 @@ by h g wells i the time traveller for so it will be convenient to speak of him w
 
 ### pre-trained lm model
 
-This model was trained for 7 epochs using the full text of The Time Machine novel.
 [model](https://cpp-transformer-1252366230.cos.ap-beijing.myqcloud.com/lm/checkpoint_20250609_123600_7.bin)
+
+This model was trained for 7 epochs using the full text of The Time Machine novel.
 
 ## legacy version
 
