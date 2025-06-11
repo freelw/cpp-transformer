@@ -118,9 +118,7 @@ namespace graph {
             auto reshape1_res_shape = reshape1_res->get_tensor()->get_shape();
             auto sequence_mask_res = reshape1_res->sequence_mask(mask, -1e6f);
             auto reshape2_res = sequence_mask_res->reshape(shape);
-            // graph::g_dbg_nodes.push_back(reshape2_res);
             auto softmax_res = reshape2_res->softmax();
-            // graph::g_dbg_nodes.push_back(softmax_res);
             return softmax_res;
         }
     }
@@ -466,22 +464,6 @@ namespace graph {
         Tensor* sum_tensor = callocTensor({ 1 }, "avg_1d_sum");
         Tensor* mask_sum_tensor = callocTensor({ 1 }, "avg_1d_mask_sum");
         gCreateAction(
-            new FillWeightAction(
-                sum_tensor,
-                "fill",
-                0.0f,
-                0
-            )
-        );
-        gCreateAction(
-            new FillWeightAction(
-                mask_sum_tensor,
-                "fill",
-                0.0f,
-                0
-            )
-        );
-        gCreateAction(
             new SumAction(
                 l_tensor->reshape({ -1, 1 }),
                 sum_tensor,
@@ -653,7 +635,6 @@ namespace graph {
         gCreateAction(
             new SoftmaxBackwardAction(
                 tmp,
-                // node->get_grad(),
                 softmax_res,
                 grad
             )
