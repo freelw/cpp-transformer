@@ -466,22 +466,6 @@ namespace graph {
         Tensor* sum_tensor = callocTensor({ 1 }, "avg_1d_sum");
         Tensor* mask_sum_tensor = callocTensor({ 1 }, "avg_1d_mask_sum");
         gCreateAction(
-            new FillWeightAction(
-                sum_tensor,
-                "fill",
-                0.0f,
-                0
-            )
-        );
-        gCreateAction(
-            new FillWeightAction(
-                mask_sum_tensor,
-                "fill",
-                0.0f,
-                0
-            )
-        );
-        gCreateAction(
             new SumAction(
                 l_tensor->reshape({ -1, 1 }),
                 sum_tensor,
