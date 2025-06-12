@@ -77,6 +77,7 @@ private:
     curandGenerator_t gen;
 
 };
+#endif // CUDA_GPU
 
 #endif // GCC_CPU
 

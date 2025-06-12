@@ -46,9 +46,9 @@ else
 	NVCC = nvcc
 	NVCC_CFLAGS = $(DIR_INC) $(DIR_LIB) -g -G -O3
 	ifeq ($(MACOS),1)
-		NVCC_CFLAGS += -DCUDA_GPU
-	else
 		NVCC_CFLAGS += -DMETAL_GPU
+	else
+		NVCC_CFLAGS += -DCUDA_GPU
 	endif
 endif
 
