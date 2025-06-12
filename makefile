@@ -14,7 +14,7 @@ ASAN_FLAGS = -fsanitize=address
 SRCDIR := ./tensor \
           ./graph \
           ./backends/cpu \
-          ./backends/gpu \
+          ./backends/gpu/cuda \
           ./backends/ \
           ./optimizers \
           ./model \
