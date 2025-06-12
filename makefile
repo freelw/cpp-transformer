@@ -7,6 +7,7 @@ DIR_LIB = -L./
 TEST_TARGET = test
 TRANSFORMER_TARGET = transformer
 LM_TARGET = lm
+MNIST_TARGET = handwritten_recognition
 CUDA_TOOLKIT := $(shell dirname $$(command -v nvcc))/..
 CUDA_LIBS := -L$(CUDA_TOOLKIT)/lib64 -lcudart -lcurand
 LDFLAGS = -lstdc++
@@ -23,6 +24,7 @@ SRCDIR := ./tensor \
           ./module/language_model \
           ./dataloaders/translation \
           ./dataloaders/language_model \
+		  ./dataloaders/mnist \
           ./dataloaders \
           ../utils/dataloader
 SRCS := $(wildcard *.cpp) $(wildcard $(addsuffix /*.cpp, $(SRCDIR)))
@@ -35,9 +37,10 @@ else
 	LDFLAGS += $(CUDA_LIBS)
 endif
 
-OBJECTS_TEST := $(filter-out transformer.o lm.o,$(OBJECTS))
-OBJECTS_TRANSFORMER := $(filter-out test.o lm.o,$(OBJECTS))
-OBJECTS_LM := $(filter-out test.o transformer.o,$(OBJECTS))
+OBJECTS_TEST := $(filter-out transformer.o lm.o mnist.o,$(OBJECTS))
+OBJECTS_TRANSFORMER := $(filter-out test.o lm.o mnist.o,$(OBJECTS))
+OBJECTS_LM := $(filter-out test.o transformer.o mnist.o,$(OBJECTS))
+OBJECTS_MNIST := $(filter-out test.o transformer.o lm.o,$(OBJECTS))
 
 ifeq ($(CPU),1)
 	NVCC = g++
@@ -66,13 +69,15 @@ ifeq ($(MACOS), 1)
 	NVCC_CFLAGS += -isysroot $(SDK_PATH)
 endif
 
-all: $(TEST_TARGET) $(TRANSFORMER_TARGET) $(LM_TARGET)
+all: $(TEST_TARGET) $(TRANSFORMER_TARGET) $(LM_TARGET) $(MNIST_TARGET)
 
 $(TRANSFORMER_TARGET) : $(OBJECTS_TRANSFORMER)
 	${NVCC} $(NVCC_CFLAGS) $^ -o $@ $(LDFLAGS)
 $(LM_TARGET) : $(OBJECTS_LM)
 	${NVCC} $(NVCC_CFLAGS) $^ -o $@ $(LDFLAGS)
 $(TEST_TARGET) : $(OBJECTS_TEST)
+	${NVCC} $(NVCC_CFLAGS) $^ -o $@ $(LDFLAGS)
+$(MNIST_TARGET) : $(OBJECTS_MNIST)
 	${NVCC} $(NVCC_CFLAGS) $^ -o $@ $(LDFLAGS)
 
 %.o : %.cu
@@ -81,7 +86,7 @@ $(TEST_TARGET) : $(OBJECTS_TEST)
 	${NVCC} -c $(NVCC_CFLAGS) $< -o $@
 
 clean:
-	@rm -f ${OBJECTS} ${TEST_TARGET} ${TRANSFORMER_TARGET}
+	@rm -f ${OBJECTS} ${TEST_TARGET} ${TRANSFORMER_TARGET} ${MNIST_TARGET}
 
 .PHONY: clean run_test all
 
