@@ -2,6 +2,10 @@
 #ifdef METAL_GPU
 
 #include "metal_ops.h"
+#include <string.h>
+#include <cmath>
+#include <random>
+#include <chrono>
 
 #define NS_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
@@ -20,9 +24,11 @@ MetalOps::MetalOps() {
         throw std::runtime_error("Metal device not found");
     }
     commandQueue = device->newCommandQueue();
+    bufferArgs = device->newBuffer(128, MTL::ResourceStorageModeShared);
 }
 
 MetalOps::~MetalOps() {
+    bufferArgs->release();
     commandQueue->release();
     device->release();
 }
@@ -110,7 +116,13 @@ void MetalOps::adamStep(
 }
 
 void MetalOps::init_weight_gauss(Tensor* tensor, float mean, float sigma) {
-    assert(false);
+    unsigned seed1 = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine generator_w(seed1);
+    std::normal_distribution<float> distribution_w(0.0, sigma);
+    float* data = static_cast<float*>(tensor->get_data());
+    for (int i = 0; i < tensor->length(); ++i) {
+        data[i] = distribution_w(generator_w) + mean;
+    }
 }
 
 void MetalOps::init_weight_uniform(Tensor* tensor, float sigma) {
@@ -186,34 +198,37 @@ void MetalOps::mulSV(Tensor* dst, Tensor* src, float value) {
 }
 
 void* MetalOps::alloc(size_t size) {
-    // Implement memory allocation using Metal
-    assert(false);
-    return nullptr;
+    MTL::Buffer* buffer = device->newBuffer(size, MTL::ResourceStorageModeShared);
+    return buffer->contents();
 }
 
 void MetalOps::memset(void* ptr, int value, size_t size) {
-    // Implement memory set using Metal
-    assert(false);
+    ::memset(ptr, value, size);
 }
 
 void MetalOps::free(void* ptr) {
-    // Implement memory deallocation using Metal
-    assert(false);
+    std::cerr << "Warning: Freeing memory in MetalOps is not implemented." << std::endl;
 }
 
 void MetalOps::cp_device_to_device(void* dst, const void* src, size_t size) {
-    // Implement device-to-device copy using Metal
-    assert(false);
+    ::memcpy(dst, src, size);
 }
 
 void MetalOps::cp_to_device(Tensor* dst_tensor, char* src, size_t size) {
-    // Implement copy to device using Metal
-    assert(false);
+    assert(dst_tensor != nullptr);
+    assert(src != nullptr);
+    assert(size > 0);
+    assert(dst_tensor->get_data() != nullptr);
+    assert(dst_tensor->size() == size);
+    memcpy(dst_tensor->get_data(), src, size);
 }
 
 void MetalOps::cp_from_device(char* dst, const Tensor* src_tensor, size_t size) {
-    // Implement copy from device using Metal
-    assert(false);
+    assert(dst != nullptr);
+    assert(src_tensor != nullptr);
+    assert(size > 0);
+    assert(src_tensor->get_data() != nullptr);
+    memcpy(dst, src_tensor->get_data(), size);
 }
 
 #endif // METAL_GPU

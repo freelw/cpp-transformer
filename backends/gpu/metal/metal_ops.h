@@ -12,6 +12,7 @@ namespace MTL {
     class ComputePipelineState;
     class CommandBuffer;
     class ComputeCommandEncoder;
+    class Buffer;
 }
 
 class MetalOps : public BackendOps {
@@ -85,6 +86,7 @@ private:
     MTL::ComputePipelineState* pipelineState;
     MTL::CommandBuffer* commandBuffer;
     MTL::ComputeCommandEncoder* encoder;
+    MTL::Buffer* bufferArgs;
 };
 
 #endif // METAL_GPU
