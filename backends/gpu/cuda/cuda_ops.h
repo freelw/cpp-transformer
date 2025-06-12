@@ -4,6 +4,7 @@
 #include "backends/backend_ops.h"
 
 #ifndef GCC_CPU
+#ifdef CUDA_GPU
 #include <cuda_runtime.h>
 #include <curand.h>
 
