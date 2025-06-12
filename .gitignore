@@ -11,3 +11,4 @@ p.log
 vocab/data/**
 vocab/fra_vocab_builder/tgt_vocab.txt
 vocab/fra_vocab_builder/src_vocab.txt
+backends/gpu/metal/metal-cpp/.DS_Store
