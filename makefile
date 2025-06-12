@@ -53,7 +53,7 @@ ifeq ($(CPU),1)
 	NVCC_CFLAGS = -DGCC_CPU $(DIR_INC) $(DIR_LIB) -g -fno-omit-frame-pointer
 else
 	NVCC = nvcc
-	NVCC_CFLAGS = $(DIR_INC) $(DIR_LIB) -g -G -O3
+	NVCC_CFLAGS = $(DIR_INC) $(DIR_LIB) -g -O3
 	ifeq ($(MACOS),1)
 		NVCC = g++
 		DIR_INC += -I./backends/gpu/metal/metal-cpp
@@ -61,7 +61,7 @@ else
 		NVCC_CFLAGS += -DMETAL_GPU -std=c++17
 		LDFLAGS += $(FRAMEWORKS)
 	else
-		NVCC_CFLAGS += -DCUDA_GPU
+		NVCC_CFLAGS += -DCUDA_GPU -G
 	endif
 endif
 
