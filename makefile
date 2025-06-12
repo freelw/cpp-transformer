@@ -16,6 +16,7 @@ SRCDIR := ./tensor \
           ./graph \
           ./backends/cpu \
           ./backends/gpu/cuda \
+		  ./backends/gpu/metal \
           ./backends/ \
           ./optimizers \
           ./model \

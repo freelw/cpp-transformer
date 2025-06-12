@@ -2,6 +2,7 @@
 #define V5_TENSOR_BACKENDS_GPU_KERNEL_CUH
 
 #ifndef GCC_CPU
+#ifdef CUDA_GPU
 #include <cuda.h>
 #include <cuda_runtime.h>
 
@@ -230,6 +231,7 @@ __global__ void tensor_mul_scalar(
     int length, float value
 );
 
+#endif // CUDA_GPU
 #endif // GCC_CPU
 
 #endif // V5_TENSOR_BACKENDS_GPU_KERNEL_CUH

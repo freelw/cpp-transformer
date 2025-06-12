@@ -3,7 +3,6 @@
 #include <iostream>
 #include <unistd.h>
 
-
 #define IMAGES_FILE "/resources/train-images-idx3-ubyte"
 #define LABELS_FILE "/resources/train-labels-idx1-ubyte"
 
