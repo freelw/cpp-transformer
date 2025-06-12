@@ -216,13 +216,5 @@ void MetalOps::cp_from_device(char* dst, const Tensor* src_tensor, size_t size) 
     assert(false);
 }
 
-void MetalOps::commit() {
-
-}
-
-void MetalOps::wait() {
-
-}
-
 #endif // METAL_GPU
 #endif // GCC_CPU
