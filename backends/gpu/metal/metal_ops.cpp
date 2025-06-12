@@ -6,6 +6,7 @@
 #include <cmath>
 #include <random>
 #include <chrono>
+#include <fstream>
 
 #define NS_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
@@ -16,6 +17,8 @@
 #include <iostream>
 #include <vector>
 #include <type_traits>
+
+#define KERNEL_PATH "/backends/gpu/metal/shader.metal"
 
 MetalOps::MetalOps() {
     device = MTL::CreateSystemDefaultDevice();
@@ -229,6 +232,24 @@ void MetalOps::cp_from_device(char* dst, const Tensor* src_tensor, size_t size) 
     assert(size > 0);
     assert(src_tensor->get_data() != nullptr);
     memcpy(dst, src_tensor->get_data(), size);
+}
+
+void MetalOps::load_kernel_metal() {
+    char* s = getcwd(NULL, 0);
+    std::string path = s;
+    free(s);
+    path += KERNEL_PATH;
+
+    //load shader source code into shaderSource
+    std::ifstream kernel_ifs(path, std::ios::binary);
+    shaderSource = std::string(std::istreambuf_iterator<char>(kernel_ifs), std::istreambuf_iterator<char>());
+    NS::Error* error = nullptr;
+    library = device->newLibrary(NS::String::string(shaderSource.c_str(), NS::StringEncoding::UTF8StringEncoding), nullptr, &error);
+
+    if (!library) {
+        std::cerr << "Error compiling shader : " << error->localizedDescription()->utf8String() << std::endl;
+        abort();
+    }
 }
 
 #endif // METAL_GPU

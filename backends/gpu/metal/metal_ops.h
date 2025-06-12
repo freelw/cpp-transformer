@@ -13,6 +13,7 @@ namespace MTL {
     class CommandBuffer;
     class ComputeCommandEncoder;
     class Buffer;
+    class Library;
 }
 
 class MetalOps : public BackendOps {
@@ -81,12 +82,16 @@ public:
     void cp_to_device(Tensor* dst_tensor, char* src, size_t size) override;
     void cp_from_device(char* dst, const Tensor* src_tensor, size_t size) override;
 private:
+    void load_kernel_metal();
+private:
     MTL::Device* device;
     MTL::CommandQueue* commandQueue;
     MTL::ComputePipelineState* pipelineState;
     MTL::CommandBuffer* commandBuffer;
     MTL::ComputeCommandEncoder* encoder;
     MTL::Buffer* bufferArgs;
+    MTL::Library* library;
+    std::string shaderSource;
 };
 
 #endif // METAL_GPU
