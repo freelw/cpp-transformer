@@ -431,19 +431,25 @@ void FillWeightAction::execute() {
     assert(lhs != nullptr);
     if (init_type == "gauss") {
         g_backend_ops->init_weight_gauss(lhs, mean, sigma);
-    } else if (init_type == "uniform") {
+    }
+    else if (init_type == "uniform") {
         g_backend_ops->init_weight_uniform(lhs, sigma);
-    } else if (init_type == "xavier") {
+    }
+    else if (init_type == "xavier") {
         assert(false);
         // g_backend_ops->xavier(lhs);
-    } else if (init_type == "kaiming") {
+    }
+    else if (init_type == "kaiming") {
         assert(false);
         // g_backend_ops->kaiming(lhs);
-    } else if (init_type == "dbg") {
+    }
+    else if (init_type == "dbg") {
         g_backend_ops->init_weight_for_dbg(lhs, sigma);
-    } else if (init_type == "fill") {
+    }
+    else if (init_type == "fill") {
         g_backend_ops->fill(lhs, sigma);
-    } else {
+    }
+    else {
         std::cerr << "Error: Unknown initialization type: " << init_type << std::endl;
         abort();
     }
@@ -874,6 +880,8 @@ void gDoActions() {
         action->execute();
         action->increase_exec_times();
     }
+    g_backend_ops->commit();
+    g_backend_ops->wait();
 }
 
 void gDoOnceActions() {
@@ -884,6 +892,8 @@ void gDoOnceActions() {
         action->execute();
         action->increase_exec_times();
     }
+    g_backend_ops->commit();
+    g_backend_ops->wait();
 }
 
 void gDoForwardActions(bool training) {
@@ -898,6 +908,8 @@ void gDoForwardActions(bool training) {
         action->execute();
         action->increase_exec_times();
     }
+    g_backend_ops->commit();
+    g_backend_ops->wait();
 }
 
 void gDoBackwardActions() {
@@ -916,6 +928,8 @@ void gDoBackwardActions() {
         action->execute();
         action->increase_exec_times();
     }
+    g_backend_ops->commit();
+    g_backend_ops->wait();
 }
 
 void printAllActions() {
