@@ -46,19 +46,19 @@ void MetalOps::addEq(
     Tensor* l_shape,
     Tensor* l_strides, Tensor* r_striedes
 ) {
-    assert(false);
+    std::cerr << "Warning: 'addEq' operation is not implemented in MetalOps." << std::endl;
 }
 
 void MetalOps::expandAdd(Tensor* lhs, const Tensor* rhs, Tensor* res) {
-    assert(false);
+    std::cerr << "Warning: 'expandAdd' operation is not implemented in MetalOps." << std::endl;
 }
 
 void MetalOps::expandMul(Tensor* lhs, const Tensor* rhs, Tensor* res) {
-    assert(false);
+    std::cerr << "Warning: 'expandMul' operation is not implemented in MetalOps." << std::endl;
 }
 
 void MetalOps::at(Tensor* lhs, const Tensor* rhs, Tensor* res) {
-    assert(false);
+    std::cerr << "Warning: 'at' operation is not implemented in MetalOps." << std::endl;
 }
 
 void MetalOps::embedding(Tensor* lhs, const Tensor* indices, const Tensor* res) {
@@ -74,45 +74,45 @@ void MetalOps::mul(
     Tensor* l_shape, Tensor* l_strides,
     Tensor* r_striedes, Tensor* res_striedes
 ) {
-    assert(false);
+    std::cerr << "Warning: 'mul' operation is not implemented in MetalOps." << std::endl;
 }
 
 void MetalOps::sum(Tensor* lhs, Tensor* res, int dim) {
-    assert(false);
+    std::cerr << "Warning: 'sum' operation is not implemented in MetalOps." << std::endl;
 }
 
 void MetalOps::relu(Tensor* lhs, Tensor* res) {
-    assert(false);
+    std::cerr << "Warning: 'relu' operation is not implemented in MetalOps." << std::endl;
 }
 
 void MetalOps::reluPrime(Tensor* lhs, Tensor* res) {
-    assert(false);
+    std::cerr << "Warning: 'reluPrime' operation is not implemented in MetalOps." << std::endl;
 }
 
 void MetalOps::crossEntropy(
     Tensor* lhs, const Tensor* labels, Tensor* maxs, Tensor* sums, Tensor* res
 ) {
-    assert(false);
+    std::cerr << "Warning: 'crossEntropy' operation is not implemented in MetalOps." << std::endl;
 }
 
 void MetalOps::crossEntropyBackward(
     Tensor* lhs, const Tensor* labels, Tensor* maxs, Tensor* sums, Tensor* res
 ) {
-    assert(false);
+    std::cerr << "Warning: 'crossEntropyBackward' operation is not implemented in MetalOps." << std::endl;
 }
 
 void MetalOps::calcAllGradNorm(const std::vector<Tensor*>& grads, Tensor* norm) {
-    assert(false);
+    std::cerr << "Warning: 'calcAllGradNorm' operation is not implemented in MetalOps." << std::endl;
 }
 
 void MetalOps::clipGrad(Tensor* grad, const Tensor* norm, float grad_clip_val) {
-    assert(false);
+    std::cerr << "Warning: 'clipGrad' operation is not implemented in MetalOps." << std::endl;
 }
 
 void MetalOps::adamStep(
     Tensor* w, Tensor* grad, Tensor* m, Tensor* v, int t, float lr, float beta1, float beta2, float epsilon
 ) {
-    assert(false);
+    std::cerr << "Warning: 'adamStep' operation is not implemented in MetalOps." << std::endl;
 }
 
 void MetalOps::init_weight_gauss(Tensor* tensor, float mean, float sigma) {
@@ -134,7 +134,7 @@ void MetalOps::init_weight_for_dbg(Tensor* tensor, float scale) {
 }
 
 void MetalOps::fill(Tensor* tensor, float value) {
-    assert(false);
+    std::cerr << "Warning: 'fill' operation is not implemented in MetalOps." << std::endl;
 }
 
 void MetalOps::reshape_deep_cp(
@@ -161,7 +161,7 @@ void MetalOps::softmax_bacward(Tensor* target_grad, const Tensor* softmax_res, T
 }
 
 void MetalOps::div(Tensor* dst, Tensor* src, float value) {
-    assert(false);
+    std::cerr << "Warning: 'div' operation is not implemented in MetalOps." << std::endl;
 }
 
 void MetalOps::build_dropout_mask(
