@@ -14,7 +14,6 @@ std::string TensorDtype_to_string(TensorDType dtype) {
     case FLOAT16: return "FLOAT16";
     case FLOAT32: return "FLOAT32";
     case FLOAT64: return "FLOAT64";
-    case BOOL: return "BOOL";
     default: return "UNKNOWN";
     }
 }
@@ -107,7 +106,6 @@ int Tensor::cell_size() const {
     case FLOAT16: return 2;
     case FLOAT32: return 4;
     case FLOAT64: return 8;
-    case BOOL: return sizeof(bool);
     default: assert(false); return 0;
     }
 }
@@ -197,7 +195,8 @@ Tensor* Tensor::reshape(const std::vector<int>& shape) const {
             this->get_name() + "_reshape"
         );
         return reshape_view;
-    } else {
+    }
+    else {
         Tensor* reshape_deep_cpy = callocTensor(
             calc_req_shape,
             this->get_name() + "_reshape_deep_copy",
@@ -250,7 +249,8 @@ Tensor* Tensor::repeat_interleave(int n) {
     std::vector<int> new_shape = shape;
     if (dim == 1) {
         new_shape[0] *= n;
-    } else {
+    }
+    else {
         new_shape[dim - 2] *= n;
     }
     Tensor* repeat_interleave_tensor = callocTensor(
@@ -354,12 +354,14 @@ void dfs_print(
         for (int i = 0; i < length; ++i) {
             if (dtype == FLOAT32) {
                 output << *(reinterpret_cast<float*>(data) + base_offset + i * stride);
-            } else if (dtype == INT32) {
+            }
+            else if (dtype == INT32) {
                 output << *(reinterpret_cast<int32_t*>(data) + base_offset + i * stride);
             }
             if (i < length - 1) {
                 output << ", ";
-            } else {
+            }
+            else {
                 output << "]";
             }
         }
@@ -503,7 +505,8 @@ void validateAllTensors() {
                         << tensor->get_meta_info() << ": " << data[i] << std::endl;
                 }
             }
-        } else if (tensor->get_dtype() == INT32) {
+        }
+        else if (tensor->get_dtype() == INT32) {
             int32_t* data = reinterpret_cast<int32_t*>(buffer);
             for (int i = 0; i < tensor->length(); ++i) {
                 bool valid = !std::isnan(data[i]) && !std::isinf(data[i]);

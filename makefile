@@ -1,16 +1,16 @@
 DIR_INC = -I./ \
     -I./tensor \
-    -I./graph \
-    -I../utils/
+    -I./graph
 
-DIR_LIB = -L./
+#DIR_LIB = -L./
+DIR_LIB = 
 TEST_TARGET = test
 TRANSFORMER_TARGET = transformer
 LM_TARGET = lm
 MNIST_TARGET = handwritten_recognition
 CUDA_TOOLKIT := $(shell dirname $$(command -v nvcc))/..
 CUDA_LIBS := -L$(CUDA_TOOLKIT)/lib64 -lcudart -lcurand
-LDFLAGS = -lstdc++
+LDFLAGS =
 ASAN_FLAGS = -fsanitize=address
 SRCDIR := ./tensor \
           ./graph \
@@ -30,13 +30,13 @@ SRCDIR := ./tensor \
           ../utils/dataloader
 SRCS := $(wildcard *.cpp) $(wildcard $(addsuffix /*.cpp, $(SRCDIR)))
 CPU ?= $(ASAN)
-ifeq ($(CPU),1)
-	OBJECTS := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SRCS)))
-else
+OBJECTS := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SRCS)))
+ifeq ($(CUDA_GPU), 1)
 	SRCS += $(wildcard *.cu) $(wildcard $(addsuffix /*.cu, $(SRCDIR)))
 	OBJECTS := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(patsubst %.cu,%.o,$(SRCS))))
 	LDFLAGS += $(CUDA_LIBS)
 endif
+
 
 OBJECTS_TEST := $(filter-out transformer.o lm.o mnist.o,$(OBJECTS))
 OBJECTS_TRANSFORMER := $(filter-out test.o lm.o mnist.o,$(OBJECTS))
@@ -50,7 +50,11 @@ else
 	NVCC = nvcc
 	NVCC_CFLAGS = $(DIR_INC) $(DIR_LIB) -g -G -O3
 	ifeq ($(MACOS),1)
-		NVCC_CFLAGS += -DMETAL_GPU
+		NVCC = g++
+		DIR_INC += -I./backends/gpu/metal/metal-cpp
+		FRAMEWORKS = -framework Metal -framework Foundation -framework QuartzCore
+		NVCC_CFLAGS += -DMETAL_GPU -std=c++17
+		LDFLAGS += $(FRAMEWORKS)
 	else
 		NVCC_CFLAGS += -DCUDA_GPU
 	endif

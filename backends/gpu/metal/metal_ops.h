@@ -5,8 +5,9 @@
 
 #ifndef GCC_CPU
 #ifdef METAL_GPU
-#include <Metal/Metal.h>
+
 class MetalOps : public BackendOps {
+public:
     MetalOps();
     ~MetalOps() override = default;
     void add(

@@ -33,12 +33,19 @@ void insert_boundary_action() {
 void init_backend() {
     if (b_use_gpu) {
 #ifndef GCC_CPU
+#ifdef CUDA_GPU
         g_backend_ops = new CUDAOps();
+#else
+#ifdef METAL_GPU
+        g_backend_ops = new MetalOps();
+#endif
+#endif // CUDA_GPU
 #else
         std::cerr << "Warning: GPU backend is not available in CPU build. Now use cpu instead!!!" << std::endl;
         g_backend_ops = new CPUOps();
 #endif
-    } else {
+    }
+    else {
         g_backend_ops = new CPUOps();
     }
 }

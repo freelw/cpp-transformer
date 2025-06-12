@@ -3,6 +3,16 @@
 
 #include "metal_ops.h"
 
+#define NS_PRIVATE_IMPLEMENTATION
+#define MTL_PRIVATE_IMPLEMENTATION
+
+#include <Metal/Metal.hpp>
+#include <QuartzCore/CAMetalLayer.hpp>
+#include <Foundation/Foundation.hpp>
+#include <iostream>
+#include <vector>
+#include <type_traits>
+
 MetalOps::MetalOps() {
     // Initialize Metal resources here
 }

@@ -16,8 +16,7 @@ enum TensorDType {
     INT64,
     FLOAT16,
     FLOAT32,
-    FLOAT64,
-    BOOL
+    FLOAT64
 };
 
 std::string TensorDtype_to_string(TensorDType dtype);
