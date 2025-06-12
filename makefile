@@ -30,13 +30,18 @@ SRCDIR := ./tensor \
           ../utils/dataloader
 SRCS := $(wildcard *.cpp) $(wildcard $(addsuffix /*.cpp, $(SRCDIR)))
 CPU ?= $(ASAN)
+ifneq ($(CPU),1)
+ifneq ($(MACOS),1)
+CUDA_GPU := 1
+endif
+endif
+
 OBJECTS := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SRCS)))
 ifeq ($(CUDA_GPU), 1)
 	SRCS += $(wildcard *.cu) $(wildcard $(addsuffix /*.cu, $(SRCDIR)))
 	OBJECTS := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(patsubst %.cu,%.o,$(SRCS))))
 	LDFLAGS += $(CUDA_LIBS)
 endif
-
 
 OBJECTS_TEST := $(filter-out transformer.o lm.o mnist.o,$(OBJECTS))
 OBJECTS_TRANSFORMER := $(filter-out test.o lm.o mnist.o,$(OBJECTS))
