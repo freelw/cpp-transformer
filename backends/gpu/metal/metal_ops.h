@@ -17,7 +17,7 @@ namespace MTL {
 class MetalOps : public BackendOps {
 public:
     MetalOps();
-    ~MetalOps() override = default;
+    ~MetalOps();
     void add(
         Tensor* lhs, const Tensor* rhs, Tensor* res,
         Tensor* l_shape, Tensor* l_strides,

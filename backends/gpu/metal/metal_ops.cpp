@@ -14,7 +14,17 @@
 #include <type_traits>
 
 MetalOps::MetalOps() {
-    // Initialize Metal resources here
+    device = MTL::CreateSystemDefaultDevice();
+    if (!device) {
+        std::cerr << "Metal device not found!" << std::endl;
+        throw std::runtime_error("Metal device not found");
+    }
+    commandQueue = device->newCommandQueue();
+}
+
+MetalOps::~MetalOps() {
+    commandQueue->release();
+    device->release();
 }
 
 void MetalOps::add(
