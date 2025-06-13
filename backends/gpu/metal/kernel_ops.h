@@ -1,3 +1,6 @@
+#ifndef GCC_CPU
+#ifdef METAL_GPU
+
 #ifndef KERNELOPS_H
 #define KERNELOPS_H
 
@@ -38,4 +41,6 @@ private:
 };
 
 
-#endif
+#endif // KERNELOPS_H
+#endif // METAL_GPU
+#endif // GCC_CPU

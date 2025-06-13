@@ -1,3 +1,5 @@
+#ifndef GCC_CPU
+#ifdef METAL_GPU
 #include "kernel_ops.h"
 
 #include <Metal/Metal.hpp>
@@ -48,3 +50,6 @@ void MetalKops::run() {
     commandBuffer->release();
     pipelineState->release();
 }
+
+#endif // METAL_GPU
+#endif // GCC_CPU
