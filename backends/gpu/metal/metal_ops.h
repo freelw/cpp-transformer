@@ -112,6 +112,7 @@ private:
     MetalKops* expandMulOps;
     MetalKops* reluPrimeOps;
     MetalKops* calcAllGradNormOps;
+    MetalKops* clipGradOps;
 };
 
 #endif // METAL_GPU

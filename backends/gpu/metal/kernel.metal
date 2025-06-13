@@ -433,3 +433,26 @@ kernel void tensor_l2_norm(
         atomic_fetch_add_explicit(atomicData, partial_sums[0], memory_order_relaxed);
     }
 }
+
+kernel void tensor_clip(
+    device float* Md [[buffer(0)]],
+    device const float* Norm [[buffer(1)]],
+    device const int* intArgs [[buffer(2)]],
+    device const float* floatArgs  [[buffer(3)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int M = intArgs[0];
+    float clip_value = floatArgs[0];
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index >= M) {
+        return;
+    }
+    else {
+        float norm = sqrt(Norm[0]);
+        if (norm > clip_value) {
+            Md[index] *= clip_value / norm;
+        }
+    }
+}
