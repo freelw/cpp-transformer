@@ -494,3 +494,33 @@ kernel void tensor_adam_step(
         w[index] = w_value;
     }
 }
+
+kernel void reshape_deep_cp_float_kernel(
+    device float* dst [[buffer(0)]],
+    device const float* src [[buffer(1)]],
+    device const int* src_shape [[buffer(2)]],
+    device const int* src_strides [[buffer(3)]],
+    device const int* args [[buffer(4)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int dim = args[0];
+    int length = args[1];
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index >= length) {
+        return;
+    }
+    else {
+        int tmp_length = length;
+        int tmp_index = index;
+        int offset = 0;
+        for (int j = 0; j < dim; ++j) {
+            tmp_length /= src_shape[j];
+            int cur_dim_index = tmp_index / tmp_length;
+            offset += cur_dim_index * src_strides[j];
+            tmp_index %= tmp_length;
+        }
+        dst[index] = src[offset];
+    }
+}

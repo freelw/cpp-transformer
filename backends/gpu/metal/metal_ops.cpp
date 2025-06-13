@@ -47,6 +47,7 @@ MetalOps::MetalOps() {
     calcAllGradNormOps = new MetalKops("tensor_l2_norm", library);
     clipGradOps = new MetalKops("tensor_clip", library);
     adamStepOps = new MetalKops("tensor_adam_step", library);
+    reshapeDeepCpOps = new MetalKops("reshape_deep_cp_float_kernel", library);
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     gen = std::mt19937(seed);
@@ -54,6 +55,7 @@ MetalOps::MetalOps() {
 }
 
 MetalOps::~MetalOps() {
+    delete reshapeDeepCpOps;
     delete adamStepOps;
     delete clipGradOps;
     delete calcAllGradNormOps;
@@ -724,7 +726,45 @@ void MetalOps::reshape_deep_cp(
     Tensor* dst_tensor, const Tensor* src_tensor,
     const Tensor* src_shape, const Tensor* src_strides
 ) {
-    assert(false);
+    assert(dst_tensor->get_dtype() == src_tensor->get_dtype());
+    assert(
+        dst_tensor->get_dtype() == INT32 ||
+        dst_tensor->get_dtype() == FLOAT32
+    );
+
+    auto dtype = dst_tensor->get_dtype();
+    auto src_shape_data = static_cast<int32_t*>(src_shape->get_data());
+    auto src_strides_data = static_cast<int32_t*>(src_strides->get_data());
+    auto dim = src_tensor->get_dim();
+    auto length = src_tensor->length();
+
+    if (dtype == INT32) {
+        assert(false);
+    }
+    else if (dtype == FLOAT32) {
+        reshapeDeepCpOps->prepare(device, commandQueue);
+        int* args = (int*)bufferIntArgs->contents();
+        args[0] = dim;
+        args[1] = length;
+        auto offset_dst = calc_offset(dst_tensor);
+        auto offset_src = calc_offset(src_tensor);
+        auto offset_src_shape = calc_offset(src_shape);
+        auto offset_src_strides = calc_offset(src_strides);
+        auto encoder = reshapeDeepCpOps->getEncoder();
+        assert(encoder != nullptr);
+        encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(dst_tensor->get_storage()->ctx), offset_dst, 0);
+        encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(src_tensor->get_storage()->ctx), offset_src, 1);
+        encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(src_shape->get_storage()->ctx), offset_src_shape, 2);
+        encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(src_strides->get_storage()->ctx), offset_src_strides, 3);
+        encoder->setBuffer(bufferIntArgs, 0, 4);
+        MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
+        MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
+        encoder->dispatchThreadgroups(gridDim, blockDim);
+        reshapeDeepCpOps->run();
+    }
+    else {
+        assert(false);
+    }
 }
 
 void MetalOps::repeat_interleave(Tensor* lhs, Tensor* res, int n) {

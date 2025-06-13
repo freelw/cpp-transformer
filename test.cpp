@@ -7572,6 +7572,12 @@ void test_gpu() {
     test_adam();
     test_mlp();
     test_mlp_with_cpu();
+    test_contiguous();
+    test_reshape();
+    test_reshape_with_cpu();
+    test_reshape_1();
+    test_reshape_bp();
+    test_reshape_bp_1();
     return;
 
     test_at();
