@@ -34,9 +34,12 @@ MetalOps::MetalOps() {
     addOps = new MetalKops("tensor_add_kernel", library);
     fillOps = new MetalKops("fill_float", library);
     atOps = new MetalKops("tensor_at_2d", library);
+    addEqOps = new MetalKops("tensor_add_eq_kernel", library);
 }
 
 MetalOps::~MetalOps() {
+    delete addEqOps;
+    delete atOps;
     delete fillOps;
     delete addOps;
     bufferFloatArgs->release();
@@ -101,7 +104,37 @@ void MetalOps::addEq(
     Tensor* l_shape,
     Tensor* l_strides, Tensor* r_striedes
 ) {
-    std::cerr << "Warning: 'addEq' operation is not implemented in MetalOps." << std::endl;
+    assert(lhs != nullptr);
+    assert(rhs != nullptr);
+    auto lshape = lhs->get_shape();
+    auto rshape = rhs->get_shape();
+    assert(lshape == rshape);
+    int dim = lhs->get_dim();
+    auto length = lhs->length();
+
+    addEqOps->prepare(device, commandQueue);
+
+    int* args = (int*)bufferIntArgs->contents();
+    args[0] = dim;
+    args[1] = length;
+    auto offset_lhs = calc_offset(lhs);
+    auto offset_rhs = calc_offset(rhs);
+    auto offset_l_shape = calc_offset(l_shape);
+    auto offset_l_strides = calc_offset(l_strides);
+    auto offset_r_striedes = calc_offset(r_striedes);
+
+    auto encoder = addEqOps->getEncoder();
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), offset_lhs, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(rhs->get_storage()->ctx), offset_rhs, 1);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(l_shape->get_storage()->ctx), offset_l_shape, 2);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(l_strides->get_storage()->ctx), offset_l_strides, 3);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(r_striedes->get_storage()->ctx), offset_r_striedes, 4);
+    encoder->setBuffer(bufferIntArgs, 0, 5);
+    MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    addOps->run();
 }
 
 void MetalOps::expandAdd(Tensor* lhs, const Tensor* rhs, Tensor* res) {

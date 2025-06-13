@@ -105,3 +105,36 @@ kernel void tensor_at_2d(
         threadgroup_barrier(mem_flags::mem_threadgroup);
     }
 }
+
+kernel void tensor_add_eq_kernel(
+    device float* dst [[buffer(0)]],
+    device const float* src [[buffer(1)]],
+    device const int* shape [[buffer(2)]],
+    device const int* strides_dst [[buffer(3)]],
+    device const int* strides_src [[buffer(4)]],
+    device const int* args [[buffer(5)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int dim = args[0];
+    int length = args[1];
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index >= length) {
+        return;
+    }
+    else {
+        int tmp_length = length;
+        int tmp_index = index;
+        int offset_src = 0;
+        int offset_dst = 0;
+        for (int j = 0; j < dim; ++j) {
+            tmp_length /= shape[j];
+            int cur_dim_index = tmp_index / tmp_length;
+            offset_src += cur_dim_index * strides_src[j];
+            offset_dst += cur_dim_index * strides_dst[j];
+            tmp_index %= tmp_length;
+        }
+        dst[offset_dst] += src[offset_src];
+    }
+}
