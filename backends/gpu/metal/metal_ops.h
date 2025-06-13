@@ -96,7 +96,7 @@ private:
     MTL::ComputePipelineState* pipelineState;
     MTL::CommandBuffer* commandBuffer;
     MTL::ComputeCommandEncoder* encoder;
-    NS::Error* error;
+
     MTL::Buffer* bufferArgs;
     MTL::Library* library;
     std::string shaderSource;

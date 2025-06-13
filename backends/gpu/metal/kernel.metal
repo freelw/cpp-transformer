@@ -14,7 +14,6 @@ kernel void tensor_add_kernel(
     uint3 blockIdx [[threadgroup_position_in_grid]],
     uint3 blockDim [[threads_per_threadgroup]]
 ) {
-    return ;
     dst[0] = 11;
     return ;
     int dim = args[0];

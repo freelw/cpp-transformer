@@ -40,6 +40,14 @@ MetalOps::~MetalOps() {
     device->release();
 }
 
+int calc_offset(const Tensor* t) {
+    char* base = reinterpret_cast<char*>(reinterpret_cast<MTL::Buffer*>(t->get_storage()->ctx)->contents());
+    char* pos = reinterpret_cast<char*>(t->get_data());
+    printf("base %p, pos %p\n", base, pos);
+    auto offset_res = pos - base;
+    return offset_res;
+}
+
 void MetalOps::add(
     Tensor* lhs, const Tensor* rhs, Tensor* res,
     Tensor* l_shape, Tensor* l_strides,
@@ -54,28 +62,41 @@ void MetalOps::add(
     assert(res_striedes != nullptr);
     auto length = lhs->length();
 
+    NS::Error* error = nullptr;
     addOps->prepare(device, commandQueue, error);
-    std::cerr << "Error creating compute pipeline state 0: " << error->localizedDescription()->utf8String() << std::endl;
+    if (error) {
+        std::cerr << "prepare error : " << error->localizedDescription()->utf8String() << std::endl;
+    }
 
     MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
     int* args = (int*)bufferArgs->contents();
     args[0] = lhs->get_dim();
     args[1] = lhs->length();
+    auto offset_res = calc_offset(res);
+    auto offset_lhs = calc_offset(lhs);
+    auto offset_rhs = calc_offset(rhs);
+    auto offset_l_shape = calc_offset(l_shape);
+    auto offset_res_striedes = calc_offset(res_striedes);
+    auto offset_l_strides = calc_offset(l_strides);
+    auto offset_r_striedes = calc_offset(r_striedes);
+
     encoder->dispatchThreadgroups(gridDim, blockDim);
-    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), res->get_offset(), 0);
-    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), lhs->get_offset(), 1);
-    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(rhs->get_storage()->ctx), rhs->get_offset(), 2);
-    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(l_shape->get_storage()->ctx), l_shape->get_offset(), 3);
-    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res_striedes->get_storage()->ctx), res_striedes->get_offset(), 4);
-    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(l_strides->get_storage()->ctx), l_strides->get_offset(), 5);
-    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(r_striedes->get_storage()->ctx), r_striedes->get_offset(), 6);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), offset_lhs, 1);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(rhs->get_storage()->ctx), offset_rhs, 2);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(l_shape->get_storage()->ctx), offset_l_shape, 3);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res_striedes->get_storage()->ctx), offset_res_striedes, 4);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(l_strides->get_storage()->ctx), offset_l_strides, 5);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(r_striedes->get_storage()->ctx), offset_r_striedes, 6);
     encoder->setBuffer(bufferArgs, 0, 7);
     addOps->run();
 
     std::cout << "MetalOps::add executed with " << length << " elements." << std::endl;
     std::cout << "res : " << *res << std::endl;
-    std::cerr << "Error creating compute pipeline state 1: " << error->localizedDescription()->utf8String() << std::endl;
+    std::cout << "offset_res: " << offset_res << std::endl;
+    std::cout << "offset_lhs : " << offset_lhs << std::endl;
+    std::cout << "offset_rhs : " << offset_rhs << std::endl;
 }
 
 void MetalOps::addEq(
@@ -287,8 +308,8 @@ void MetalOps::load_kernel_metal() {
     std::ifstream kernel_ifs(path, std::ios::binary);
     std::cout << "path: " << path << std::endl;
     shaderSource = std::string(std::istreambuf_iterator<char>(kernel_ifs), std::istreambuf_iterator<char>());
-    // std::cout << "shaderSource: " << shaderSource << std::endl;
-    error = nullptr;
+    std::cout << "shaderSource: " << shaderSource << std::endl;
+    NS::Error* error = nullptr;
     library = device->newLibrary(NS::String::string(shaderSource.c_str(), NS::StringEncoding::UTF8StringEncoding), nullptr, &error);
 
     if (!library) {
