@@ -44,9 +44,11 @@ MetalOps::MetalOps() {
     divOps = new MetalKops("tensor_div_scalar", library);
     expandMulOps = new MetalKops("expand_mul", library);
     reluPrimeOps = new MetalKops("tensor_relu_prime", library);
+    calcAllGradNormOps = new MetalKops("tensor_l2_norm", library);
 }
 
 MetalOps::~MetalOps() {
+    delete calcAllGradNormOps;
     delete reluPrimeOps;
     delete expandMulOps;
     delete divOps;
@@ -547,7 +549,31 @@ void MetalOps::crossEntropyBackward(
 }
 
 void MetalOps::calcAllGradNorm(const std::vector<Tensor*>& grads, Tensor* norm) {
-    std::cerr << "Warning: 'calcAllGradNorm' operation is not implemented in MetalOps." << std::endl;
+    assert(norm != nullptr);
+    assert(norm->length() == 1);
+    this->memset((float*)norm->get_data(), 0, norm->size());
+    for (auto& grad : grads) {
+        assert(grad != nullptr);
+        auto length = grad->length();
+
+        calcAllGradNormOps->prepare(device, commandQueue);
+        int* args = (int*)bufferIntArgs->contents();
+        args[0] = length;
+        auto offset_grad = calc_offset(grad);
+        auto offset_norm = calc_offset(norm);
+
+        auto encoder = calcAllGradNormOps->getEncoder();
+        assert(encoder != nullptr);
+        encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(grad->get_storage()->ctx), offset_grad, 0);
+        encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(norm->get_storage()->ctx), offset_norm, 1);
+        encoder->setBuffer(bufferIntArgs, 0, 2);
+        size_t sharedMemorySize = TILE_WIDTH * sizeof(float); // Calculate shared memory size
+        encoder->setThreadgroupMemoryLength(sharedMemorySize, 0); // Set shared memory size
+        MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
+        MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
+        encoder->dispatchThreadgroups(gridDim, blockDim);
+        calcAllGradNormOps->run();
+    }
 }
 
 void MetalOps::clipGrad(Tensor* grad, const Tensor* norm, float grad_clip_val) {

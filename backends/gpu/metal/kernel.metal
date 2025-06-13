@@ -397,3 +397,39 @@ kernel void tensor_relu_prime(
         Nd[index] = Md[index] > 0.f ? 1.f : 0.f;
     }
 }
+
+kernel void tensor_l2_norm(
+    device const float* Md [[buffer(0)]],
+    device float* Nd [[buffer(1)]],
+    device const int* args [[buffer(2)]],
+    threadgroup float *partial_sums [[threadgroup(0)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int M = args[0];
+    int row = blockIdx.x * blockDim.x + threadIdx.x;
+    int tid = threadIdx.x;
+    partial_sums[tid] = 0.0f;
+
+    if (row >= M) {
+        return;
+    }
+    else {
+        partial_sums[tid] = pow(Md[row], 2);
+    }
+
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    for (int s = blockDim.x / 2; s > 0; s >>= 1) {
+        if (tid < s) {
+            partial_sums[tid] += partial_sums[tid + s];
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+
+    if (tid == 0) {
+        device atomic_float* atomicData = (device atomic_float*)&Nd[0];
+        atomic_fetch_add_explicit(atomicData, partial_sums[0], memory_order_relaxed);
+    }
+}
