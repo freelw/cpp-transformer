@@ -134,7 +134,7 @@ void MetalOps::addEq(
     MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
-    addOps->run();
+    addEqOps->run();
 }
 
 void MetalOps::expandAdd(Tensor* lhs, const Tensor* rhs, Tensor* res) {
@@ -383,7 +383,7 @@ void MetalOps::cp_to_device(Tensor* dst_tensor, char* src, size_t size) {
     assert(size > 0);
     assert(dst_tensor->get_data() != nullptr);
     assert(dst_tensor->size() == size);
-    memcpy(dst_tensor->get_data(), src, size);
+    ::memcpy(dst_tensor->get_data(), src, size);
 }
 
 void MetalOps::cp_from_device(char* dst, const Tensor* src_tensor, size_t size) {
@@ -391,7 +391,7 @@ void MetalOps::cp_from_device(char* dst, const Tensor* src_tensor, size_t size) 
     assert(src_tensor != nullptr);
     assert(size > 0);
     assert(src_tensor->get_data() != nullptr);
-    memcpy(dst, src_tensor->get_data(), size);
+    ::memcpy(dst, src_tensor->get_data(), size);
 }
 
 void MetalOps::load_kernel_metal() {
