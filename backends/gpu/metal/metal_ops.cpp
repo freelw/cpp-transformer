@@ -28,9 +28,15 @@ MetalOps::MetalOps() {
     }
     commandQueue = device->newCommandQueue();
     bufferArgs = device->newBuffer(128, MTL::ResourceStorageModeShared);
+    load_kernel_metal();
+
+    add_kernel(new MetalKops("add", library));
 }
 
 MetalOps::~MetalOps() {
+    for (auto& kernel : kernels) {
+        delete kernel;
+    }
     bufferArgs->release();
     commandQueue->release();
     device->release();
@@ -41,7 +47,16 @@ void MetalOps::add(
     Tensor* l_shape, Tensor* l_strides,
     Tensor* r_striedes, Tensor* res_striedes
 ) {
-    assert(false);
+
+    assert(lhs != nullptr);
+    assert(rhs != nullptr);
+    assert(res != nullptr);
+    assert(l_shape != nullptr);
+    assert(l_strides != nullptr);
+    assert(r_striedes != nullptr);
+    assert(res_striedes != nullptr);
+
+    auto length = lhs->length();
 }
 
 void MetalOps::addEq(
@@ -250,6 +265,11 @@ void MetalOps::load_kernel_metal() {
         std::cerr << "Error compiling shader : " << error->localizedDescription()->utf8String() << std::endl;
         abort();
     }
+}
+
+void MetalOps::add_kernel(MetalKops* kernel) {
+    assert(kernel != nullptr);
+    kernels.push_back(kernel);
 }
 
 #endif // METAL_GPU
