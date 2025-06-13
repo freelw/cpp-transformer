@@ -330,11 +330,15 @@ void MetalOps::sum(Tensor* lhs, Tensor* res, int dim) {
     encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 1);
     encoder->setBuffer(bufferIntArgs, 0, 2);
 
-    size_t sharedMemorySize = TILE_WIDTH * TILE_WIDTH * sizeof(float); // Calculate shared memory size
+    size_t sharedMemorySize = TILE_WIDTH * sizeof(float); // Calculate shared memory size
     encoder->setThreadgroupMemoryLength(sharedMemorySize, 0); // Set shared memory size
 
-    MTL::Size gridDim = MTL::Size((shape[1] + TILE_WIDTH - 1) / TILE_WIDTH, (shape[0] + TILE_WIDTH - 1) / TILE_WIDTH, 1);
-    MTL::Size blockDim = MTL::Size(TILE_WIDTH, TILE_WIDTH, 1);
+    MTL::Size gridDim = MTL::Size(
+        shape[1],
+        (shape[0] + TILE_WIDTH - 1) / TILE_WIDTH,
+        1
+    );
+    MTL::Size blockDim = MTL::Size(1, TILE_WIDTH, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
     sumOps->run();
 }

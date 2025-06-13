@@ -208,6 +208,7 @@ kernel void tensor_sum_2d_dim0_v1(
     device const float* src [[buffer(0)]],
     device float* sum [[buffer(1)]],
     device const int* args [[buffer(2)]],
+    threadgroup float *partial_sums [[threadgroup(0)]],
     uint3 threadIdx [[thread_position_in_threadgroup]],
     uint3 blockIdx [[threadgroup_position_in_grid]],
     uint3 blockDim [[threads_per_threadgroup]]
@@ -217,8 +218,7 @@ kernel void tensor_sum_2d_dim0_v1(
     int src_stride0 = args[2];
     int src_stride1 = args[3];
     int sum_stride0 = args[4];
-
-    threadgroup float *partial_sums;
+    
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
     int tid = threadIdx.y * blockDim.x + threadIdx.x;
@@ -237,10 +237,8 @@ kernel void tensor_sum_2d_dim0_v1(
         }
 
         if (tid == 0) {
-            // Use atomic operations for floating-point addition
-            device atomic_uint* atomic_sum = reinterpret_cast<device atomic_uint*>(&sum[col * sum_stride0]);
-            uint encoded_value = as_type<uint>(partial_sums[0]); // Encode float as uint
-            atomic_fetch_add_explicit(atomic_sum, encoded_value, memory_order_relaxed);
+            device atomic_float* atomicData = (device atomic_float*)&sum[col * sum_stride0];
+            atomic_fetch_add_explicit(atomicData, partial_sums[0], memory_order_relaxed);
         }
     }
 }

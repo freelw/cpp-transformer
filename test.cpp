@@ -313,7 +313,6 @@ void test_add() {
     insert_boundary_action();
     // printAllActions();
     allocMemAndInitTensors();
-    std::cout << "allocMemAndInitTensors done" << std::endl;
     input->fill(0.1f);
     init_w_wt(w, wt);
     gDoActions();
