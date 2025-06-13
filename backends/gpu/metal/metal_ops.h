@@ -100,6 +100,7 @@ private:
     std::string shaderSource;
     MetalKops* addOps;
     MetalKops* fillOps;
+    MetalKops* atOps;
 };
 
 #endif // METAL_GPU

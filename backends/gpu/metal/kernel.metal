@@ -51,3 +51,7 @@ kernel void tensor_add_kernel(
     }
     dst[offset_dst] = src1[offset_src1] + src2[offset_src2];
 }
+
+kernel void tensor_at_2d() {
+
+}

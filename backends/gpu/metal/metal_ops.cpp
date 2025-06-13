@@ -33,6 +33,7 @@ MetalOps::MetalOps() {
 
     addOps = new MetalKops("tensor_add_kernel", library);
     fillOps = new MetalKops("fill_float", library);
+    atOps = new MetalKops("tensor_at_2d", library);
 }
 
 MetalOps::~MetalOps() {
@@ -112,7 +113,35 @@ void MetalOps::expandMul(Tensor* lhs, const Tensor* rhs, Tensor* res) {
 }
 
 void MetalOps::at(Tensor* lhs, const Tensor* rhs, Tensor* res) {
-    std::cerr << "Warning: 'at' operation is not implemented in MetalOps." << std::endl;
+    auto lshape = lhs->get_shape();
+    auto rshape = rhs->get_shape();
+    auto res_shape = res->get_shape();
+
+    auto lstrides = lhs->get_strides();
+    auto rstrides = rhs->get_strides();
+    auto res_strides = res->get_strides();
+
+    assert(lhs->get_dim() == 2);
+    assert(rhs->get_dim() == 2);
+    assert(res->get_dim() == 2);
+
+    assert(lshape[1] == rshape[0]);
+    assert(res_shape[0] == lshape[0]);
+    assert(res_shape[1] == rshape[1]);
+
+    const int M = lshape[0];
+    const int N = lshape[1];
+    const int P = rshape[1];
+
+    const int stride_M0 = lstrides[0];
+    const int stride_M1 = lstrides[1];
+    const int stride_N0 = rstrides[0];
+    const int stride_N1 = rstrides[1];
+    const int stride_P0 = res_strides[0];
+    const int stride_P1 = res_strides[1];
+
+    this->memset((float*)res->get_data(), 0, res->size());
+
 }
 
 void MetalOps::embedding(Tensor* lhs, const Tensor* indices, const Tensor* res) {

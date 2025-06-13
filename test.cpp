@@ -7551,6 +7551,7 @@ void test_embedding_with_cpu() {
 
 void test_gpu() {
     test_add();
+    test_at();
     return;
 
     test_at();
