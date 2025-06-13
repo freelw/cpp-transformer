@@ -142,6 +142,33 @@ void MetalOps::at(Tensor* lhs, const Tensor* rhs, Tensor* res) {
 
     this->memset((float*)res->get_data(), 0, res->size());
 
+    atOps->prepare(device, commandQueue);
+    int* args = (int*)bufferIntArgs->contents();
+    args[0] = M;
+    args[1] = N;
+    args[2] = P;
+    args[3] = stride_M0;
+    args[4] = stride_M1;
+    args[5] = stride_N0;
+    args[6] = stride_N1;
+    args[7] = stride_P0;
+    args[8] = stride_P1;
+    auto offset_res = calc_offset(res);
+    auto offset_lhs = calc_offset(lhs);
+    auto offset_rhs = calc_offset(rhs);
+
+    auto encoder = atOps->getEncoder();
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), offset_lhs, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(rhs->get_storage()->ctx), offset_rhs, 1);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 2);
+    encoder->setBuffer(bufferIntArgs, 0, 3);
+
+    MTL::Size gridDim = MTL::Size((P + TILE_WIDTH - 1) / TILE_WIDTH, (M + TILE_WIDTH - 1) / TILE_WIDTH, 1);
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, TILE_WIDTH, 1);
+
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    atOps->run();
 }
 
 void MetalOps::embedding(Tensor* lhs, const Tensor* indices, const Tensor* res) {

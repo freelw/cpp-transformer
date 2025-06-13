@@ -36,7 +36,6 @@ void MetalKops::prepare(MTL::Device* device, MTL::CommandQueue* commandQueue) {
         std::cerr << "Error: Failed to create compute command encoder." << std::endl;
         throw std::runtime_error("Failed to create compute command encoder");
     }
-
     encoder->setComputePipelineState(pipelineState);
 }
 
