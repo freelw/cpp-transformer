@@ -43,7 +43,6 @@ MetalOps::~MetalOps() {
 int calc_offset(const Tensor* t) {
     char* base = reinterpret_cast<char*>(reinterpret_cast<MTL::Buffer*>(t->get_storage()->ctx)->contents());
     char* pos = reinterpret_cast<char*>(t->get_data());
-    printf("base %p, pos %p\n", base, pos);
     auto offset_res = pos - base;
     return offset_res;
 }
@@ -300,7 +299,7 @@ void MetalOps::load_kernel_metal() {
     std::ifstream kernel_ifs(path, std::ios::binary);
     std::cout << "path: " << path << std::endl;
     shaderSource = std::string(std::istreambuf_iterator<char>(kernel_ifs), std::istreambuf_iterator<char>());
-    std::cout << "shaderSource: " << shaderSource << std::endl;
+    // std::cout << "shaderSource: " << shaderSource << std::endl;
     NS::Error* error = nullptr;
     library = device->newLibrary(NS::String::string(shaderSource.c_str(), NS::StringEncoding::UTF8StringEncoding), nullptr, &error);
 
