@@ -242,3 +242,42 @@ kernel void tensor_sum_2d_dim0_v1(
         }
     }
 }
+
+kernel void cross_entropy(
+    device const float* Md [[buffer(0)]],
+    device const int* labels [[buffer(1)]],
+    device float* maxs [[buffer(2)]],
+    device float* sums [[buffer(3)]],
+    device float* loss [[buffer(4)]],
+    device int* args [[buffer(5)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int M = args[0];
+    int N = args[1];
+    int stride0 = args[2];
+    int stride1 = args[3];
+    int row = blockIdx.x * blockDim.x + threadIdx.x;
+    if (row >= M) {
+        return;
+    }
+    else {
+        float max = -1e10;
+        float sum = 0.0f;
+        for (int i = 0; i < N; ++i) {
+            float val = Md[row * stride0 + i * stride1];
+            max = fmax(max, val);
+        }
+        maxs[row] = max;
+        for (int i = 0; i < N; ++i) {
+            float val = Md[row * stride0 + i * stride1];
+            sum += exp(val - max);
+        }
+        sums[row] = sum;
+        int32_t label = labels[row];
+        float zt = Md[row * stride0 + label * stride1];
+        loss[row] = -zt + max + log(sum);
+    }
+}
+

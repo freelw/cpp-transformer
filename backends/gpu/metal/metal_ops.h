@@ -105,6 +105,7 @@ private:
     MetalKops* expandAddOps;
     MetalKops* mulOps;
     MetalKops* sumOps;
+    MetalKops* crossEntropyOps;
 };
 
 #endif // METAL_GPU

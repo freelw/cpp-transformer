@@ -38,9 +38,11 @@ MetalOps::MetalOps() {
     expandAddOps = new MetalKops("expand_add", library);
     mulOps = new MetalKops("tensor_mul_kernel", library);
     sumOps = new MetalKops("tensor_sum_2d_dim0_v1", library);
+    crossEntropyOps = new MetalKops("cross_entropy", library);
 }
 
 MetalOps::~MetalOps() {
+    delete crossEntropyOps;
     delete sumOps;
     delete mulOps;
     delete expandAddOps;
@@ -354,7 +356,52 @@ void MetalOps::reluPrime(Tensor* lhs, Tensor* res) {
 void MetalOps::crossEntropy(
     Tensor* lhs, const Tensor* labels, Tensor* maxs, Tensor* sums, Tensor* res
 ) {
-    std::cerr << "Warning: 'crossEntropy' operation is not implemented in MetalOps." << std::endl;
+    assert(lhs != nullptr);
+    assert(labels != nullptr);
+    assert(maxs != nullptr);
+    assert(sums != nullptr);
+    assert(res != nullptr);
+
+    assert(lhs->get_shape().size() == 2);
+    assert(labels->get_shape().size() == 1);
+    assert(maxs->get_shape().size() == 1);
+    assert(sums->get_shape().size() == 1);
+    assert(res->get_shape().size() == 1);
+    assert(lhs->get_shape()[0] == labels->get_shape()[0]);
+    assert(lhs->get_shape()[0] == maxs->get_shape()[0]);
+    assert(lhs->get_shape()[0] == sums->get_shape()[0]);
+    assert(res->get_shape()[0] == sums->get_shape()[0]);
+
+    auto lstrides = lhs->get_strides();
+
+    this->memset((float*)res->get_data(), 0, res->size());
+    this->memset((float*)maxs->get_data(), 0, maxs->size());
+    this->memset((float*)sums->get_data(), 0, sums->size());
+
+    crossEntropyOps->prepare(device, commandQueue);
+    int* args = (int*)bufferIntArgs->contents();
+    args[0] = lhs->get_shape()[0];
+    args[1] = lhs->get_shape()[1];
+    args[2] = lstrides[0];
+    args[3] = lstrides[1];
+
+    auto offset_lhs = calc_offset(lhs);
+    auto offset_labels = calc_offset(labels);
+    auto offset_maxs = calc_offset(maxs);
+    auto offset_sums = calc_offset(sums);
+    auto offset_res = calc_offset(res);
+    auto encoder = crossEntropyOps->getEncoder();
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), offset_lhs, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(labels->get_storage()->ctx), offset_labels, 1);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(maxs->get_storage()->ctx), offset_maxs, 2);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(sums->get_storage()->ctx), offset_sums, 3);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 4);
+    encoder->setBuffer(bufferIntArgs, 0, 5);
+    MTL::Size gridDim = MTL::Size((lhs->get_shape()[0] + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    crossEntropyOps->run();
 }
 
 void MetalOps::crossEntropyBackward(
