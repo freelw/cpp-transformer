@@ -6,6 +6,10 @@
 namespace MTL {
     class Library;
     class Function;
+    class Device;
+    class CommandQueue;
+    class CommandBuffer;
+    class ComputeCommandEncoder;
 }
 
 class MetalKops {
@@ -15,9 +19,13 @@ public:
     const std::string& getFunctionName() const {
         return functionName;
     }
+    void prepare(MTL::Device* device, MTL::CommandQueue* commandQueue);
+    void run();
 private:
     std::string functionName;
     MTL::Function* function;
+    MTL::CommandBuffer* commandBuffer;
+    MTL::ComputeCommandEncoder* encoder;
 };
 
 

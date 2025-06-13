@@ -84,7 +84,6 @@ public:
     void cp_from_device(char* dst, const Tensor* src_tensor, size_t size) override;
 private:
     void load_kernel_metal();
-    void add_kernel(MetalKops* kernel);
 private:
     MTL::Device* device;
     MTL::CommandQueue* commandQueue;
@@ -94,7 +93,7 @@ private:
     MTL::Buffer* bufferArgs;
     MTL::Library* library;
     std::string shaderSource;
-    std::vector<MetalKops*> kernels;
+    MetalKops* addOps;
 };
 
 #endif // METAL_GPU

@@ -30,13 +30,11 @@ MetalOps::MetalOps() {
     bufferArgs = device->newBuffer(128, MTL::ResourceStorageModeShared);
     load_kernel_metal();
 
-    add_kernel(new MetalKops("tensor_add_2d", library));
+    addOps = new MetalKops("tensor_add_2d", library);
 }
 
 MetalOps::~MetalOps() {
-    for (auto& kernel : kernels) {
-        delete kernel;
-    }
+    delete addOps;
     bufferArgs->release();
     commandQueue->release();
     device->release();
@@ -57,6 +55,14 @@ void MetalOps::add(
     assert(res_striedes != nullptr);
 
     auto length = lhs->length();
+
+    addOps->prepare(device, commandQueue);
+
+    addOps->run();
+
+    encoder->endEncoding();
+    commandBuffer->commit();
+    commandBuffer->waitUntilCompleted();
 }
 
 void MetalOps::addEq(
@@ -268,11 +274,6 @@ void MetalOps::load_kernel_metal() {
         std::cerr << "Error compiling shader : " << error->localizedDescription()->utf8String() << std::endl;
         abort();
     }
-}
-
-void MetalOps::add_kernel(MetalKops* kernel) {
-    assert(kernel != nullptr);
-    kernels.push_back(kernel);
 }
 
 #endif // METAL_GPU
