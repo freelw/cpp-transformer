@@ -3,6 +3,8 @@
 
 #include "backends/backend_ops.h"
 #include "kernel_ops.h"
+#include <random>
+#include <chrono>
 
 #ifndef GCC_CPU
 #ifdef METAL_GPU
@@ -114,6 +116,9 @@ private:
     MetalKops* calcAllGradNormOps;
     MetalKops* clipGradOps;
     MetalKops* adamStepOps;
+private:
+    std::mt19937 gen;
+    std::uniform_real_distribution<> dis;
 };
 
 #endif // METAL_GPU

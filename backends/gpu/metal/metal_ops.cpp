@@ -47,6 +47,10 @@ MetalOps::MetalOps() {
     calcAllGradNormOps = new MetalKops("tensor_l2_norm", library);
     clipGradOps = new MetalKops("tensor_clip", library);
     adamStepOps = new MetalKops("tensor_adam_step", library);
+
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    gen = std::mt19937(seed);
+    dis = std::uniform_real_distribution<>(0, 1);
 }
 
 MetalOps::~MetalOps() {
@@ -768,7 +772,21 @@ void MetalOps::build_dropout_mask(
     Tensor* mask, float p,
     Tensor* shape, Tensor* strides
 ) {
-    assert(false);
+    // todo : use gpu
+    assert(mask != nullptr);
+    auto length = mask->length();
+    for (int i = 0; i < length; ++i) {
+        int index = 0;
+        int tmp_index = i;
+        int tot_length = length;
+        for (int j = 0; j < mask->get_dim(); ++j) {
+            tot_length /= mask->get_shape()[j];
+            int l = tmp_index / tot_length;
+            index += l * mask->get_strides()[j];
+            tmp_index %= tot_length;
+        }
+        static_cast<float*>(mask->get_data())[i] = dis(gen) < p ? 0.0f : 1.0f;
+    }
 }
 
 void MetalOps::pos_encoding(Tensor* res) {
