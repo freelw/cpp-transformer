@@ -369,7 +369,7 @@ void MetalOps::load_kernel_metal() {
 
     //load shader source code into shaderSource
     std::ifstream kernel_ifs(path, std::ios::binary);
-    std::cout << "path: " << path << std::endl;
+    // std::cout << "path: " << path << std::endl;
     shaderSource = std::string(std::istreambuf_iterator<char>(kernel_ifs), std::istreambuf_iterator<char>());
     // std::cout << "shaderSource: " << shaderSource << std::endl;
     NS::Error* error = nullptr;
