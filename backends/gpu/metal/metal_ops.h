@@ -108,6 +108,7 @@ private:
     MetalKops* crossEntropyOps;
     MetalKops* crossEntropyBackwardOps;
     MetalKops* reluOps;
+    MetalKops* divOps;
 };
 
 #endif // METAL_GPU

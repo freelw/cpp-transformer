@@ -332,3 +332,23 @@ kernel void tensor_relu(
         Nd[index] = fmax(Md[index], 0.f);
     }
 }
+
+kernel void tensor_div_scalar(
+    device float* dst [[buffer(0)]],
+    device const float* src [[buffer(1)]],
+    device const int* intArgs [[buffer(2)]],
+    device const float* floatArgs [[buffer(3)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int length = intArgs[0];
+    float value = floatArgs[0];
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index >= length) {
+        return;
+    }
+    else {
+        dst[index] = src[index] / value;
+    }
+}

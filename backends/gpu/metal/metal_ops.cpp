@@ -41,9 +41,11 @@ MetalOps::MetalOps() {
     crossEntropyOps = new MetalKops("cross_entropy", library);
     crossEntropyBackwardOps = new MetalKops("cross_entropy_backward", library);
     reluOps = new MetalKops("tensor_relu", library);
+    divOps = new MetalKops("tensor_div_scalar", library);
 }
 
 MetalOps::~MetalOps() {
+    delete divOps;
     delete reluOps;
     delete crossEntropyBackwardOps;
     delete crossEntropyOps;
@@ -576,7 +578,28 @@ void MetalOps::softmax_bacward(Tensor* target_grad, const Tensor* softmax_res, T
 }
 
 void MetalOps::div(Tensor* dst, Tensor* src, float value) {
-    std::cerr << "Warning: 'div' operation is not implemented in MetalOps." << std::endl;
+    assert(dst->length() == src->length());
+    assert(dst->get_shape() == src->get_shape());
+    assert(dst->get_strides() == src->get_strides());
+    auto length = dst->length();
+
+    divOps->prepare(device, commandQueue);
+    int* intArgs = (int*)bufferIntArgs->contents();
+    float* floatArgs = (float*)bufferFloatArgs->contents();
+    intArgs[0] = length;
+    floatArgs[0] = value;
+    auto offset_dst = calc_offset(dst);
+    auto offset_src = calc_offset(src);
+    auto encoder = divOps->getEncoder();
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(dst->get_storage()->ctx), offset_dst, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(src->get_storage()->ctx), offset_src, 1);
+    encoder->setBuffer(bufferIntArgs, 0, 2);
+    encoder->setBuffer(bufferFloatArgs, 0, 3);
+    MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    divOps->run();
 }
 
 void MetalOps::build_dropout_mask(
