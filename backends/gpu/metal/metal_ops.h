@@ -19,6 +19,10 @@ namespace MTL {
     class Library;
 }
 
+namespace NS {
+    class Error;
+}
+
 class MetalOps : public BackendOps {
 public:
     MetalOps();
@@ -92,6 +96,7 @@ private:
     MTL::ComputePipelineState* pipelineState;
     MTL::CommandBuffer* commandBuffer;
     MTL::ComputeCommandEncoder* encoder;
+    NS::Error* error;
     MTL::Buffer* bufferArgs;
     MTL::Library* library;
     std::string shaderSource;

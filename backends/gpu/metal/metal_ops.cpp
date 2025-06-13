@@ -54,7 +54,8 @@ void MetalOps::add(
     assert(res_striedes != nullptr);
     auto length = lhs->length();
 
-    addOps->prepare(device, commandQueue);
+    addOps->prepare(device, commandQueue, error);
+    std::cerr << "Error creating compute pipeline state 0: " << error->localizedDescription()->utf8String() << std::endl;
 
     MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
@@ -73,6 +74,8 @@ void MetalOps::add(
     addOps->run();
 
     std::cout << "MetalOps::add executed with " << length << " elements." << std::endl;
+    std::cout << "res : " << *res << std::endl;
+    std::cerr << "Error creating compute pipeline state 1: " << error->localizedDescription()->utf8String() << std::endl;
 }
 
 void MetalOps::addEq(
@@ -285,7 +288,7 @@ void MetalOps::load_kernel_metal() {
     std::cout << "path: " << path << std::endl;
     shaderSource = std::string(std::istreambuf_iterator<char>(kernel_ifs), std::istreambuf_iterator<char>());
     // std::cout << "shaderSource: " << shaderSource << std::endl;
-    NS::Error* error = nullptr;
+    error = nullptr;
     library = device->newLibrary(NS::String::string(shaderSource.c_str(), NS::StringEncoding::UTF8StringEncoding), nullptr, &error);
 
     if (!library) {

@@ -20,14 +20,13 @@ MetalKops::~MetalKops() {
     function->release();
 }
 
-void MetalKops::prepare(MTL::Device* device, MTL::CommandQueue* commandQueue) {
+void MetalKops::prepare(MTL::Device* device, MTL::CommandQueue* commandQueue, NS::Error* error) {
     commandBuffer = commandQueue->commandBuffer();
     encoder = commandBuffer->computeCommandEncoder();
     if (!encoder) {
         std::cerr << "Error: Failed to create compute command encoder." << std::endl;
         throw std::runtime_error("Failed to create compute command encoder");
     }
-    NS::Error* error = nullptr;
     MTL::ComputePipelineState* pipelineState = device->newComputePipelineState(function, &error);
     if (!pipelineState) {
         std::cerr << "Error creating compute pipeline state: " << error->localizedDescription()->utf8String() << std::endl;

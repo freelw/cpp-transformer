@@ -12,6 +12,10 @@ namespace MTL {
     class ComputeCommandEncoder;
 }
 
+namespace NS {
+    class Error;
+}
+
 class MetalKops {
 public:
     MetalKops(const std::string& functionName, MTL::Library* library);
@@ -19,7 +23,7 @@ public:
     const std::string& getFunctionName() const {
         return functionName;
     }
-    void prepare(MTL::Device* device, MTL::CommandQueue* commandQueue);
+    void prepare(MTL::Device* device, MTL::CommandQueue* commandQueue, NS::Error* error);
     void run();
 private:
     std::string functionName;
