@@ -33,6 +33,7 @@ void MetalKops::prepare(MTL::Device* device, MTL::CommandQueue* commandQueue) {
         std::cerr << "Error creating compute pipeline state: " << error->localizedDescription()->utf8String() << std::endl;
         throw std::runtime_error("Failed to create compute pipeline state");
     }
+    encoder->setComputePipelineState(pipelineState);
 }
 
 void MetalKops::run() {

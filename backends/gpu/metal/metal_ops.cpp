@@ -58,6 +58,17 @@ void MetalOps::add(
 
     addOps->prepare(device, commandQueue);
 
+
+
+    // encoder->setBuffer(bufferA, 0, 0);
+    // encoder->setBuffer(bufferB, 0, 1);
+    // encoder->setBuffer(bufferResult, 0, 2);
+
+
+    MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+
     addOps->run();
 
     encoder->endEncoding();
@@ -266,7 +277,7 @@ void MetalOps::load_kernel_metal() {
     std::ifstream kernel_ifs(path, std::ios::binary);
     std::cout << "path: " << path << std::endl;
     shaderSource = std::string(std::istreambuf_iterator<char>(kernel_ifs), std::istreambuf_iterator<char>());
-    std::cout << "shaderSource: " << shaderSource << std::endl;
+    // std::cout << "shaderSource: " << shaderSource << std::endl;
     NS::Error* error = nullptr;
     library = device->newLibrary(NS::String::string(shaderSource.c_str(), NS::StringEncoding::UTF8StringEncoding), nullptr, &error);
 

@@ -7,6 +7,8 @@
 #ifndef GCC_CPU
 #ifdef METAL_GPU
 
+#define TILE_WIDTH 32
+
 namespace MTL {
     class Device;
     class CommandQueue;
