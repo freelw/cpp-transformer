@@ -337,7 +337,7 @@ void MetalOps::memset(void* ptr, int value, size_t size) {
 }
 
 void MetalOps::free(void* ptr) {
-    std::cerr << "Warning: Freeing memory in MetalOps is not implemented." << std::endl;
+    // we do not have to free the buffer here, as it is managed by MetalOps
 }
 
 void MetalOps::cp_device_to_device(void* dst, const void* src, size_t size) {
