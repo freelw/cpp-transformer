@@ -110,6 +110,7 @@ private:
     MetalKops* reluOps;
     MetalKops* divOps;
     MetalKops* expandMulOps;
+    MetalKops* reluPrimeOps;
 };
 
 #endif // METAL_GPU
