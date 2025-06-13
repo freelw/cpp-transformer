@@ -168,7 +168,15 @@ void MetalOps::init_weight_for_dbg(Tensor* tensor, float scale) {
 }
 
 void MetalOps::fill(Tensor* tensor, float value) {
-    std::cerr << "Warning: 'fill' operation is not implemented in MetalOps." << std::endl;
+    std::cerr << "Warning: 'fill' operation is using cpu." << std::endl;
+    assert(tensor != nullptr);
+    assert(tensor->get_data() != nullptr);
+    assert(tensor->length() > 0);
+
+    float* data = static_cast<float*>(tensor->get_data());
+    for (int i = 0; i < tensor->length(); ++i) {
+        data[i] = value;
+    }
 }
 
 void MetalOps::reshape_deep_cp(
