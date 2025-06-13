@@ -25,6 +25,7 @@ struct TensorStorage {
     TensorStorage(int _size) : data(nullptr), size(_size) {}
     void* data;
     int size;
+    void* ctx;
 };
 
 extern int g_tensor_id;
@@ -43,7 +44,7 @@ public:
         const std::string& _name, TensorDType _dtype, TensorStorage* _storage
     );
     virtual ~Tensor();
-    virtual void set_data(void* ptr);
+    virtual void set_data(void* ptr, void* ctx);
     virtual void* get_data() const;
     TensorStorage* get_storage() const { return storage; }
     int get_offset() const { return offset; }

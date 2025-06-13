@@ -215,8 +215,9 @@ void MetalOps::mulSV(Tensor* dst, Tensor* src, float value) {
     assert(false);
 }
 
-void* MetalOps::alloc(size_t size) {
+void* MetalOps::alloc(size_t size, void** ctx) {
     MTL::Buffer* buffer = device->newBuffer(size, MTL::ResourceStorageModeShared);
+    *ctx = (void*)buffer;
     return buffer->contents();
 }
 

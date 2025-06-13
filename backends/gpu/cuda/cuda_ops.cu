@@ -1072,7 +1072,7 @@ void CUDAOps::mulSV(Tensor* dst, Tensor* src, float value) {
         );
 }
 
-void* CUDAOps::alloc(size_t size) {
+void* CUDAOps::alloc(size_t size, void** /*ctx*/) {
     void* ret = nullptr;
     cudaMalloc((void**)&ret, size);
     return ret;

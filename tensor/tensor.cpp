@@ -72,11 +72,12 @@ Tensor::~Tensor() {
     }
 }
 
-void Tensor::set_data(void* ptr) {
+void Tensor::set_data(void* ptr, void* ctx) {
     assert(ptr != nullptr);
     assert(storage != nullptr);
     assert(storage->data == nullptr);
     storage->data = ptr;
+    storage->ctx = ctx;
 }
 
 void* Tensor::get_data() const {
@@ -555,9 +556,12 @@ void allocMemAndInitTensors() {
         grad_tensors_data_capacity += tensor->capacity();
     }
 
-    tensors_data = g_backend_ops->alloc(tensors_data_capacity);
-    c_tensors_data = g_backend_ops->alloc(c_tensors_data_capacity);
-    grad_tensors_data = g_backend_ops->alloc(grad_tensors_data_capacity);
+    void* tensors_data_ctx = nullptr;
+    void* c_tensors_data_ctx = nullptr;
+    void* grad_tensors_data_ctx = nullptr;
+    tensors_data = g_backend_ops->alloc(tensors_data_capacity, &tensors_data_ctx);
+    c_tensors_data = g_backend_ops->alloc(c_tensors_data_capacity, &c_tensors_data_ctx);
+    grad_tensors_data = g_backend_ops->alloc(grad_tensors_data_capacity, &grad_tensors_data_ctx);
 
     g_backend_ops->memset(tensors_data, 0, tensors_data_capacity);
     g_backend_ops->memset(c_tensors_data, 0, c_tensors_data_capacity);
@@ -565,19 +569,19 @@ void allocMemAndInitTensors() {
 
     int64_t offset = 0;
     for (Tensor* tensor : g_tensors) {
-        tensor->set_data(reinterpret_cast<char*>(tensors_data) + offset);
+        tensor->set_data(reinterpret_cast<char*>(tensors_data) + offset, tensors_data_ctx);
         offset += tensor->capacity();
     }
 
     offset = 0;
     for (Tensor* tensor : g_c_tensors) {
-        tensor->set_data(reinterpret_cast<char*>(c_tensors_data) + offset);
+        tensor->set_data(reinterpret_cast<char*>(c_tensors_data) + offset, c_tensors_data_ctx);
         offset += tensor->capacity();
     }
 
     offset = 0;
     for (Tensor* tensor : g_grad_tensors) {
-        tensor->set_data(reinterpret_cast<char*>(grad_tensors_data) + offset);
+        tensor->set_data(reinterpret_cast<char*>(grad_tensors_data) + offset, grad_tensors_data_ctx);
         offset += tensor->capacity();
     }
 }

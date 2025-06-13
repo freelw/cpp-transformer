@@ -61,7 +61,7 @@ public:
     ) = 0;
     virtual void mulSV(Tensor* dst, Tensor* src, float value) = 0;
     // Memory management
-    virtual void* alloc(size_t size) = 0;
+    virtual void* alloc(size_t size, void** ctx = nullptr) = 0;
     virtual void memset(void* ptr, int value, size_t size) = 0;
     virtual void cp_device_to_device(void* dst, const void* src, size_t size) = 0;
     virtual void free(void* ptr) = 0;

@@ -64,7 +64,7 @@ public:
     void mulSV(Tensor* dst, Tensor* src, float value) override;
 
     // Memory management
-    void* alloc(size_t size) override;
+    void* alloc(size_t size, void** ctx = nullptr) override;
     void memset(void* ptr, int value, size_t size) override;
     void cp_device_to_device(void* dst, const void* src, size_t size) override;
     void free(void* ptr) override;
