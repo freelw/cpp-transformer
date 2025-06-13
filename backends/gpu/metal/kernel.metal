@@ -5,27 +5,21 @@ kernel void tensor_add_kernel(
     device float* dst [[buffer(0)]],
     device const float* src1 [[buffer(1)]],
     device const float* src2 [[buffer(2)]],
-    device const int* shape[[buffer(4)]],
-    device const int* strides_dst[[buffer(5)]],
-    device const int* strides_src1[[buffer(6)]],
-    device const int* strides_src2[[buffer(7)]],
-    device const int* args[[buffer(8)]],
+    device const int* shape[[buffer(3)]],
+    device const int* strides_dst[[buffer(4)]],
+    device const int* strides_src1[[buffer(5)]],
+    device const int* strides_src2[[buffer(6)]],
+    device const int* args[[buffer(7)]],
     uint3 threadIdx [[thread_position_in_threadgroup]],
     uint3 blockIdx [[threadgroup_position_in_grid]],
     uint3 blockDim [[threads_per_threadgroup]]
 ) {
-    dst[0] = 11;
-    return ;
     int dim = args[0];
     int length = args[1];
     int index = blockIdx.x * blockDim.x + threadIdx.x;
-    // printf("xxx");
     if (index >= length) {
-        dst[0] = 22;
         return;
     }
-
-
     int tmp_length = length;
     int tmp_index = index;
     int offset_src1 = 0;
@@ -40,5 +34,4 @@ kernel void tensor_add_kernel(
         tmp_index %= tmp_length;
     }
     dst[offset_dst] = src1[offset_src1] + src2[offset_src2];
-    dst[0] = 33;
 }

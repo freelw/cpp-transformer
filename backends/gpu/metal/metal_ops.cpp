@@ -62,12 +62,7 @@ void MetalOps::add(
     assert(res_striedes != nullptr);
     auto length = lhs->length();
 
-    NS::Error* error = nullptr;
-    addOps->prepare(device, commandQueue, error);
-    if (error) {
-        std::cerr << "prepare error : " << error->localizedDescription()->utf8String() << std::endl;
-    }
-
+    addOps->prepare(device, commandQueue);
     MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
     int* args = (int*)bufferArgs->contents();
@@ -81,7 +76,8 @@ void MetalOps::add(
     auto offset_l_strides = calc_offset(l_strides);
     auto offset_r_striedes = calc_offset(r_striedes);
 
-    encoder->dispatchThreadgroups(gridDim, blockDim);
+    auto encoder = addOps->getEncoder();
+    assert(encoder != nullptr);
     encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 0);
     encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), offset_lhs, 1);
     encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(rhs->get_storage()->ctx), offset_rhs, 2);
@@ -90,13 +86,9 @@ void MetalOps::add(
     encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(l_strides->get_storage()->ctx), offset_l_strides, 5);
     encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(r_striedes->get_storage()->ctx), offset_r_striedes, 6);
     encoder->setBuffer(bufferArgs, 0, 7);
-    addOps->run();
+    encoder->dispatchThreadgroups(gridDim, blockDim);
 
-    std::cout << "MetalOps::add executed with " << length << " elements." << std::endl;
-    std::cout << "res : " << *res << std::endl;
-    std::cout << "offset_res: " << offset_res << std::endl;
-    std::cout << "offset_lhs : " << offset_lhs << std::endl;
-    std::cout << "offset_rhs : " << offset_rhs << std::endl;
+    addOps->run();
 }
 
 void MetalOps::addEq(

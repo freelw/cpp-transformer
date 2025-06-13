@@ -20,18 +20,21 @@ MetalKops::~MetalKops() {
     function->release();
 }
 
-void MetalKops::prepare(MTL::Device* device, MTL::CommandQueue* commandQueue, NS::Error* error) {
+void MetalKops::prepare(MTL::Device* device, MTL::CommandQueue* commandQueue) {
+    NS::Error* error = nullptr;
+    pipelineState = device->newComputePipelineState(function, &error);
+    if (!pipelineState) {
+        std::cerr << "Error creating compute pipeline state: " << error->localizedDescription()->utf8String() << std::endl;
+        throw std::runtime_error("Failed to create compute pipeline state");
+    }
+
     commandBuffer = commandQueue->commandBuffer();
     encoder = commandBuffer->computeCommandEncoder();
     if (!encoder) {
         std::cerr << "Error: Failed to create compute command encoder." << std::endl;
         throw std::runtime_error("Failed to create compute command encoder");
     }
-    MTL::ComputePipelineState* pipelineState = device->newComputePipelineState(function, &error);
-    if (!pipelineState) {
-        std::cerr << "Error creating compute pipeline state: " << error->localizedDescription()->utf8String() << std::endl;
-        throw std::runtime_error("Failed to create compute pipeline state");
-    }
+
     encoder->setComputePipelineState(pipelineState);
 }
 
@@ -43,4 +46,5 @@ void MetalKops::run() {
 
     encoder->release();
     commandBuffer->release();
+    pipelineState->release();
 }

@@ -93,9 +93,6 @@ private:
 private:
     MTL::Device* device;
     MTL::CommandQueue* commandQueue;
-    MTL::ComputePipelineState* pipelineState;
-    MTL::CommandBuffer* commandBuffer;
-    MTL::ComputeCommandEncoder* encoder;
 
     MTL::Buffer* bufferArgs;
     MTL::Library* library;
