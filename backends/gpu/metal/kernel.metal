@@ -456,3 +456,41 @@ kernel void tensor_clip(
         }
     }
 }
+
+kernel void tensor_adam_step(
+    device float* w [[buffer(0)]],
+    device const float* grad [[buffer(1)]],
+    device float* m [[buffer(2)]],
+    device float* v [[buffer(3)]],
+    device const int* intArgs [[buffer(4)]],
+    device const float* floatArgs [[buffer(5)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int M = intArgs[0];
+    int t = intArgs[1];
+    float beta1 = floatArgs[0];
+    float beta2 = floatArgs[1];
+    float lr = floatArgs[2];
+    float eps = floatArgs[3];
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index >= M) {
+        return;
+    }
+    else {
+        float w_value = w[index];
+        float m_value = m[index];
+        float v_value = v[index];
+        float grad_value = grad[index];
+
+        m_value = beta1 * m_value + (1.0f - beta1) * grad_value;
+        v_value = beta2 * v_value + (1.0f - beta2) * pow(grad_value, 2);
+        m[index] = m_value;
+        v[index] = v_value;
+        float m_hat = m_value / (1.0f - pow(beta1, t));
+        float v_hat = v_value / (1.0f - pow(beta2, t));
+        w_value -= lr * m_hat / (sqrt(v_hat) + eps);
+        w[index] = w_value;
+    }
+}

@@ -46,9 +46,11 @@ MetalOps::MetalOps() {
     reluPrimeOps = new MetalKops("tensor_relu_prime", library);
     calcAllGradNormOps = new MetalKops("tensor_l2_norm", library);
     clipGradOps = new MetalKops("tensor_clip", library);
+    adamStepOps = new MetalKops("tensor_adam_step", library);
 }
 
 MetalOps::~MetalOps() {
+    delete adamStepOps;
     delete clipGradOps;
     delete calcAllGradNormOps;
     delete reluPrimeOps;
@@ -610,7 +612,48 @@ void MetalOps::clipGrad(Tensor* grad, const Tensor* norm, float grad_clip_val) {
 void MetalOps::adamStep(
     Tensor* w, Tensor* grad, Tensor* m, Tensor* v, int t, float lr, float beta1, float beta2, float epsilon
 ) {
-    std::cerr << "Warning: 'adamStep' operation is not implemented in MetalOps." << std::endl;
+    assert(w != nullptr);
+    assert(grad != nullptr);
+    assert(m != nullptr);
+    assert(v != nullptr);
+
+    assert(!w->is_view());
+    assert(!grad->is_view());
+    assert(!m->is_view());
+    assert(!v->is_view());
+
+    assert(w->get_shape() == grad->get_shape());
+    assert(w->get_shape() == m->get_shape());
+    assert(w->get_shape() == v->get_shape());
+
+    auto length = w->length();
+
+    adamStepOps->prepare(device, commandQueue);
+    int* intArgs = (int*)bufferIntArgs->contents();
+    float* floatArgs = (float*)bufferFloatArgs->contents();
+    intArgs[0] = length;
+    intArgs[1] = t;
+    floatArgs[0] = beta1;
+    floatArgs[1] = beta2;
+    floatArgs[2] = lr;
+    floatArgs[3] = epsilon;
+    auto offset_w = calc_offset(w);
+    auto offset_grad = calc_offset(grad);
+    auto offset_m = calc_offset(m);
+    auto offset_v = calc_offset(v);
+
+    auto encoder = adamStepOps->getEncoder();
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(w->get_storage()->ctx), offset_w, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(grad->get_storage()->ctx), offset_grad, 1);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(m->get_storage()->ctx), offset_m, 2);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(v->get_storage()->ctx), offset_v, 3);
+    encoder->setBuffer(bufferIntArgs, 0, 4);
+    encoder->setBuffer(bufferFloatArgs, 0, 5);
+    MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    adamStepOps->run();
 }
 
 void MetalOps::init_weight_gauss(Tensor* tensor, float mean, float sigma) {

@@ -113,6 +113,7 @@ private:
     MetalKops* reluPrimeOps;
     MetalKops* calcAllGradNormOps;
     MetalKops* clipGradOps;
+    MetalKops* adamStepOps;
 };
 
 #endif // METAL_GPU
