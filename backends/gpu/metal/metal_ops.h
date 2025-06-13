@@ -102,6 +102,7 @@ private:
     MetalKops* fillOps;
     MetalKops* atOps;
     MetalKops* addEqOps;
+    MetalKops* expandAddOps;
 };
 
 #endif // METAL_GPU
