@@ -48,6 +48,7 @@ MetalOps::MetalOps() {
     clipGradOps = new MetalKops("tensor_clip", library);
     adamStepOps = new MetalKops("tensor_adam_step", library);
     reshapeDeepCpOps = new MetalKops("reshape_deep_cp_float_kernel", library);
+    repeatInterleaveOps = new MetalKops("repeat_interleave_int32_kernel", library);
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     gen = std::mt19937(seed);
@@ -55,6 +56,7 @@ MetalOps::MetalOps() {
 }
 
 MetalOps::~MetalOps() {
+    delete repeatInterleaveOps;
     delete reshapeDeepCpOps;
     delete adamStepOps;
     delete clipGradOps;
@@ -768,7 +770,44 @@ void MetalOps::reshape_deep_cp(
 }
 
 void MetalOps::repeat_interleave(Tensor* lhs, Tensor* res, int n) {
-    assert(false);
+    assert(lhs->get_dtype() == INT32);
+    assert(res->get_dtype() == INT32);
+    assert(lhs != nullptr);
+    assert(res != nullptr);
+
+    auto lshape = lhs->get_shape();
+    auto dim = lhs->get_dim();
+    assert(dim > 0);
+    int width = 0;
+
+    if (dim == 1) {
+        width = 1;
+    }
+    else {
+        width = lshape[dim - 1];
+    }
+    auto l_length = lhs->length();
+    auto r_length = res->length();
+    assert(l_length * n == r_length);
+    assert(l_length % width == 0);
+
+    repeatInterleaveOps->prepare(device, commandQueue);
+    int* args = (int*)bufferIntArgs->contents();
+    args[0] = width;
+    args[1] = l_length;
+    args[2] = r_length;
+    args[3] = n;
+    auto offset_lhs = calc_offset(lhs);
+    auto offset_res = calc_offset(res);
+    auto encoder = repeatInterleaveOps->getEncoder();
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), offset_lhs, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 1);
+    encoder->setBuffer(bufferIntArgs, 0, 2);
+    MTL::Size gridDim = MTL::Size((r_length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    repeatInterleaveOps->run();
 }
 
 void MetalOps::sequence_mask(Tensor* lhs, const Tensor* mask, Tensor* res, float value) {

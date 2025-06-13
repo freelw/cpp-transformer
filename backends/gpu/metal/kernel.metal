@@ -524,3 +524,27 @@ kernel void reshape_deep_cp_float_kernel(
         dst[index] = src[offset];
     }
 }
+
+kernel void repeat_interleave_int32_kernel(
+    device const int32_t* src [[buffer(0)]],
+    device int32_t* dst [[buffer(1)]],
+    device const int* args [[buffer(2)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int32_t width = args[0];
+    int32_t src_length = args[1];
+    int32_t dst_length = args[2];
+    int32_t n = args[3];
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index >= dst_length) {
+        return;
+    }
+    else {
+        int j = index / (width * n);
+        int k = index % width;
+        int offset = j * width + k;
+        dst[index] = src[offset];
+    }
+}

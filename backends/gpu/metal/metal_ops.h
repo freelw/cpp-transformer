@@ -117,6 +117,7 @@ private:
     MetalKops* clipGradOps;
     MetalKops* adamStepOps;
     MetalKops* reshapeDeepCpOps;
+    MetalKops* repeatInterleaveOps;
 private:
     std::mt19937 gen;
     std::uniform_real_distribution<> dis;
