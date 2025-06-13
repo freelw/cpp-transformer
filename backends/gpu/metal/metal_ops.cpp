@@ -37,9 +37,11 @@ MetalOps::MetalOps() {
     addEqOps = new MetalKops("tensor_add_eq_kernel", library);
     expandAddOps = new MetalKops("expand_add", library);
     mulOps = new MetalKops("tensor_mul_kernel", library);
+    sumOps = new MetalKops("tensor_sum_2d_dim0_v1", library);
 }
 
 MetalOps::~MetalOps() {
+    delete sumOps;
     delete mulOps;
     delete expandAddOps;
     delete addEqOps;
@@ -299,7 +301,42 @@ void MetalOps::mul(
 }
 
 void MetalOps::sum(Tensor* lhs, Tensor* res, int dim) {
-    std::cerr << "Warning: 'sum' operation is not implemented in MetalOps." << std::endl;
+    assert(lhs != nullptr);
+    assert(res != nullptr);
+    assert(dim >= 0 && dim < lhs->get_dim());
+
+    auto shape = lhs->get_shape();
+    auto res_shape = res->get_shape();
+    assert(dim == 0);
+    auto lstrides = lhs->get_strides();
+    assert(lhs->get_dim() == 2);
+    assert(res->get_dim() == 1);
+
+    sumOps->prepare(device, commandQueue);
+
+    int* args = (int*)bufferIntArgs->contents();
+    args[0] = shape[0];
+    args[1] = shape[1];
+    args[2] = lstrides[0];
+    args[3] = lstrides[1];
+    args[4] = res->get_strides()[0];
+
+    auto offset_src = calc_offset(lhs);
+    auto offset_res = calc_offset(res);
+
+    auto encoder = sumOps->getEncoder();
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), offset_src, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 1);
+    encoder->setBuffer(bufferIntArgs, 0, 2);
+
+    size_t sharedMemorySize = TILE_WIDTH * TILE_WIDTH * sizeof(float); // Calculate shared memory size
+    encoder->setThreadgroupMemoryLength(sharedMemorySize, 0); // Set shared memory size
+
+    MTL::Size gridDim = MTL::Size((shape[1] + TILE_WIDTH - 1) / TILE_WIDTH, (shape[0] + TILE_WIDTH - 1) / TILE_WIDTH, 1);
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, TILE_WIDTH, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    sumOps->run();
 }
 
 void MetalOps::relu(Tensor* lhs, Tensor* res) {

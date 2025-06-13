@@ -72,6 +72,7 @@ kernel void tensor_at_2d(
     int N = args[1];
     int P = args[2];
     int stride_M0 = args[3];
+ 
     int stride_M1 = args[4];
     int stride_N0 = args[5];
     int stride_N1 = args[6];
@@ -200,5 +201,46 @@ kernel void tensor_mul_kernel(
             tmp_index %= tmp_length;
         }
         dst[offset_dst] = src1[offset_src1] * src2[offset_src2];
+    }
+}
+
+kernel void tensor_sum_2d_dim0_v1(
+    device const float* src [[buffer(0)]],
+    device float* sum [[buffer(1)]],
+    device const int* args [[buffer(2)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int src_shape0 = args[0];
+    int src_shape1 = args[1];
+    int src_stride0 = args[2];
+    int src_stride1 = args[3];
+    int sum_stride0 = args[4];
+
+    threadgroup float *partial_sums;
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+    int tid = threadIdx.y * blockDim.x + threadIdx.x;
+    partial_sums[tid] = 0.0f;
+    if (row >= src_shape0 || col >= src_shape1) {
+        return;
+    }
+    else {
+        partial_sums[tid] = src[row * src_stride0 + col * src_stride1];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        for (int s = blockDim.y / 2; s > 0; s >>= 1) {
+            if (tid < s) {
+                partial_sums[tid] += partial_sums[tid + s];
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        }
+
+        if (tid == 0) {
+            // Use atomic operations for floating-point addition
+            device atomic_uint* atomic_sum = reinterpret_cast<device atomic_uint*>(&sum[col * sum_stride0]);
+            uint encoded_value = as_type<uint>(partial_sums[0]); // Encode float as uint
+            atomic_fetch_add_explicit(atomic_sum, encoded_value, memory_order_relaxed);
+        }
     }
 }
