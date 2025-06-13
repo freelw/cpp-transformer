@@ -7550,8 +7550,9 @@ void test_embedding_with_cpu() {
 }
 
 void test_gpu() {
-    test_expand_add();
-    test_gpu_expand_add_with_cpu();
+    test_mul();
+    test_mul_1();
+    test_gpu_mul_with_cpu();
     return;
 
     test_at();
