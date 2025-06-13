@@ -27,15 +27,19 @@ MetalOps::MetalOps() {
         throw std::runtime_error("Metal device not found");
     }
     commandQueue = device->newCommandQueue();
-    bufferArgs = device->newBuffer(128, MTL::ResourceStorageModeShared);
+    bufferIntArgs = device->newBuffer(128, MTL::ResourceStorageModeShared);
+    bufferFloatArgs = device->newBuffer(128, MTL::ResourceStorageModeShared);
     load_kernel_metal();
 
     addOps = new MetalKops("tensor_add_kernel", library);
+    fillOps = new MetalKops("fill_float", library);
 }
 
 MetalOps::~MetalOps() {
+    delete fillOps;
     delete addOps;
-    bufferArgs->release();
+    bufferFloatArgs->release();
+    bufferIntArgs->release();
     commandQueue->release();
     device->release();
 }
@@ -62,9 +66,8 @@ void MetalOps::add(
     auto length = lhs->length();
 
     addOps->prepare(device, commandQueue);
-    MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
-    MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
-    int* args = (int*)bufferArgs->contents();
+
+    int* args = (int*)bufferIntArgs->contents();
     args[0] = lhs->get_dim();
     args[1] = lhs->length();
     auto offset_res = calc_offset(res);
@@ -84,7 +87,9 @@ void MetalOps::add(
     encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res_striedes->get_storage()->ctx), offset_res_striedes, 4);
     encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(l_strides->get_storage()->ctx), offset_l_strides, 5);
     encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(r_striedes->get_storage()->ctx), offset_r_striedes, 6);
-    encoder->setBuffer(bufferArgs, 0, 7);
+    encoder->setBuffer(bufferIntArgs, 0, 7);
+    MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
 
     addOps->run();
@@ -183,15 +188,26 @@ void MetalOps::init_weight_for_dbg(Tensor* tensor, float scale) {
 }
 
 void MetalOps::fill(Tensor* tensor, float value) {
-    std::cerr << "Warning: 'fill' operation is using cpu." << std::endl;
     assert(tensor != nullptr);
     assert(tensor->get_data() != nullptr);
     assert(tensor->length() > 0);
 
-    float* data = static_cast<float*>(tensor->get_data());
-    for (int i = 0; i < tensor->length(); ++i) {
-        data[i] = value;
-    }
+    fillOps->prepare(device, commandQueue);
+    int* argsInt = (int*)bufferIntArgs->contents();
+    float* argsFloat = (float*)bufferFloatArgs->contents();
+    auto length = tensor->length();
+    argsInt[0] = length;
+    argsFloat[0] = value;
+    auto offset_tensor = calc_offset(tensor);
+    auto encoder = fillOps->getEncoder();
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(tensor->get_storage()->ctx), offset_tensor, 0);
+    encoder->setBuffer(bufferIntArgs, 0, 1);
+    encoder->setBuffer(bufferFloatArgs, 0, 2);
+    MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    fillOps->run();
 }
 
 void MetalOps::reshape_deep_cp(

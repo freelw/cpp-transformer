@@ -1,6 +1,22 @@
 #include <metal_stdlib>
 using namespace metal;
 
+kernel void fill_float(
+    device float* Md [[buffer(0)]],
+    device const int* argsInt[[buffer(1)]],
+    device const float* argsFloat[[buffer(2)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    int M = argsInt[0];
+    float value = argsFloat[0];
+    if (idx < M) {
+        Md[idx] = value;
+    }
+}
+
 kernel void tensor_add_kernel(
     device float* dst [[buffer(0)]],
     device const float* src1 [[buffer(1)]],

@@ -94,10 +94,12 @@ private:
     MTL::Device* device;
     MTL::CommandQueue* commandQueue;
 
-    MTL::Buffer* bufferArgs;
+    MTL::Buffer* bufferIntArgs;
+    MTL::Buffer* bufferFloatArgs;
     MTL::Library* library;
     std::string shaderSource;
     MetalKops* addOps;
+    MetalKops* fillOps;
 };
 
 #endif // METAL_GPU
