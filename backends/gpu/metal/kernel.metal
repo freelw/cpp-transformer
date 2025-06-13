@@ -281,3 +281,38 @@ kernel void cross_entropy(
     }
 }
 
+kernel void cross_entropy_backward(
+    device const float* Md [[buffer(0)]],
+    device const int32_t* labels [[buffer(1)]],
+    device const float* maxs [[buffer(2)]],
+    device const float* sums [[buffer(3)]],
+    device float* grad [[buffer(4)]],
+    device const int* args [[buffer(5)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int M = args[0];
+    int N = args[1];
+    int Md_stride0 = args[2];
+    int Md_stride1 = args[3];
+    int grad_stride0 = args[4];
+    int grad_stride1 = args[5];
+    int row = blockIdx.x * blockDim.x + threadIdx.x;
+    if (row >= M) {
+        return;
+    }
+    else {
+        float max = maxs[row];
+        float sum = sums[row];
+        int label = labels[row];
+        for (int i = 0; i < N; ++i) {
+            float val = Md[row * Md_stride0 + i * Md_stride1];
+            grad[row * grad_stride0 + i * grad_stride1] = i == label ?
+                (exp(val - max) / sum - 1) :
+                exp(val - max) / sum;
+        }
+    }
+}
+
+

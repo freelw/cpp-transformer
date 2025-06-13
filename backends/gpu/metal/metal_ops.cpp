@@ -39,9 +39,11 @@ MetalOps::MetalOps() {
     mulOps = new MetalKops("tensor_mul_kernel", library);
     sumOps = new MetalKops("tensor_sum_2d_dim0_v1", library);
     crossEntropyOps = new MetalKops("cross_entropy", library);
+    crossEntropyBackwardOps = new MetalKops("cross_entropy_backward", library);
 }
 
 MetalOps::~MetalOps() {
+    delete crossEntropyBackwardOps;
     delete crossEntropyOps;
     delete sumOps;
     delete mulOps;
@@ -407,7 +409,48 @@ void MetalOps::crossEntropy(
 void MetalOps::crossEntropyBackward(
     Tensor* lhs, const Tensor* labels, Tensor* maxs, Tensor* sums, Tensor* res
 ) {
-    std::cerr << "Warning: 'crossEntropyBackward' operation is not implemented in MetalOps." << std::endl;
+    assert(lhs != nullptr);
+    assert(labels != nullptr);
+    assert(maxs != nullptr);
+    assert(sums != nullptr);
+    assert(res != nullptr);
+
+    int batch_size = lhs->get_shape()[0];
+    int size = lhs->get_shape()[1];
+    float* data = static_cast<float*>(lhs->get_data());
+    float* res_data = static_cast<float*>(res->get_data());
+    auto lstrides = lhs->get_strides();
+    auto res_strides = res->get_strides();
+    assert(lstrides.size() == 2);
+    assert(res_strides.size() == 2);
+
+    crossEntropyBackwardOps->prepare(device, commandQueue);
+    int* args = (int*)bufferIntArgs->contents();
+    args[0] = batch_size;
+    args[1] = size;
+    args[2] = lstrides[0];
+    args[3] = lstrides[1];
+    args[4] = res_strides[0];
+    args[5] = res_strides[1];
+
+    auto offset_lhs = calc_offset(lhs);
+    auto offset_labels = calc_offset(labels);
+    auto offset_maxs = calc_offset(maxs);
+    auto offset_sums = calc_offset(sums);
+    auto offset_res = calc_offset(res);
+    auto encoder = crossEntropyBackwardOps->getEncoder();
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), offset_lhs, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(labels->get_storage()->ctx), offset_labels, 1);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(maxs->get_storage()->ctx), offset_maxs, 2);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(sums->get_storage()->ctx), offset_sums, 3);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 4);
+    encoder->setBuffer(bufferIntArgs, 0, 5);
+
+    MTL::Size gridDim = MTL::Size((batch_size + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    crossEntropyBackwardOps->run();
 }
 
 void MetalOps::calcAllGradNorm(const std::vector<Tensor*>& grads, Tensor* norm) {

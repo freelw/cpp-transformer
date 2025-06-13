@@ -7566,6 +7566,8 @@ void test_gpu() {
     test_gpu_sum_with_cpu();
     test_cross_entropy();
     test_gpu_cross_entropy_with_cpu();
+    test_cross_entropy_backward();
+    test_gpu_cross_entropy_backward_with_cpu();
     return;
 
     test_at();
