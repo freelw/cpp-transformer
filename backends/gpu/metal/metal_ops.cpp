@@ -40,9 +40,11 @@ MetalOps::MetalOps() {
     sumOps = new MetalKops("tensor_sum_2d_dim0_v1", library);
     crossEntropyOps = new MetalKops("cross_entropy", library);
     crossEntropyBackwardOps = new MetalKops("cross_entropy_backward", library);
+    reluOps = new MetalKops("tensor_relu", library);
 }
 
 MetalOps::~MetalOps() {
+    delete reluOps;
     delete crossEntropyBackwardOps;
     delete crossEntropyOps;
     delete sumOps;
@@ -348,7 +350,30 @@ void MetalOps::sum(Tensor* lhs, Tensor* res, int dim) {
 }
 
 void MetalOps::relu(Tensor* lhs, Tensor* res) {
-    std::cerr << "Warning: 'relu' operation is not implemented in MetalOps." << std::endl;
+    assert(lhs != nullptr);
+    assert(res != nullptr);
+
+    int length = lhs->length();
+
+    auto shape = lhs->get_shape();
+    auto res_shape = res->get_shape();
+    assert(shape == res_shape);
+
+    reluOps->prepare(device, commandQueue);
+    int* args = (int*)bufferIntArgs->contents();
+    args[0] = length;
+
+    auto offset_lhs = calc_offset(lhs);
+    auto offset_res = calc_offset(res);
+    auto encoder = reluOps->getEncoder();
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), offset_lhs, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 1);
+    encoder->setBuffer(bufferIntArgs, 0, 2);
+    MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    reluOps->run();
 }
 
 void MetalOps::reluPrime(Tensor* lhs, Tensor* res) {

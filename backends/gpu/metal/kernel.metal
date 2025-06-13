@@ -315,4 +315,20 @@ kernel void cross_entropy_backward(
     }
 }
 
-
+kernel void tensor_relu(
+    device const float* Md [[buffer(0)]],
+    device float* Nd [[buffer(1)]],
+    device const int* args [[buffer(2)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int M = args[0];
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index >= M) {
+        return;
+    }
+    else {
+        Nd[index] = fmax(Md[index], 0.f);
+    }
+}
