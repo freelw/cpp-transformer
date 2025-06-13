@@ -30,7 +30,7 @@ MetalOps::MetalOps() {
     bufferArgs = device->newBuffer(128, MTL::ResourceStorageModeShared);
     load_kernel_metal();
 
-    addOps = new MetalKops("tensor_add_2d", library);
+    addOps = new MetalKops("tensor_add_kernel", library);
 }
 
 MetalOps::~MetalOps() {
@@ -45,7 +45,6 @@ void MetalOps::add(
     Tensor* l_shape, Tensor* l_strides,
     Tensor* r_striedes, Tensor* res_striedes
 ) {
-
     assert(lhs != nullptr);
     assert(rhs != nullptr);
     assert(res != nullptr);
@@ -53,27 +52,27 @@ void MetalOps::add(
     assert(l_strides != nullptr);
     assert(r_striedes != nullptr);
     assert(res_striedes != nullptr);
-
     auto length = lhs->length();
 
     addOps->prepare(device, commandQueue);
 
-
-
-    // encoder->setBuffer(bufferA, 0, 0);
-    // encoder->setBuffer(bufferB, 0, 1);
-    // encoder->setBuffer(bufferResult, 0, 2);
-
-
     MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
+    int* args = (int*)bufferArgs->contents();
+    args[0] = lhs->get_dim();
+    args[1] = lhs->length();
     encoder->dispatchThreadgroups(gridDim, blockDim);
-
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), res->get_offset(), 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), lhs->get_offset(), 1);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(rhs->get_storage()->ctx), rhs->get_offset(), 2);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(l_shape->get_storage()->ctx), l_shape->get_offset(), 3);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res_striedes->get_storage()->ctx), res_striedes->get_offset(), 4);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(l_strides->get_storage()->ctx), l_strides->get_offset(), 5);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(r_striedes->get_storage()->ctx), r_striedes->get_offset(), 6);
+    encoder->setBuffer(bufferArgs, 0, 7);
     addOps->run();
 
-    encoder->endEncoding();
-    commandBuffer->commit();
-    commandBuffer->waitUntilCompleted();
+    std::cout << "MetalOps::add executed with " << length << " elements." << std::endl;
 }
 
 void MetalOps::addEq(
