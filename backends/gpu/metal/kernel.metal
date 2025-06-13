@@ -7,17 +7,20 @@ kernel void tensor_add_2d(
     device float* Pd [[buffer(2)]],
     device const int* args[[buffer(3)]],
     uint3 threadIdx [[thread_position_in_threadgroup]],
-    uint3 blockIdx [[threadgroup_position_in_grid]]
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
 ) {
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
+    int M = args[0];
+    int N = args[1];
 
-    int stride_M0 = args[0];
-    int stride_M1 = args[1];
-    int stride_N0 = args[2];
-    int stride_N1 = args[3];
-    int stride_P0 = args[4];
-    int stride_P1 = args[5];
+    int stride_M0 = args[2];
+    int stride_M1 = args[3];
+    int stride_N0 = args[4];
+    int stride_N1 = args[5];
+    int stride_P0 = args[6];
+    int stride_P1 = args[7];
 
     if (row >= M || col >= N) {
         return;

@@ -1,8 +1,5 @@
 #include "kernel_ops.h"
 
-#define NS_PRIVATE_IMPLEMENTATION
-#define MTL_PRIVATE_IMPLEMENTATION
-
 #include <Metal/Metal.hpp>
 #include <QuartzCore/CAMetalLayer.hpp>
 #include <Foundation/Foundation.hpp>

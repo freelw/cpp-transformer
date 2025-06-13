@@ -18,7 +18,7 @@
 #include <vector>
 #include <type_traits>
 
-#define KERNEL_PATH "/backends/gpu/metal/shader.metal"
+#define KERNEL_PATH "/backends/gpu/metal/kernel.metal"
 
 MetalOps::MetalOps() {
     device = MTL::CreateSystemDefaultDevice();
@@ -30,7 +30,7 @@ MetalOps::MetalOps() {
     bufferArgs = device->newBuffer(128, MTL::ResourceStorageModeShared);
     load_kernel_metal();
 
-    add_kernel(new MetalKops("add", library));
+    add_kernel(new MetalKops("tensor_add_2d", library));
 }
 
 MetalOps::~MetalOps() {
@@ -257,7 +257,9 @@ void MetalOps::load_kernel_metal() {
 
     //load shader source code into shaderSource
     std::ifstream kernel_ifs(path, std::ios::binary);
+    std::cout << "path: " << path << std::endl;
     shaderSource = std::string(std::istreambuf_iterator<char>(kernel_ifs), std::istreambuf_iterator<char>());
+    std::cout << "shaderSource: " << shaderSource << std::endl;
     NS::Error* error = nullptr;
     library = device->newLibrary(NS::String::string(shaderSource.c_str(), NS::StringEncoding::UTF8StringEncoding), nullptr, &error);
 
