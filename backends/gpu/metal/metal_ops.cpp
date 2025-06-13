@@ -42,9 +42,11 @@ MetalOps::MetalOps() {
     crossEntropyBackwardOps = new MetalKops("cross_entropy_backward", library);
     reluOps = new MetalKops("tensor_relu", library);
     divOps = new MetalKops("tensor_div_scalar", library);
+    expandMulOps = new MetalKops("expand_mul", library);
 }
 
 MetalOps::~MetalOps() {
+    delete expandMulOps;
     delete divOps;
     delete reluOps;
     delete crossEntropyBackwardOps;
@@ -196,7 +198,47 @@ void MetalOps::expandAdd(Tensor* lhs, const Tensor* rhs, Tensor* res) {
 }
 
 void MetalOps::expandMul(Tensor* lhs, const Tensor* rhs, Tensor* res) {
-    std::cerr << "Warning: 'expandMul' operation is not implemented in MetalOps." << std::endl;
+    assert(lhs != nullptr);
+    assert(rhs != nullptr);
+    assert(res != nullptr);
+
+    int size = lhs->size();
+    auto shape = lhs->get_shape();
+    assert(shape.size() == 2);
+    assert(rhs->get_shape().size() == 1);
+    assert(rhs->get_shape()[0] == shape[1]);
+    assert(shape == res->get_shape());
+
+    auto lstrides = lhs->get_strides();
+    auto res_strides = res->get_strides();
+
+    expandMulOps->prepare(device, commandQueue);
+    int* args = (int*)bufferIntArgs->contents();
+    args[0] = shape[0];
+    args[1] = shape[1];
+    args[2] = lstrides[0];
+    args[3] = lstrides[1];
+    args[4] = res_strides[0];
+    args[5] = res_strides[1];
+
+    auto offset_lhs = calc_offset(lhs);
+    auto offset_rhs = calc_offset(rhs);
+    auto offset_res = calc_offset(res);
+    auto encoder = expandMulOps->getEncoder();
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), offset_lhs, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(rhs->get_storage()->ctx), offset_rhs, 1);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 2);
+    encoder->setBuffer(bufferIntArgs, 0, 3);
+
+    MTL::Size gridDim = MTL::Size(
+        (shape[1] + TILE_WIDTH - 1) / TILE_WIDTH,
+        (shape[0] + TILE_WIDTH - 1) / TILE_WIDTH,
+        1
+    );
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, TILE_WIDTH, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    expandMulOps->run();
 }
 
 void MetalOps::at(Tensor* lhs, const Tensor* rhs, Tensor* res) {
