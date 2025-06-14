@@ -19,7 +19,7 @@
 #include <type_traits>
 
 #define KERNEL_PATH "/backends/gpu/metal/kernel.metal"
-#define TOTAL_INT_ARGS 4096
+#define TOTAL_INT_ARGS 9000
 #define TOTAL_FLOAT_ARGS 2048
 
 MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0) {
