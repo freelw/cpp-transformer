@@ -869,7 +869,6 @@ void MetalOps::div(Tensor* dst, Tensor* src, Tensor* value) {
     auto offset_FloatArgs = cur_float_args * sizeof(float);
     intArgs[0] = length;
 
-    std::cout << "div: length = " << length << ", value = " << value << std::endl;
     auto offset_dst = calc_offset(dst);
     auto offset_src = calc_offset(src);
     auto offset_value = calc_offset(value);
