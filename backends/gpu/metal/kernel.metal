@@ -618,3 +618,51 @@ kernel void softmax_kernel(
         }
     }
 }
+
+kernel void softmax_backward_kernel(
+    device float* target_grad [[buffer(0)]],
+    device const float* softmax_res [[buffer(1)]],
+    device const float* grad [[buffer(2)]],
+    device const int* args [[buffer(3)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int shape0 = args[0];
+    int shape1 = args[1];
+    int shape2 = args[2];
+    int t_stride0 = args[3];
+    int t_stride1 = args[4];
+    int t_stride2 = args[5];
+    int s_stride0 = args[6];
+    int s_stride1 = args[7];
+    int s_stride2 = args[8];
+    int g_stride0 = args[9];
+    int g_stride1 = args[10];
+    int g_stride2 = args[11];
+
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+    if (row >= shape0 || col >= shape1) {
+        return;
+    }
+    else {
+        for (int target = 0; target < shape2; ++target) {
+            int tg_target_pos = row * t_stride0 + col * t_stride1 + target * t_stride2;
+            float tmp = 0;
+            for (int k = 0; k < shape2; ++k) {
+                // int tg_k_pos = row * t_stride0 + col * t_stride1 + k * t_stride2;
+                int sm_target_pos = row * s_stride0 + col * s_stride1 + target * s_stride2;
+                int sm_k_pos = row * s_stride0 + col * s_stride1 + k * s_stride2;
+                // int g_target_pos = row * g_stride0 + col * g_stride1 + target * g_stride2;
+                int g_k_pos = row * g_stride0 + col * g_stride1 + k * g_stride2;
+
+                float softmax_res_target = softmax_res[sm_target_pos];
+                float softmax_res_k = softmax_res[sm_k_pos];
+                float grad_k = grad[g_k_pos];
+                tmp += (target == k ? softmax_res_k * (1 - softmax_res_k) : -softmax_res_target * softmax_res_k) * grad_k;
+            }
+            target_grad[tg_target_pos] = tmp;
+        }
+    }
+}

@@ -58,6 +58,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
     repeatInterleaveOps = new MetalKops("repeat_interleave_int32_kernel", library);
     sequenceMaskOps = new MetalKops("sequence_mask_kernel", library);
     softmaxOps = new MetalKops("softmax_kernel", library);
+    softmaxBackwardOps = new MetalKops("softmax_backward_kernel", library);
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     gen = std::mt19937(seed);
@@ -65,6 +66,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
 }
 
 MetalOps::~MetalOps() {
+    delete softmaxBackwardOps;
     delete softmaxOps;
     delete sequenceMaskOps;
     delete repeatInterleaveOps;
@@ -944,7 +946,61 @@ void MetalOps::softmax(Tensor* lhs, Tensor* res) {
 }
 
 void MetalOps::softmax_bacward(Tensor* target_grad, const Tensor* softmax_res, Tensor* grad) {
-    assert(false);
+    assert(target_grad != nullptr);
+    assert(softmax_res != nullptr);
+    assert(grad != nullptr);
+
+    assert(target_grad->get_dtype() == FLOAT32);
+    assert(softmax_res->get_dtype() == FLOAT32);
+    assert(grad->get_dtype() == FLOAT32);
+
+    assert(target_grad->get_dim() == 3);
+    assert(softmax_res->get_dim() == 3);
+    assert(grad->get_dim() == 3);
+
+    auto t_shape = target_grad->get_shape();
+    auto s_shape = softmax_res->get_shape();
+    auto g_shape = grad->get_shape();
+
+    assert(t_shape == s_shape);
+    assert(t_shape == g_shape);
+
+    auto t_strides = target_grad->get_strides();
+    auto s_strides = softmax_res->get_strides();
+    auto g_strides = grad->get_strides();
+
+    auto encoder = softmaxBackwardOps->prepare(device, commandQueue, commandBuffer);
+    auto offset_args = cur_int_args * sizeof(int);
+    int* args = get_cur_int_args_buffer(12);
+    args[0] = t_shape[0]; // batch size
+    args[1] = t_shape[1]; // sequence length
+    args[2] = t_shape[2]; // feature size
+    args[3] = t_strides[0]; // target_grad stride
+    args[4] = t_strides[1]; // target_grad stride
+    args[5] = t_strides[2]; // target_grad stride
+    args[6] = s_strides[0]; // softmax_res stride
+    args[7] = s_strides[1]; // softmax_res stride
+    args[8] = s_strides[2]; // softmax_res stride
+    args[9] = g_strides[0]; // grad stride
+    args[10] = g_strides[1]; // grad stride
+    args[11] = g_strides[2]; // grad stride
+    auto offset_target_grad = calc_offset(target_grad);
+    auto offset_softmax_res = calc_offset(softmax_res);
+    auto offset_grad = calc_offset(grad);
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(target_grad->get_storage()->ctx), offset_target_grad, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(softmax_res->get_storage()->ctx), offset_softmax_res, 1);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(grad->get_storage()->ctx), offset_grad, 2);
+    encoder->setBuffer(bufferIntArgs, offset_args, 3);
+    MTL::Size gridDim = MTL::Size(
+        (t_shape[1] + TILE_WIDTH - 1) / TILE_WIDTH,
+        (t_shape[0] + TILE_WIDTH - 1) / TILE_WIDTH,
+        1
+    );
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, TILE_WIDTH, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::div(Tensor* dst, Tensor* src, Tensor* value) {
