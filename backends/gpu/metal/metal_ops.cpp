@@ -823,7 +823,16 @@ void MetalOps::init_weight_gauss(Tensor* tensor, float mean, float sigma) {
 }
 
 void MetalOps::init_weight_uniform(Tensor* tensor, float sigma) {
-    assert(false);
+    unsigned seed1 = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine generator_w(seed1);
+    std::uniform_real_distribution<float> distribution_w(-sigma, sigma);
+    auto size = tensor->size();
+    float* data = static_cast<float*>(::malloc(size));
+    for (int i = 0; i < tensor->length(); ++i) {
+        data[i] = distribution_w(generator_w);
+    }
+    this->cp_to_device(tensor, (char*)data, size);
+    ::free(data);
 }
 
 void MetalOps::init_weight_for_dbg(Tensor* tensor, float scale) {
