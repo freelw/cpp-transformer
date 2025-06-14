@@ -124,6 +124,7 @@ private:
     MetalKops* adamStepOps;
     MetalKops* reshapeDeepCpOps;
     MetalKops* repeatInterleaveOps;
+    MetalKops* sequenceMaskOps;
 private:
     int cur_int_args;
     int cur_float_args;

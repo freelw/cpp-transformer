@@ -547,3 +547,34 @@ kernel void repeat_interleave_int32_kernel(
         dst[index] = src[offset];
     }
 }
+
+kernel void sequence_mask_kernel(
+    device const float* src [[buffer(0)]],
+    device const int* mask [[buffer(1)]],
+    device float* dst [[buffer(2)]],
+    device const int* intArgs [[buffer(3)]],
+    device const float* floatArgs [[buffer(4)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int M = intArgs[0];
+    int N = intArgs[1];
+    int l_stride0 = intArgs[2];
+    int l_stride1 = intArgs[3];
+    int m_stride0 = intArgs[4];
+    int r_stride0 = intArgs[5];
+    int r_stride1 = intArgs[6];
+    float value = floatArgs[0];
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+    if (row >= M || col >= N) {
+        return;
+    }
+    else {
+        int index_l = row * l_stride0 + col * l_stride1;
+        int index_m = row * m_stride0;
+        int index_r = row * r_stride0 + col * r_stride1;
+        dst[index_r] = mask[index_m] <= col ? value : src[index_l];
+    }
+}

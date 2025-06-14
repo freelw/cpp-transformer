@@ -56,6 +56,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
     adamStepOps = new MetalKops("tensor_adam_step", library);
     reshapeDeepCpOps = new MetalKops("reshape_deep_cp_float_kernel", library);
     repeatInterleaveOps = new MetalKops("repeat_interleave_int32_kernel", library);
+    sequenceMaskOps = new MetalKops("sequence_mask_kernel", library);
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     gen = std::mt19937(seed);
@@ -63,6 +64,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
 }
 
 MetalOps::~MetalOps() {
+    delete sequenceMaskOps;
     delete repeatInterleaveOps;
     delete reshapeDeepCpOps;
     delete adamStepOps;
@@ -846,7 +848,57 @@ void MetalOps::repeat_interleave(Tensor* lhs, Tensor* res, int n) {
 }
 
 void MetalOps::sequence_mask(Tensor* lhs, const Tensor* mask, Tensor* res, float value) {
-    assert(false);
+    assert(lhs != nullptr);
+    assert(mask != nullptr);
+    assert(res != nullptr);
+
+    assert(lhs->get_dim() == 2);
+    assert(mask->get_dim() == 1);
+    assert(res->get_dim() == 2);
+
+    auto lshape = lhs->get_shape();
+    auto mshape = mask->get_shape();
+    auto rshape = res->get_shape();
+
+    assert(lshape[0] == mshape[0]);
+    assert(lshape[1] == rshape[1]);
+    assert(rshape[0] == mshape[0]);
+
+    auto lstrides = lhs->get_strides();
+    auto mstrides = mask->get_strides();
+    auto rstrides = res->get_strides();
+
+    auto encoder = sequenceMaskOps->prepare(device, commandQueue, commandBuffer);
+    auto offset_args = cur_int_args * sizeof(int);
+    int* intArgs = get_cur_int_args_buffer(7);
+    auto offset_floatArgs = cur_float_args * sizeof(float);
+    float* floatArgs = get_cur_float_args_buffer(1);
+    intArgs[0] = lshape[0]; // batch size
+    intArgs[1] = lshape[1]; // sequence length
+    intArgs[2] = lstrides[0]; // mask length
+    intArgs[3] = lstrides[1]; // lhs stride
+    intArgs[4] = mstrides[0]; // mask stride
+    intArgs[5] = rstrides[0]; // res stride
+    intArgs[6] = rstrides[1]; // res stride
+    floatArgs[0] = value; // fill value
+    auto offset_lhs = calc_offset(lhs);
+    auto offset_mask = calc_offset(mask);
+    auto offset_res = calc_offset(res);
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), offset_lhs, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(mask->get_storage()->ctx), offset_mask, 1);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 2);
+    encoder->setBuffer(bufferIntArgs, offset_args, 3);
+    encoder->setBuffer(bufferFloatArgs, offset_floatArgs, 4);
+    MTL::Size gridDim = MTL::Size(
+        (lshape[1] + TILE_WIDTH - 1) / TILE_WIDTH,
+        (lshape[0] + TILE_WIDTH - 1) / TILE_WIDTH,
+        1
+    );
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, TILE_WIDTH, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::softmax(Tensor* lhs, Tensor* res) {
