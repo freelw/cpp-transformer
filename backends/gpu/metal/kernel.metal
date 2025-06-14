@@ -721,6 +721,5 @@ kernel void tensor_embedding_backward_kernel(
         int index_dst = indices[row] * dst_stride0 + col * dst_stride1;
         device atomic_float* atomicData = (device atomic_float*)&dst[index_dst];
         atomic_fetch_add_explicit(atomicData, src[index_src], memory_order_relaxed);
-        
     }
 }
