@@ -7557,7 +7557,14 @@ void test_embedding_with_cpu() {
 }
 
 void test_gpu() {
-    test_embedding();
+    test_pe();
+    test_pe_1();
+    test_expand_mul();
+    test_at_bp_ledge_add_eq();
+    test_at_bp_redge_add_eq();
+    test_dropout_1();
+    test_softmax_1();
+    test_avg();
     return;
 
     test_at();

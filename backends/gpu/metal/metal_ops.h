@@ -116,7 +116,7 @@ private:
     MetalKops* crossEntropyOps;
     MetalKops* crossEntropyBackwardOps;
     MetalKops* reluOps;
-    MetalKops* divOps;
+    MetalKops* divTensorOps;
     MetalKops* expandMulOps;
     MetalKops* reluPrimeOps;
     MetalKops* calcAllGradNormOps;
@@ -129,6 +129,8 @@ private:
     MetalKops* softmaxBackwardOps;
     MetalKops* embeddingOps;
     MetalKops* embeddingBackwardOps;
+    MetalKops* sumDim1Ops;
+    MetalKops* divOps;
 private:
     int cur_int_args;
     int cur_float_args;

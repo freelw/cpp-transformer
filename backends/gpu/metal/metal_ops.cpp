@@ -48,7 +48,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
     crossEntropyOps = new MetalKops("cross_entropy", library);
     crossEntropyBackwardOps = new MetalKops("cross_entropy_backward", library);
     reluOps = new MetalKops("tensor_relu", library);
-    divOps = new MetalKops("tensor_div_scalar", library);
+    divTensorOps = new MetalKops("tensor_div_scalar_tensor", library);
     expandMulOps = new MetalKops("expand_mul", library);
     reluPrimeOps = new MetalKops("tensor_relu_prime", library);
     calcAllGradNormOps = new MetalKops("tensor_l2_norm", library);
@@ -61,6 +61,8 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
     softmaxBackwardOps = new MetalKops("softmax_backward_kernel", library);
     embeddingOps = new MetalKops("tensor_embedding_kernel", library);
     embeddingBackwardOps = new MetalKops("tensor_embedding_backward_kernel", library);
+    sumDim1Ops = new MetalKops("tensor_sum_2d_dim1", library);
+    divOps = new MetalKops("tensor_div_scalar", library);
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     gen = std::mt19937(seed);
@@ -68,6 +70,8 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
 }
 
 MetalOps::~MetalOps() {
+    delete divOps;
+    delete sumDim1Ops;
     delete embeddingBackwardOps;
     delete embeddingOps;
     delete softmaxBackwardOps;
@@ -80,7 +84,7 @@ MetalOps::~MetalOps() {
     delete calcAllGradNormOps;
     delete reluPrimeOps;
     delete expandMulOps;
-    delete divOps;
+    delete divTensorOps;
     delete reluOps;
     delete crossEntropyBackwardOps;
     delete crossEntropyOps;
@@ -1111,7 +1115,7 @@ void MetalOps::div(Tensor* dst, Tensor* src, Tensor* value) {
     assert(dst->get_strides() == src->get_strides());
     assert(value->length() == 1);
     auto length = dst->length();
-    auto encoder = divOps->prepare(device, commandQueue, commandBuffer);
+    auto encoder = divTensorOps->prepare(device, commandQueue, commandBuffer);
     auto offset_IntArgs = cur_int_args * sizeof(int);
     int* intArgs = get_cur_int_args_buffer(1);
     auto offset_FloatArgs = cur_float_args * sizeof(float);
@@ -1154,11 +1158,78 @@ void MetalOps::build_dropout_mask(
 }
 
 void MetalOps::pos_encoding(Tensor* res) {
-    assert(false);
+    assert(res != nullptr);
+    auto shape = res->get_shape();
+    auto max_len = shape[0];
+    auto num_hidden = shape[1];
+    float* data = static_cast<float*>(::malloc(res->size()));
+    for (int pos = 0; pos < max_len; ++pos) {
+        for (int i = 0; i < num_hidden; ++i) {
+            if (i % 2 == 0) {
+                data[pos * res->get_strides()[0] + i * res->get_strides()[1]] =
+                    std::sin(pos * 1. / std::pow(10000, (1.0f * i / num_hidden)));
+            }
+            else {
+                data[pos * res->get_strides()[0] + i * res->get_strides()[1]] =
+                    std::cos(pos * 1. / std::pow(10000, (1.0f * (i & ~1) / num_hidden)));
+            }
+        }
+    }
+    this->cp_to_device(res, (char*)data, res->size());
+    ::free(data);
 }
 
 void MetalOps::avg(Tensor* lhs, Tensor* res) {
-    assert(false);
+    assert(lhs->get_dim() == 2);
+    assert(res->get_dim() == 1);
+    auto shape = lhs->get_shape();
+    assert(shape[0] == res->get_shape()[0]);
+
+    auto sum_encoder = sumDim1Ops->prepare(device, commandQueue, commandBuffer);
+    auto offset_sum_args = cur_int_args * sizeof(int);
+    int* sum_args = get_cur_int_args_buffer(5);
+    sum_args[0] = shape[0]; // batch size
+    sum_args[1] = shape[1]; // sequence length
+    sum_args[2] = lhs->get_strides()[0]; // lhs stride
+    sum_args[3] = lhs->get_strides()[1]; // lhs stride
+    sum_args[4] = res->get_strides()[0]; // res stride
+    auto offset_lhs = calc_offset(lhs);
+    auto offset_res = calc_offset(res);
+    assert(sum_encoder != nullptr);
+    sum_encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), offset_lhs, 0);
+    sum_encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 1);
+    sum_encoder->setBuffer(bufferIntArgs, offset_sum_args, 2);
+    size_t sharedMemorySize = TILE_WIDTH * sizeof(float); // Calculate shared memory size
+    sum_encoder->setThreadgroupMemoryLength(sharedMemorySize, 0); // Set shared memory size
+    MTL::Size sumGridDim = MTL::Size(
+        (shape[1] + TILE_WIDTH - 1) / TILE_WIDTH,
+        shape[0],
+        1
+    );
+    MTL::Size sumBlockDim = MTL::Size(TILE_WIDTH, 1, 1);
+    sum_encoder->dispatchThreadgroups(sumGridDim, sumBlockDim);
+    sum_encoder->endEncoding();
+    sum_encoder->release();
+
+    auto div_encoder = divOps->prepare(device, commandQueue, commandBuffer);
+    auto offset_div_args = cur_int_args * sizeof(int);
+    int* divIntArgs = get_cur_int_args_buffer(1);
+    auto offset_div_float_args = cur_float_args * sizeof(float);
+    float* divFloatArgs = get_cur_float_args_buffer(1);
+    divIntArgs[0] = shape[0]; // batch size
+    divFloatArgs[0] = (float)shape[1]; // divisor
+    auto offset_res_div = calc_offset(res);
+    assert(div_encoder != nullptr);
+    div_encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res_div, 0);
+    div_encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res_div, 1);
+    div_encoder->setBuffer(bufferIntArgs, offset_div_args, 2);
+    div_encoder->setBuffer(bufferFloatArgs, offset_div_float_args, 3);
+    auto length = res->length();
+    MTL::Size divGridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
+    MTL::Size divBlockDim = MTL::Size(TILE_WIDTH, 1, 1);
+    div_encoder->dispatchThreadgroups(divGridDim, divBlockDim);
+    div_encoder->endEncoding();
+    div_encoder->release();
 }
 
 void MetalOps::var(Tensor* lhs, const Tensor* _avg, Tensor* res) {

@@ -336,6 +336,26 @@ kernel void tensor_relu(
 kernel void tensor_div_scalar(
     device float* dst [[buffer(0)]],
     device const float* src [[buffer(1)]],
+    device const int* intArgs [[buffer(2)]],
+    device const float* floatArgs [[buffer(3)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int length = intArgs[0];
+    float value = floatArgs[0];
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index >= length) {
+        return;
+    }
+    else {
+        dst[index] = src[index] / value;
+    }
+}
+
+kernel void tensor_div_scalar_tensor(
+    device float* dst [[buffer(0)]],
+    device const float* src [[buffer(1)]],
     device const float* value [[buffer(2)]],
     device const int* intArgs [[buffer(3)]],
     uint3 threadIdx [[thread_position_in_threadgroup]],
@@ -721,5 +741,43 @@ kernel void tensor_embedding_backward_kernel(
         int index_dst = indices[row] * dst_stride0 + col * dst_stride1;
         device atomic_float* atomicData = (device atomic_float*)&dst[index_dst];
         atomic_fetch_add_explicit(atomicData, src[index_src], memory_order_relaxed);
+    }
+}
+
+kernel void tensor_sum_2d_dim1(
+    device const float* src [[buffer(0)]],
+    device float* sum [[buffer(1)]],
+    device const int* args [[buffer(2)]],
+    threadgroup float *partial_sums [[threadgroup(0)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int src_shape0 = args[0];
+    int src_shape1 = args[1];
+    int src_stride0 = args[2];
+    int src_stride1 = args[3];
+    int sum_stride0 = args[4];
+    
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+    int tid = threadIdx.y * blockDim.y + threadIdx.x;
+    partial_sums[tid] = 0.0f;
+    if (row >= src_shape0 || col >= src_shape1) {
+        return;
+    } else {
+        partial_sums[tid] = src[row * src_stride0 + col * src_stride1];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        for (int s = blockDim.x / 2; s > 0; s >>= 1) {
+            if (tid < s) {
+                partial_sums[tid] += partial_sums[tid + s];
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        }
+
+        if (tid == 0) {
+            device atomic_float* atomicData = (device atomic_float*)&sum[row * sum_stride0];
+            atomic_fetch_add_explicit(atomicData, partial_sums[0], memory_order_relaxed);
+        }
     }
 }
