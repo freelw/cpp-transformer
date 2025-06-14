@@ -666,3 +666,31 @@ kernel void softmax_backward_kernel(
         }
     }
 }
+
+kernel void tensor_embedding_kernel(
+    device float* dst [[buffer(0)]],
+    device const int* indices [[buffer(1)]],
+    device const float* src [[buffer(2)]],
+    device const int* args [[buffer(3)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int src_shape0 = args[0];
+    int src_shape1 = args[1];
+    int length = args[2];
+    int src_stride0 = args[3];
+    int src_stride1 = args[4];
+    int dst_stride0 = args[5];
+    int dst_stride1 = args[6];
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+    if (row >= length || col >= src_shape1) {
+        return;
+    }
+    else {
+        int index_src = indices[row] * src_stride0 + col * src_stride1;
+        int index_dst = row * dst_stride0 + col * dst_stride1;
+        dst[index_dst] = src[index_src];
+    }
+}

@@ -543,7 +543,7 @@ __global__ void tensor_embedding_kernel(
     float* src,
     int src_shape0, int src_shape1,
     int length,
-    int src_stride0, int src_strid1,
+    int src_stride0, int src_stride1,
     int dst_stride0, int dst_stride1
 ) {
     int row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -552,7 +552,7 @@ __global__ void tensor_embedding_kernel(
         return;
     }
     else {
-        int index_src = indices[row] * src_stride0 + col * src_strid1;
+        int index_src = indices[row] * src_stride0 + col * src_stride1;
         int index_dst = row * dst_stride0 + col * dst_stride1;
         dst[index_dst] = src[index_src];
     }

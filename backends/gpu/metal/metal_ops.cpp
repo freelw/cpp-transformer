@@ -59,6 +59,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
     sequenceMaskOps = new MetalKops("sequence_mask_kernel", library);
     softmaxOps = new MetalKops("softmax_kernel", library);
     softmaxBackwardOps = new MetalKops("softmax_backward_kernel", library);
+    embeddingOps = new MetalKops("tensor_embedding_kernel", library);
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     gen = std::mt19937(seed);
@@ -66,6 +67,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
 }
 
 MetalOps::~MetalOps() {
+    delete embeddingOps;
     delete softmaxBackwardOps;
     delete softmaxOps;
     delete sequenceMaskOps;
@@ -340,7 +342,56 @@ void MetalOps::at(Tensor* lhs, const Tensor* rhs, Tensor* res) {
 }
 
 void MetalOps::embedding(Tensor* lhs, const Tensor* indices, const Tensor* res) {
-    assert(false);
+    assert(lhs != nullptr);
+    assert(indices != nullptr);
+    assert(res != nullptr);
+
+    assert(lhs->is_contiguous());
+    assert(res->is_contiguous());
+    assert(indices->is_contiguous());
+    assert(!lhs->is_view());
+    assert(!res->is_view());
+    assert(lhs->get_dim() == 2);
+    assert(res->get_dim() == 2);
+    assert(indices->get_dim() == 1);
+
+    auto lshape = lhs->get_shape();
+    auto rshape = res->get_shape();
+    auto length = indices->length();
+
+    assert(rshape[0] == length);
+    assert(rshape[1] == lshape[1]);
+
+    auto lstrides = lhs->get_strides();
+    auto rstrides = res->get_strides();
+
+    auto encoder = embeddingOps->prepare(device, commandQueue, commandBuffer);
+    auto offset_args = cur_int_args * sizeof(int);
+    int* args = get_cur_int_args_buffer(7);
+    args[0] = lshape[0];
+    args[1] = lshape[1];
+    args[2] = length;
+    args[3] = lstrides[0];
+    args[4] = lstrides[1];
+    args[5] = rstrides[0];
+    args[6] = rstrides[1];
+    auto offset_res = calc_offset(res);
+    auto offset_indices = calc_offset(indices);
+    auto offset_lhs = calc_offset(lhs);
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(indices->get_storage()->ctx), offset_indices, 1);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), offset_lhs, 2);
+    encoder->setBuffer(bufferIntArgs, offset_args, 3);
+    MTL::Size gridDim = MTL::Size(
+        (lshape[1] + TILE_WIDTH - 1) / TILE_WIDTH,
+        (length + TILE_WIDTH - 1) / TILE_WIDTH,
+        1
+    );
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, TILE_WIDTH, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::embeddingBackward(Tensor* lhs, const Tensor* indices, Tensor* res) {
