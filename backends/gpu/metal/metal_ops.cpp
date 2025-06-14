@@ -19,7 +19,7 @@
 #include <type_traits>
 
 #define KERNEL_PATH "/backends/gpu/metal/kernel.metal"
-#define TOTAL_INT_ARGS 9000
+#define TOTAL_INT_ARGS 500000
 #define TOTAL_FLOAT_ARGS 2048
 
 MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0) {
@@ -1492,7 +1492,7 @@ void MetalOps::load_kernel_metal() {
 
 int* MetalOps::get_cur_int_args_buffer(int size) {
     if (cur_int_args + size >= TOTAL_INT_ARGS) {
-        std::cerr << "cur_int_args + size >= TOTAL_INT_ARGS" << std::endl;
+        std::cerr << "cur_int_args + size = " << cur_int_args + size << " >= TOTAL_INT_ARGS" << std::endl;
         abort();
     }
     int* ret = reinterpret_cast<int*>(bufferIntArgs->contents()) + cur_int_args;
