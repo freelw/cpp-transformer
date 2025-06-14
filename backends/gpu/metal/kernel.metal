@@ -881,7 +881,7 @@ kernel void tensor_norm_backward_kernel(
         float var_value = var[row];
         for (int j = 0; j < src_shape1; ++j) {
             int eq = i == j;
-            auto sigma = sqrtf(var_value + eps);
+            auto sigma = sqrt(var_value + eps);
             auto x_hat_i = norm[row * norm_stride0 + i * norm_stride1];
             auto x_hat_j = norm[row * norm_stride0 + j * norm_stride1];
             auto part1 = eq * src_shape1 - 1 - x_hat_i * x_hat_j;
