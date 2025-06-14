@@ -431,19 +431,25 @@ void FillWeightAction::execute() {
     assert(lhs != nullptr);
     if (init_type == "gauss") {
         g_backend_ops->init_weight_gauss(lhs, mean, sigma);
-    } else if (init_type == "uniform") {
+    }
+    else if (init_type == "uniform") {
         g_backend_ops->init_weight_uniform(lhs, sigma);
-    } else if (init_type == "xavier") {
+    }
+    else if (init_type == "xavier") {
         assert(false);
         // g_backend_ops->xavier(lhs);
-    } else if (init_type == "kaiming") {
+    }
+    else if (init_type == "kaiming") {
         assert(false);
         // g_backend_ops->kaiming(lhs);
-    } else if (init_type == "dbg") {
+    }
+    else if (init_type == "dbg") {
         g_backend_ops->init_weight_for_dbg(lhs, sigma);
-    } else if (init_type == "fill") {
+    }
+    else if (init_type == "fill") {
         g_backend_ops->fill(lhs, sigma);
-    } else {
+    }
+    else {
         std::cerr << "Error: Unknown initialization type: " << init_type << std::endl;
         abort();
     }
@@ -536,6 +542,31 @@ std::string AssignShapeAndStridesAction::to_string() const {
     return oss.str();
 }
 
+AssignValueAction::AssignValueAction(Tensor* tensor, float value)
+    : Action(tensor, nullptr, nullptr), value(value) {
+    assert(tensor != nullptr);
+    assert(tensor->get_dtype() == FLOAT32);
+}
+
+AssignValueAction::~AssignValueAction() {
+    // No resources to free
+}
+
+void AssignValueAction::execute() {
+    assert(lhs != nullptr);
+    g_backend_ops->cp_to_device(
+        lhs,
+        reinterpret_cast<char*>(&value),
+        sizeof(float)
+    );
+}
+
+std::string AssignValueAction::to_string() const {
+    std::ostringstream oss;
+    oss << "AssignValueAction: assigning value " << value << " to " << lhs->get_meta_info();
+    return oss.str();
+}
+
 void ReshapeDeepCpAction::execute() {
     assert(lhs != nullptr);
     assert(rhs != nullptr);
@@ -603,29 +634,17 @@ std::string SoftmaxBackwardAction::to_string() const {
     return oss.str();
 }
 
-void DivAction::execute() {
-    assert(lhs != nullptr);
-    assert(res != nullptr);
-    g_backend_ops->div(res, lhs, value);
-}
-
-std::string DivAction::to_string() const {
-    std::ostringstream oss;
-    oss << "DivAction: dividing " << lhs->get_meta_info() << " by " << value << " to " << res->get_meta_info();
-    return oss.str();
-}
-
 void LazyDivAction::execute() {
     assert(lhs != nullptr);
     assert(res != nullptr);
     float fvalue = 0;
-    g_backend_ops->cp_from_device(
-        reinterpret_cast<char*>(&fvalue),
-        value,
-        value->size()
-    );
-    fvalue += 1e-20;
-    g_backend_ops->div(res, lhs, fvalue);
+    // g_backend_ops->cp_from_device(
+    //     reinterpret_cast<char*>(&fvalue),
+    //     value,
+    //     value->size()
+    // );
+    // fvalue += 1e-20;
+    g_backend_ops->div(res, lhs, value);
 }
 
 std::string LazyDivAction::to_string() const {
@@ -867,6 +886,7 @@ void gDoActions() {
     assert(validteZeroCTensorsFound());
     assert(validateZeroGradFound());
     g_training = true;
+    g_backend_ops->prepare();
     for (Action* action : g_actions) {
         if (action->is_do_once() && action->executed_once()) {
             continue;
@@ -874,9 +894,12 @@ void gDoActions() {
         action->execute();
         action->increase_exec_times();
     }
+    g_backend_ops->commit();
+    g_backend_ops->wait();
 }
 
 void gDoOnceActions() {
+    g_backend_ops->prepare();
     for (Action* action : g_actions) {
         if (!action->is_do_once() || action->executed_once()) {
             continue;
@@ -884,10 +907,13 @@ void gDoOnceActions() {
         action->execute();
         action->increase_exec_times();
     }
+    g_backend_ops->commit();
+    g_backend_ops->wait();
 }
 
 void gDoForwardActions(bool training) {
     g_training = training;
+    g_backend_ops->prepare();
     for (Action* action : g_actions) {
         if (action->is_do_once() && action->executed_once()) {
             continue;
@@ -898,11 +924,14 @@ void gDoForwardActions(bool training) {
         action->execute();
         action->increase_exec_times();
     }
+    g_backend_ops->commit();
+    g_backend_ops->wait();
 }
 
 void gDoBackwardActions() {
     g_training = true;
     bool start = false;
+    g_backend_ops->prepare();
     for (Action* action : g_actions) {
         if (action->is_do_once() && action->executed_once()) {
             continue;
@@ -916,6 +945,8 @@ void gDoBackwardActions() {
         action->execute();
         action->increase_exec_times();
     }
+    g_backend_ops->commit();
+    g_backend_ops->wait();
 }
 
 void printAllActions() {

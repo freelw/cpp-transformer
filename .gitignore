@@ -4,6 +4,7 @@ checkpoint_20250402_150847_40.bin
 checkpoint_20250402_171839_29.bin
 *.o
 **/*.o
+**/*.o.tmp
 test
 tmp.txt
 c.log
@@ -11,3 +12,5 @@ p.log
 vocab/data/**
 vocab/fra_vocab_builder/tgt_vocab.txt
 vocab/fra_vocab_builder/src_vocab.txt
+backends/gpu/metal/metal-cpp/.DS_Store
+handwritten_recognition

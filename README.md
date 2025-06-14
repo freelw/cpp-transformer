@@ -30,6 +30,9 @@ V2 - [2025-05-29]
 V2.01 - [2025-06-08]
 1. Supported a simple language model.
 
+V2.02 - [2025-06-14]
+1. Supported Metal
+
 ## Quick start
 
 ### build
@@ -46,7 +49,20 @@ The program compiled in this way supports both CPU and GPU. You can use the -g p
 ```
 If you don't have a CUDA environment, you can also try the CPU version. Note that this version is extremely slow and is only intended for comparing and verifying the correctness of the GPU version.
 
-#### for mac
+#### for mac gpu
+
+Metal is now supported, and the GPU on Mac can be used now.
+
+My MacBook hardware and software information
+* Chip : Apple M1
+* OS Version : 15.5 (24F74)
+
+```
+./build_mac_gpu.sh
+```
+
+
+#### for mac cpu
 ```
 ./build_mac_cpu.sh
 ```

@@ -14,7 +14,6 @@ std::string TensorDtype_to_string(TensorDType dtype) {
     case FLOAT16: return "FLOAT16";
     case FLOAT32: return "FLOAT32";
     case FLOAT64: return "FLOAT64";
-    case BOOL: return "BOOL";
     default: return "UNKNOWN";
     }
 }
@@ -73,11 +72,12 @@ Tensor::~Tensor() {
     }
 }
 
-void Tensor::set_data(void* ptr) {
+void Tensor::set_data(void* ptr, void* ctx) {
     assert(ptr != nullptr);
     assert(storage != nullptr);
     assert(storage->data == nullptr);
     storage->data = ptr;
+    storage->ctx = ctx;
 }
 
 void* Tensor::get_data() const {
@@ -107,7 +107,6 @@ int Tensor::cell_size() const {
     case FLOAT16: return 2;
     case FLOAT32: return 4;
     case FLOAT64: return 8;
-    case BOOL: return sizeof(bool);
     default: assert(false); return 0;
     }
 }
@@ -197,7 +196,8 @@ Tensor* Tensor::reshape(const std::vector<int>& shape) const {
             this->get_name() + "_reshape"
         );
         return reshape_view;
-    } else {
+    }
+    else {
         Tensor* reshape_deep_cpy = callocTensor(
             calc_req_shape,
             this->get_name() + "_reshape_deep_copy",
@@ -250,7 +250,8 @@ Tensor* Tensor::repeat_interleave(int n) {
     std::vector<int> new_shape = shape;
     if (dim == 1) {
         new_shape[0] *= n;
-    } else {
+    }
+    else {
         new_shape[dim - 2] *= n;
     }
     Tensor* repeat_interleave_tensor = callocTensor(
@@ -354,12 +355,14 @@ void dfs_print(
         for (int i = 0; i < length; ++i) {
             if (dtype == FLOAT32) {
                 output << *(reinterpret_cast<float*>(data) + base_offset + i * stride);
-            } else if (dtype == INT32) {
+            }
+            else if (dtype == INT32) {
                 output << *(reinterpret_cast<int32_t*>(data) + base_offset + i * stride);
             }
             if (i < length - 1) {
                 output << ", ";
-            } else {
+            }
+            else {
                 output << "]";
             }
         }
@@ -503,7 +506,8 @@ void validateAllTensors() {
                         << tensor->get_meta_info() << ": " << data[i] << std::endl;
                 }
             }
-        } else if (tensor->get_dtype() == INT32) {
+        }
+        else if (tensor->get_dtype() == INT32) {
             int32_t* data = reinterpret_cast<int32_t*>(buffer);
             for (int i = 0; i < tensor->length(); ++i) {
                 bool valid = !std::isnan(data[i]) && !std::isinf(data[i]);
@@ -552,9 +556,12 @@ void allocMemAndInitTensors() {
         grad_tensors_data_capacity += tensor->capacity();
     }
 
-    tensors_data = g_backend_ops->alloc(tensors_data_capacity);
-    c_tensors_data = g_backend_ops->alloc(c_tensors_data_capacity);
-    grad_tensors_data = g_backend_ops->alloc(grad_tensors_data_capacity);
+    void* tensors_data_ctx = nullptr;
+    void* c_tensors_data_ctx = nullptr;
+    void* grad_tensors_data_ctx = nullptr;
+    tensors_data = g_backend_ops->alloc(tensors_data_capacity, &tensors_data_ctx);
+    c_tensors_data = g_backend_ops->alloc(c_tensors_data_capacity, &c_tensors_data_ctx);
+    grad_tensors_data = g_backend_ops->alloc(grad_tensors_data_capacity, &grad_tensors_data_ctx);
 
     g_backend_ops->memset(tensors_data, 0, tensors_data_capacity);
     g_backend_ops->memset(c_tensors_data, 0, c_tensors_data_capacity);
@@ -562,19 +569,19 @@ void allocMemAndInitTensors() {
 
     int64_t offset = 0;
     for (Tensor* tensor : g_tensors) {
-        tensor->set_data(reinterpret_cast<char*>(tensors_data) + offset);
+        tensor->set_data(reinterpret_cast<char*>(tensors_data) + offset, tensors_data_ctx);
         offset += tensor->capacity();
     }
 
     offset = 0;
     for (Tensor* tensor : g_c_tensors) {
-        tensor->set_data(reinterpret_cast<char*>(c_tensors_data) + offset);
+        tensor->set_data(reinterpret_cast<char*>(c_tensors_data) + offset, c_tensors_data_ctx);
         offset += tensor->capacity();
     }
 
     offset = 0;
     for (Tensor* tensor : g_grad_tensors) {
-        tensor->set_data(reinterpret_cast<char*>(grad_tensors_data) + offset);
+        tensor->set_data(reinterpret_cast<char*>(grad_tensors_data) + offset, grad_tensors_data_ctx);
         offset += tensor->capacity();
     }
 }

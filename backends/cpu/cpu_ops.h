@@ -49,7 +49,7 @@ public:
     void sequence_mask(Tensor* lhs, const Tensor* mask, Tensor* res, float value) override;
     void softmax(Tensor* lhs, Tensor* res) override;
     void softmax_bacward(Tensor* target_grad, const Tensor* softmax_res, Tensor* grad) override;
-    void div(Tensor* dst, Tensor* src, float value) override;
+    void div(Tensor* dst, Tensor* src, Tensor* value) override;
     void build_dropout_mask(
         Tensor* mask, float p,
         Tensor* shape, Tensor* strides
@@ -64,7 +64,7 @@ public:
     void mulSV(Tensor* dst, Tensor* src, float value) override;
 
     // Memory management
-    void* alloc(size_t size) override;
+    void* alloc(size_t size, void** ctx = nullptr) override;
     void memset(void* ptr, int value, size_t size) override;
     void cp_device_to_device(void* dst, const void* src, size_t size) override;
     void free(void* ptr) override;

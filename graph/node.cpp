@@ -37,7 +37,8 @@ namespace graph {
             res_node = allocNode(res_tensor, this->get_grad()->transpose(a, b));
             res_node->require_grad();
             res_node->edges.push_back(EmptyEdge::create(this));
-        } else {
+        }
+        else {
             res_node = allocNode(res_tensor);
         }
         return res_node;
@@ -51,7 +52,8 @@ namespace graph {
             res_node = allocNode(res_tensor, this->get_grad()->permute(dims));
             res_node->require_grad();
             res_node->edges.push_back(EmptyEdge::create(this));
-        } else {
+        }
+        else {
             res_node = allocNode(res_tensor);
         }
         return res_node;
@@ -72,10 +74,12 @@ namespace graph {
             res_node->require_grad();
             if (share_mem) {
                 res_node->edges.push_back(EmptyEdge::create(this));
-            } else {
+            }
+            else {
                 res_node->edges.push_back(ReshapeEdge::create(this));
             }
-        } else {
+        }
+        else {
             res_node = allocNode(res_tensor);
         }
         return res_node;
@@ -87,7 +91,8 @@ namespace graph {
         if (is_require_grad()) {
             res_node = allocNode(res_tensor, this->get_grad());
             res_node->edges.push_back(EmptyEdge::create(this));
-        } else {
+        }
+        else {
             res_node = allocNode(res_tensor);
         }
         return res_node;
@@ -110,7 +115,8 @@ namespace graph {
         assert(this->get_tensor()->get_dim() == 3);
         if (valid_len == nullptr) {
             return this->softmax();
-        } else {
+        }
+        else {
             auto shape = this->get_tensor()->get_shape();
             Tensor* mask = valid_len->get_dim() == 1 ?
                 valid_len->repeat_interleave(shape[1]) : valid_len->reshape({ -1 });
@@ -370,10 +376,12 @@ namespace graph {
                 node = allocNode(new_tensor, new_grad);
                 if (opposite) { // 考虑split的左操作数是结果，梯度需要从整个结果传递给子结果
                     this->edges.push_back(EmptyEdge::create(node));
-                } else { // 考虑split的左操作数是输入，梯度需要从子结果传递给整个结果
+                }
+                else { // 考虑split的左操作数是输入，梯度需要从子结果传递给整个结果
                     node->edges.push_back(EmptyEdge::create(this));
                 }
-            } else {
+            }
+            else {
                 node = allocNode(new_tensor);
             }
             offset += block;
@@ -524,17 +532,33 @@ namespace graph {
         Tensor* l_tensor = this->get_tensor();
         assert(l_tensor->is_contiguous()); // 只有在这个前提下，当前的后端实现才是正确的，没有考虑stride
         Tensor* res_tensor = callocTensor(l_tensor->get_shape(), "div_res");
+        Tensor* value_tensor = callocTensor(
+            { 1 },
+            "div_value",
+            FLOAT32
+        );
         gCreateAction(
-            new DivAction(
+            new AssignValueAction(
+                value_tensor,
+                value
+            )
+        );
+        // g_backend_ops->cp_to_device(
+        //     value_tensor,
+        //     (char*)&value,
+        //     sizeof(float)
+        // );
+        gCreateAction(
+            new LazyDivAction(
                 l_tensor,
                 res_tensor,
-                value
+                value_tensor
             )
         );
         Node* res_node = allocNode(res_tensor);
         if (is_require_grad()) {
             res_node->require_grad();
-            res_node->edges.push_back(DivEdge::create(this, value));
+            res_node->edges.push_back(DivEdge::create(this, value_tensor));
         }
         return res_node;
     }

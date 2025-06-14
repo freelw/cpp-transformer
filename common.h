@@ -3,7 +3,8 @@
 
 
 #include "backends/cpu/cpu_ops.h"
-#include "backends/gpu/cuda_ops.h"
+#include "backends/gpu/cuda/cuda_ops.h"
+#include "backends/gpu/metal/metal_ops.h"
 #include "graph/node.h"
 
 extern BackendOps* g_backend_ops;

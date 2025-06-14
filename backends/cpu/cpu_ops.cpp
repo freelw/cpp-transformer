@@ -389,7 +389,8 @@ void CPUOps::crossEntropyBackward(Tensor* lhs, const Tensor* labels, Tensor* max
             if (i == target) {
                 res_data[j * res_strides[0] + i * res_strides[1]] =
                     (std::exp(data[j * lstrides[0] + i * lstrides[1]] - max) / sum - 1);
-            } else {
+            }
+            else {
                 res_data[j * res_strides[0] + i * res_strides[1]] =
                     (std::exp(data[j * lstrides[0] + i * lstrides[1]] - max) / sum);
             }
@@ -486,12 +487,14 @@ void CPUOps::init_weight_for_dbg(Tensor* tensor, float scale) {
         for (int i = 0; i < tensor->length(); ++i) {
             data[i] = static_cast<float>(i) * 1e-5 * scale;
         }
-    } else if (tensor->get_dtype() == INT32) {
+    }
+    else if (tensor->get_dtype() == INT32) {
         int32_t* data = static_cast<int32_t*>(tensor->get_data());
         for (int i = 0; i < tensor->length(); ++i) {
             data[i] = i % 10;
         }
-    } else {
+    }
+    else {
         assert(false);
     }
 
@@ -526,7 +529,8 @@ void CPUOps::reshape_deep_cp(
 
     if (dtype == INT32) {
         assert(false);
-    } else if (dtype == FLOAT32) {
+    }
+    else if (dtype == FLOAT32) {
         auto dst_data = static_cast<float*>(dst_tensor->get_data());
         auto src_data = static_cast<float*>(src_tensor->get_data());
         for (int i = 0; i < length; ++i) {
@@ -541,7 +545,8 @@ void CPUOps::reshape_deep_cp(
             }
             dst_data[i] = src_data[offset];
         }
-    } else {
+    }
+    else {
         assert(false);
     }
 }
@@ -559,7 +564,8 @@ void CPUOps::repeat_interleave(Tensor* lhs, Tensor* res, int n) {
 
     if (dim == 1) {
         width = 1;
-    } else {
+    }
+    else {
         width = lshape[dim - 1];
     }
     auto l_length = lhs->length();
@@ -692,7 +698,8 @@ void CPUOps::softmax_bacward(Tensor* target_grad, const Tensor* softmax_res, Ten
                     auto grad_k = grad_data[g_k_pos];
                     if (target == k) {
                         tmp += softmax_res_k * (1 - softmax_res_k) * grad_k;
-                    } else {
+                    }
+                    else {
                         tmp += -softmax_res_target * softmax_res_k * grad_k;
                     }
                 }
@@ -702,12 +709,14 @@ void CPUOps::softmax_bacward(Tensor* target_grad, const Tensor* softmax_res, Ten
     }
 }
 
-void CPUOps::div(Tensor* dst, Tensor* src, float value) {
+void CPUOps::div(Tensor* dst, Tensor* src, Tensor* value) {
     assert(dst->length() == src->length());
+    assert(value->length() == 1);
     auto length = dst->length();
+    float value_scalar = static_cast<float*>(value->get_data())[0] + 1e-20;
     for (int i = 0; i < length; ++i) {
         static_cast<float*>(dst->get_data())[i] =
-            static_cast<float*>(src->get_data())[i] / value;
+            static_cast<float*>(src->get_data())[i] / value_scalar;
     }
 }
 
@@ -742,7 +751,8 @@ void CPUOps::pos_encoding(Tensor* res) {
             if (i % 2 == 0) {
                 static_cast<float*>(res->get_data())[pos * res->get_strides()[0] + i * res->get_strides()[1]] =
                     std::sin(pos * 1. / std::pow(10000, (1.0f * i / num_hidden)));
-            } else {
+            }
+            else {
                 static_cast<float*>(res->get_data())[pos * res->get_strides()[0] + i * res->get_strides()[1]] =
                     std::cos(pos * 1. / std::pow(10000, (1.0f * (i & ~1) / num_hidden)));
             }
@@ -865,7 +875,7 @@ void CPUOps::mulSV(Tensor* dst, Tensor* src, float value) {
     }
 }
 
-void* CPUOps::alloc(size_t size) {
+void* CPUOps::alloc(size_t size, void** /*ctx*/) {
     return malloc(size);
 }
 

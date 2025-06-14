@@ -7,6 +7,7 @@ class BackendOps {
 public:
     BackendOps() = default;
     virtual ~BackendOps() = default;
+    virtual void prepare() {}
     virtual void add(
         Tensor* lhs, const Tensor* rhs, Tensor* res,
         Tensor* l_shape, Tensor* l_strides,
@@ -47,7 +48,7 @@ public:
     virtual void sequence_mask(Tensor* lhs, const Tensor* mask, Tensor* res, float value) = 0;
     virtual void softmax(Tensor* lhs, Tensor* res) = 0;
     virtual void softmax_bacward(Tensor* target_grad, const Tensor* softmax_res, Tensor* grad) = 0;
-    virtual void div(Tensor* dst, Tensor* src, float value) = 0;
+    virtual void div(Tensor* dst, Tensor* src, Tensor* value) = 0;
     virtual void build_dropout_mask(
         Tensor* mask, float p,
         Tensor* shape, Tensor* strides
@@ -61,12 +62,14 @@ public:
     ) = 0;
     virtual void mulSV(Tensor* dst, Tensor* src, float value) = 0;
     // Memory management
-    virtual void* alloc(size_t size) = 0;
+    virtual void* alloc(size_t size, void** ctx = nullptr) = 0;
     virtual void memset(void* ptr, int value, size_t size) = 0;
     virtual void cp_device_to_device(void* dst, const void* src, size_t size) = 0;
     virtual void free(void* ptr) = 0;
     virtual void cp_to_device(Tensor* dst_tensor, char* src, size_t size) = 0;
     virtual void cp_from_device(char* dst, const Tensor* src_tensor, size_t size) = 0;
+    virtual void commit() {}
+    virtual void wait() {}
 };
 
 extern BackendOps* g_backend_ops;
