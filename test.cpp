@@ -713,14 +713,14 @@ void test_bp() {
 
     gDoActions();
 
-    std::cout << "input : " << *input << std::endl;
-    std::cout << "w : " << *w << std::endl;
-    std::cout << "bias : " << *bias << std::endl;
-    std::cout << "w1 : " << *w1 << std::endl;
-    std::cout << "bias1 : " << *bias1 << std::endl;
-    std::cout << "nres->get_tensor() : " << *nres->get_tensor() << std::endl;
-    std::cout << "foward_res0 : " << *foward_res0->get_tensor() << std::endl;
-    std::cout << "foward_res1 : " << *foward_res1->get_tensor() << std::endl;
+    // std::cout << "input : " << *input << std::endl;
+    // std::cout << "w : " << *w << std::endl;
+    // std::cout << "bias : " << *bias << std::endl;
+    // std::cout << "w1 : " << *w1 << std::endl;
+    // std::cout << "bias1 : " << *bias1 << std::endl;
+    // std::cout << "nres->get_tensor() : " << *nres->get_tensor() << std::endl;
+    // std::cout << "foward_res0 : " << *foward_res0->get_tensor() << std::endl;
+    // std::cout << "foward_res1 : " << *foward_res1->get_tensor() << std::endl;
 
     const float eps = 1e-5f;
     float loss = 0;
@@ -7557,38 +7557,38 @@ void test_embedding_with_cpu() {
 }
 
 void test_gpu() {
-    // test_at();
-    // test_at_1();
-    // test_gpu_at_with_cpu();
-    // test_add();
-    // test_gpu_add_with_cpu();
-    // test_add_eq();
-    // test_gpu_add_eq_1d_with_cpu();
-    // test_gpu_add_eq_2d_with_cpu();
-    // test_expand_add();
-    // test_gpu_expand_add_with_cpu();
-    // test_mul();
-    // test_mul_1();
-    // test_gpu_mul_with_cpu();
-    // test_sum();
-    // test_gpu_sum_with_cpu();
-    // test_cross_entropy();
-    // test_gpu_cross_entropy_with_cpu();
-    // test_cross_entropy_backward();
-    // test_gpu_cross_entropy_backward_with_cpu();
+    test_at();
+    test_at_1();
+    test_gpu_at_with_cpu();
+    test_add();
+    test_gpu_add_with_cpu();
+    test_add_eq();
+    test_gpu_add_eq_1d_with_cpu();
+    test_gpu_add_eq_2d_with_cpu();
+    test_expand_add();
+    test_gpu_expand_add_with_cpu();
+    test_mul();
+    test_mul_1();
+    test_gpu_mul_with_cpu();
+    test_sum();
+    test_gpu_sum_with_cpu();
+    test_cross_entropy();
+    test_gpu_cross_entropy_with_cpu();
+    test_cross_entropy_backward();
+    test_gpu_cross_entropy_backward_with_cpu();
     test_bp();
-    // test_adam();
-    // test_mlp();
-    // test_mlp_with_cpu();
-    // // test_print_tensor();
-    // test_contiguous();
-    // test_reshape();
-    // test_reshape_with_cpu();
-    // test_reshape_1();
-    // test_reshape_bp();
-    // test_reshape_bp_1();
-    // test_repeat_interleave();
-    // test_repeat_interleave_with_cpu();
+    test_adam();
+    test_mlp();
+    test_mlp_with_cpu();
+    // test_print_tensor();
+    test_contiguous();
+    test_reshape();
+    test_reshape_with_cpu();
+    test_reshape_1();
+    test_reshape_bp();
+    test_reshape_bp_1();
+    test_repeat_interleave();
+    test_repeat_interleave_with_cpu();
     return;
 
     test_at();
