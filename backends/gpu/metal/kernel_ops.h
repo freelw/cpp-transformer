@@ -27,17 +27,15 @@ public:
     const std::string& getFunctionName() const {
         return functionName;
     }
-    void prepare(MTL::Device* device, MTL::CommandQueue* commandQueue);
-    void run();
-    MTL::ComputeCommandEncoder* getEncoder() const {
-        return encoder;
-    }
+    void prepare(
+        MTL::Device* device,
+        MTL::CommandQueue* commandQueue,
+        MTL::CommandBuffer* commandBuffer,
+        MTL::ComputeCommandEncoder* encoder
+    );
 private:
     std::string functionName;
     MTL::Function* function;
-    MTL::CommandBuffer* commandBuffer;
-    MTL::ComputeCommandEncoder* encoder;
-    MTL::ComputePipelineState* pipelineState;
 };
 
 
