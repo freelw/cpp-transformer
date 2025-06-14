@@ -63,6 +63,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
     embeddingBackwardOps = new MetalKops("tensor_embedding_backward_kernel", library);
     sumDim1Ops = new MetalKops("tensor_sum_2d_dim1", library);
     divOps = new MetalKops("tensor_div_scalar", library);
+    varDim1Ops = new MetalKops("tensor_var_2d_dim1", library);
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     gen = std::mt19937(seed);
@@ -70,6 +71,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
 }
 
 MetalOps::~MetalOps() {
+    delete varDim1Ops;
     delete divOps;
     delete sumDim1Ops;
     delete embeddingBackwardOps;
@@ -1233,7 +1235,61 @@ void MetalOps::avg(Tensor* lhs, Tensor* res) {
 }
 
 void MetalOps::var(Tensor* lhs, const Tensor* _avg, Tensor* res) {
-    assert(false);
+    assert(lhs->get_dim() == 2);
+    assert(res->get_dim() == 1);
+    assert(_avg->get_dim() == 1);
+    auto shape = lhs->get_shape();
+    assert(shape[0] == res->get_shape()[0]);
+    assert(shape[0] == _avg->get_shape()[0]);
+
+    auto var_encoder = varDim1Ops->prepare(device, commandQueue, commandBuffer);
+    auto offset_var_args = cur_int_args * sizeof(int);
+    int* var_args = get_cur_int_args_buffer(5);
+    var_args[0] = shape[0]; // batch size
+    var_args[1] = shape[1]; // sequence length
+    var_args[2] = lhs->get_strides()[0]; // lhs stride
+    var_args[3] = lhs->get_strides()[1]; // lhs stride
+    var_args[4] = res->get_strides()[0]; // res stride
+    auto offset_lhs = calc_offset(lhs);
+    auto offset_avg = calc_offset(_avg);
+    auto offset_res = calc_offset(res);
+    assert(var_encoder != nullptr);
+    var_encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), offset_lhs, 0);
+    var_encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(_avg->get_storage()->ctx), offset_avg, 1);
+    var_encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 2);
+    var_encoder->setBuffer(bufferIntArgs, offset_var_args, 3);
+    size_t sharedMemorySize = TILE_WIDTH * sizeof(float); // Calculate shared memory size
+    var_encoder->setThreadgroupMemoryLength(sharedMemorySize, 0); // Set shared memory size
+
+    MTL::Size varGridDim = MTL::Size(
+        (shape[1] + TILE_WIDTH - 1) / TILE_WIDTH,
+        shape[0],
+        1
+    );
+    MTL::Size varBlockDim = MTL::Size(TILE_WIDTH, 1, 1);
+    var_encoder->dispatchThreadgroups(varGridDim, varBlockDim);
+    var_encoder->endEncoding();
+    var_encoder->release();
+
+    auto div_encoder = divOps->prepare(device, commandQueue, commandBuffer);
+    auto offset_div_args = cur_int_args * sizeof(int);
+    int* divIntArgs = get_cur_int_args_buffer(1);
+    auto offset_div_float_args = cur_float_args * sizeof(float);
+    float* divFloatArgs = get_cur_float_args_buffer(1);
+    divIntArgs[0] = shape[0]; // batch size
+    divFloatArgs[0] = (float)shape[1]; // divisor
+    auto offset_res_div = calc_offset(res);
+    assert(div_encoder != nullptr);
+    div_encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res_div, 0);
+    div_encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res_div, 1);
+    div_encoder->setBuffer(bufferIntArgs, offset_div_args, 2);
+    div_encoder->setBuffer(bufferFloatArgs, offset_div_float_args, 3);
+    auto length = res->length();
+    MTL::Size divGridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
+    MTL::Size divBlockDim = MTL::Size(TILE_WIDTH, 1, 1);
+    div_encoder->dispatchThreadgroups(divGridDim, divBlockDim);
+    div_encoder->endEncoding();
+    div_encoder->release();
 }
 
 void MetalOps::norm(const Tensor* src, const Tensor* avg, const Tensor* var, Tensor* res) {

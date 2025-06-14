@@ -131,6 +131,7 @@ private:
     MetalKops* embeddingBackwardOps;
     MetalKops* sumDim1Ops;
     MetalKops* divOps;
+    MetalKops* varDim1Ops;
 private:
     int cur_int_args;
     int cur_float_args;
