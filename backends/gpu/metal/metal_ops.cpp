@@ -65,6 +65,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
     divOps = new MetalKops("tensor_div_scalar", library);
     varDim1Ops = new MetalKops("tensor_var_2d_dim1", library);
     normOps = new MetalKops("tensor_norm_kernel", library);
+    normBackwardOps = new MetalKops("tensor_norm_backward_kernel", library);
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     gen = std::mt19937(seed);
@@ -72,6 +73,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
 }
 
 MetalOps::~MetalOps() {
+    delete normBackwardOps;
     delete normOps;
     delete varDim1Ops;
     delete divOps;
@@ -1339,7 +1341,51 @@ void MetalOps::norm(const Tensor* src, const Tensor* avg, const Tensor* var, Ten
 void MetalOps::normBackward(
     const Tensor* src_grad, const Tensor* norm_res, const Tensor* var_res, Tensor* tgt_grad
 ) {
-    assert(false);
+    assert(src_grad != nullptr);
+    assert(norm_res != nullptr);
+    assert(tgt_grad != nullptr);
+    assert(src_grad->get_dim() == 2);
+    assert(norm_res->get_dim() == 2);
+    assert(tgt_grad->get_dim() == 2);
+    assert(src_grad->get_shape() == tgt_grad->get_shape());
+    assert(src_grad->get_shape() == norm_res->get_shape());
+    assert(var_res->get_dim() == 1);
+    auto shape = src_grad->get_shape();
+    assert(shape[0] == var_res->get_shape()[0]);
+    auto norm_res_strides = norm_res->get_strides();
+    auto src_grad_strides = src_grad->get_strides();
+    auto tgt_grad_strides = tgt_grad->get_strides();
+
+    auto encoder = normBackwardOps->prepare(device, commandQueue, commandBuffer);
+    auto offset_args = cur_int_args * sizeof(int);
+    int* args = get_cur_int_args_buffer(8);
+    args[0] = shape[0]; // batch size
+    args[1] = shape[1]; // sequence length
+    args[2] = src_grad_strides[0]; // src_grad stride
+    args[3] = src_grad_strides[1]; // src_grad stride
+    args[4] = norm_res_strides[0]; // norm_res stride
+    args[5] = norm_res_strides[1]; // norm_res stride
+    args[6] = tgt_grad_strides[0]; // tgt_grad stride
+    args[7] = tgt_grad_strides[1]; // tgt_grad stride
+    auto offset_src_grad = calc_offset(src_grad);
+    auto offset_norm_res = calc_offset(norm_res);
+    auto offset_var_res = calc_offset(var_res);
+    auto offset_tgt_grad = calc_offset(tgt_grad);
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(src_grad->get_storage()->ctx), offset_src_grad, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(norm_res->get_storage()->ctx), offset_norm_res, 1);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(var_res->get_storage()->ctx), offset_var_res, 2);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(tgt_grad->get_storage()->ctx), offset_tgt_grad, 3);
+    encoder->setBuffer(bufferIntArgs, offset_args, 4);
+    MTL::Size gridDim = MTL::Size(
+        (shape[1] + TILE_WIDTH - 1) / TILE_WIDTH,
+        (shape[0] + TILE_WIDTH - 1) / TILE_WIDTH,
+        1
+    );
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, TILE_WIDTH, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::mulSV(Tensor* dst, Tensor* src, float value) {

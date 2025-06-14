@@ -133,6 +133,7 @@ private:
     MetalKops* divOps;
     MetalKops* varDim1Ops;
     MetalKops* normOps;
+    MetalKops* normBackwardOps;
 private:
     int cur_int_args;
     int cur_float_args;

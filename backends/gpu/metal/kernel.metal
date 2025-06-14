@@ -849,6 +849,46 @@ kernel void tensor_norm_kernel(
         float _var = var[row];
         float _src = src[row * src_stride0 + col * src_stride1];
         dst[row * dst_stride0 + col * dst_stride1] =
-            (_src - _avg) / sqrtf(_var + eps);
+            (_src - _avg) / sqrt(_var + eps);
+    }
+}
+
+kernel void tensor_norm_backward_kernel(
+    device const float* src,
+    device const float* norm,
+    device const float* var,
+    device float* tgt,
+    device const int* args,
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int src_shape0 = args[0];
+    int src_shape1 = args[1];
+    int src_stride0 = args[2];
+    int src_stride1 = args[3];
+    int norm_stride0 = args[4];
+    int norm_stride1 = args[5];
+    int tgt_stride0 = args[6];
+    int tgt_stride1 = args[7];
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    const float eps = 1e-5f;
+    if (row >= src_shape0 || i >= src_shape1) {
+        return;
+    } else {
+        float tmp = 0;
+        float var_value = var[row];
+        for (int j = 0; j < src_shape1; ++j) {
+            int eq = i == j;
+            auto sigma = sqrtf(var_value + eps);
+            auto x_hat_i = norm[row * norm_stride0 + i * norm_stride1];
+            auto x_hat_j = norm[row * norm_stride0 + j * norm_stride1];
+            auto part1 = eq * src_shape1 - 1 - x_hat_i * x_hat_j;
+            auto part2 = src_shape1 * sigma;
+            auto g = part1 / part2;
+            tmp += g * src[row * src_stride0 + j * src_stride1];
+        }
+        tgt[row * tgt_stride0 + i * tgt_stride1] = tmp;
     }
 }
