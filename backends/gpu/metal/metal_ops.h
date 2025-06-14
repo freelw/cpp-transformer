@@ -95,6 +95,8 @@ public:
     void wait() override;
 private:
     void load_kernel_metal();
+    int* get_cur_int_args_buffer(int size);
+    float* get_cur_float_args_buffer(int size);
 private:
     MTL::Device* device;
     MTL::CommandQueue* commandQueue;
@@ -123,6 +125,8 @@ private:
     MetalKops* reshapeDeepCpOps;
     MetalKops* repeatInterleaveOps;
 private:
+    int cur_int_args;
+    int cur_float_args;
     std::mt19937 gen;
     std::uniform_real_distribution<> dis;
 };
