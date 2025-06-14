@@ -36,7 +36,7 @@ MetalOps::MetalOps() : encoder(nullptr), commandBuffer(nullptr) {
     bufferFloatArgs = device->newBuffer(128, MTL::ResourceStorageModeShared);
     load_kernel_metal();
 
-    commandBuffer = commandQueue->commandBuffer();
+
     // encoder = commandBuffer->computeCommandEncoder();
     // if (!encoder) {
     //     std::cerr << "Error: Failed to create compute command encoder." << std::endl;
@@ -90,6 +90,11 @@ MetalOps::~MetalOps() {
     bufferIntArgs->release();
     commandQueue->release();
     device->release();
+}
+
+void MetalOps::prepare() {
+    commandBuffer = commandQueue->commandBuffer();
+    encoder = commandBuffer->computeCommandEncoder();
 }
 
 int calc_offset(const Tensor* t) {
@@ -689,21 +694,27 @@ void MetalOps::fill(Tensor* tensor, float value) {
     assert(tensor->get_data() != nullptr);
     assert(tensor->length() > 0);
 
-    fillOps->prepare(device, commandQueue, commandBuffer, encoder);
-    int* argsInt = (int*)bufferIntArgs->contents();
-    float* argsFloat = (float*)bufferFloatArgs->contents();
-    auto length = tensor->length();
-    argsInt[0] = length;
-    argsFloat[0] = value;
-    auto offset_tensor = calc_offset(tensor);
+    assert(tensor->get_dtype() == FLOAT32);
+    float* data = static_cast<float*>(tensor->get_data());
+    for (int i = 0; i < tensor->length(); ++i) {
+        data[i] = value;
+    }
 
-    assert(encoder != nullptr);
-    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(tensor->get_storage()->ctx), offset_tensor, 0);
-    encoder->setBuffer(bufferIntArgs, 0, 1);
-    encoder->setBuffer(bufferFloatArgs, 0, 2);
-    MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
-    MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
-    encoder->dispatchThreadgroups(gridDim, blockDim);
+    // fillOps->prepare(device, commandQueue, commandBuffer, encoder);
+    // int* argsInt = (int*)bufferIntArgs->contents();
+    // float* argsFloat = (float*)bufferFloatArgs->contents();
+    // auto length = tensor->length();
+    // argsInt[0] = length;
+    // argsFloat[0] = value;
+    // auto offset_tensor = calc_offset(tensor);
+
+    // assert(encoder != nullptr);
+    // encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(tensor->get_storage()->ctx), offset_tensor, 0);
+    // encoder->setBuffer(bufferIntArgs, 0, 1);
+    // encoder->setBuffer(bufferFloatArgs, 0, 2);
+    // MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
+    // MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
+    // encoder->dispatchThreadgroups(gridDim, blockDim);
 }
 
 void MetalOps::reshape_deep_cp(
@@ -903,6 +914,17 @@ void MetalOps::cp_from_device(char* dst, const Tensor* src_tensor, size_t size) 
     assert(size > 0);
     assert(src_tensor->get_data() != nullptr);
     ::memcpy(dst, src_tensor->get_data(), size);
+}
+
+void MetalOps::commit() {
+    encoder->endEncoding();
+    commandBuffer->commit();
+}
+
+void MetalOps::wait() {
+    commandBuffer->waitUntilCompleted();
+    encoder->release();
+    commandBuffer->release();
 }
 
 void MetalOps::load_kernel_metal() {

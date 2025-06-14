@@ -7,6 +7,7 @@ class BackendOps {
 public:
     BackendOps() = default;
     virtual ~BackendOps() = default;
+    virtual void prepare() {}
     virtual void add(
         Tensor* lhs, const Tensor* rhs, Tensor* res,
         Tensor* l_shape, Tensor* l_strides,

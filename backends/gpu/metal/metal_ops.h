@@ -29,6 +29,7 @@ class MetalOps : public BackendOps {
 public:
     MetalOps();
     ~MetalOps();
+    void prepare() override;
     void add(
         Tensor* lhs, const Tensor* rhs, Tensor* res,
         Tensor* l_shape, Tensor* l_strides,
@@ -90,6 +91,8 @@ public:
     void cp_device_to_device(void* dst, const void* src, size_t size) override;
     void cp_to_device(Tensor* dst_tensor, char* src, size_t size) override;
     void cp_from_device(char* dst, const Tensor* src_tensor, size_t size) override;
+    void commit() override;
+    void wait() override;
 private:
     void load_kernel_metal();
 private:

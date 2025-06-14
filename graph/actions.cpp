@@ -873,6 +873,7 @@ void gDoActions() {
     assert(validteZeroCTensorsFound());
     assert(validateZeroGradFound());
     g_training = true;
+    g_backend_ops->prepare();
     for (Action* action : g_actions) {
         if (action->is_do_once() && action->executed_once()) {
             continue;
@@ -885,6 +886,7 @@ void gDoActions() {
 }
 
 void gDoOnceActions() {
+    g_backend_ops->prepare();
     for (Action* action : g_actions) {
         if (!action->is_do_once() || action->executed_once()) {
             continue;
@@ -898,6 +900,7 @@ void gDoOnceActions() {
 
 void gDoForwardActions(bool training) {
     g_training = training;
+    g_backend_ops->prepare();
     for (Action* action : g_actions) {
         if (action->is_do_once() && action->executed_once()) {
             continue;
@@ -915,6 +918,7 @@ void gDoForwardActions(bool training) {
 void gDoBackwardActions() {
     g_training = true;
     bool start = false;
+    g_backend_ops->prepare();
     for (Action* action : g_actions) {
         if (action->is_do_once() && action->executed_once()) {
             continue;
