@@ -99,7 +99,6 @@ private:
     MTL::Device* device;
     MTL::CommandQueue* commandQueue;
     MTL::CommandBuffer* commandBuffer;
-    MTL::ComputeCommandEncoder* encoder;
 
     MTL::Buffer* bufferIntArgs;
     MTL::Buffer* bufferFloatArgs;

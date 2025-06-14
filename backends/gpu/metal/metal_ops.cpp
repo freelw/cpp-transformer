@@ -20,7 +20,7 @@
 
 #define KERNEL_PATH "/backends/gpu/metal/kernel.metal"
 
-MetalOps::MetalOps() : encoder(nullptr), commandBuffer(nullptr) {
+MetalOps::MetalOps() : commandBuffer(nullptr) {
     device = MTL::CreateSystemDefaultDevice();
     if (!device) {
         std::cerr << "Metal device not found!" << std::endl;
@@ -94,7 +94,6 @@ MetalOps::~MetalOps() {
 
 void MetalOps::prepare() {
     commandBuffer = commandQueue->commandBuffer();
-    encoder = commandBuffer->computeCommandEncoder();
 }
 
 int calc_offset(const Tensor* t) {
@@ -118,7 +117,7 @@ void MetalOps::add(
     assert(res_striedes != nullptr);
     auto length = lhs->length();
 
-    addOps->prepare(device, commandQueue, commandBuffer, encoder);
+    auto encoder = addOps->prepare(device, commandQueue, commandBuffer);
 
     int* args = (int*)bufferIntArgs->contents();
     args[0] = lhs->get_dim();
@@ -143,6 +142,8 @@ void MetalOps::add(
     MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::addEq(
@@ -158,7 +159,7 @@ void MetalOps::addEq(
     int dim = lhs->get_dim();
     auto length = lhs->length();
 
-    addEqOps->prepare(device, commandQueue, commandBuffer, encoder);
+    auto encoder = addEqOps->prepare(device, commandQueue, commandBuffer);
 
     int* args = (int*)bufferIntArgs->contents();
     args[0] = dim;
@@ -179,6 +180,8 @@ void MetalOps::addEq(
     MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::expandAdd(Tensor* lhs, const Tensor* rhs, Tensor* res) {
@@ -196,7 +199,7 @@ void MetalOps::expandAdd(Tensor* lhs, const Tensor* rhs, Tensor* res) {
     auto lstrides = lhs->get_strides();
     auto res_strides = res->get_strides();
 
-    expandAddOps->prepare(device, commandQueue, commandBuffer, encoder);
+    auto encoder = expandAddOps->prepare(device, commandQueue, commandBuffer);
     int* args = (int*)bufferIntArgs->contents();
     args[0] = shape[0];
     args[1] = shape[1];
@@ -221,6 +224,8 @@ void MetalOps::expandAdd(Tensor* lhs, const Tensor* rhs, Tensor* res) {
     );
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, TILE_WIDTH, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::expandMul(Tensor* lhs, const Tensor* rhs, Tensor* res) {
@@ -238,7 +243,7 @@ void MetalOps::expandMul(Tensor* lhs, const Tensor* rhs, Tensor* res) {
     auto lstrides = lhs->get_strides();
     auto res_strides = res->get_strides();
 
-    expandMulOps->prepare(device, commandQueue, commandBuffer, encoder);
+    auto encoder = expandMulOps->prepare(device, commandQueue, commandBuffer);
     int* args = (int*)bufferIntArgs->contents();
     args[0] = shape[0];
     args[1] = shape[1];
@@ -263,6 +268,8 @@ void MetalOps::expandMul(Tensor* lhs, const Tensor* rhs, Tensor* res) {
     );
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, TILE_WIDTH, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::at(Tensor* lhs, const Tensor* rhs, Tensor* res) {
@@ -295,7 +302,7 @@ void MetalOps::at(Tensor* lhs, const Tensor* rhs, Tensor* res) {
 
     this->memset((float*)res->get_data(), 0, res->size());
 
-    atOps->prepare(device, commandQueue, commandBuffer, encoder);
+    auto encoder = atOps->prepare(device, commandQueue, commandBuffer);
     int* args = (int*)bufferIntArgs->contents();
     args[0] = M;
     args[1] = N;
@@ -320,6 +327,8 @@ void MetalOps::at(Tensor* lhs, const Tensor* rhs, Tensor* res) {
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, TILE_WIDTH, 1);
 
     encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::embedding(Tensor* lhs, const Tensor* indices, const Tensor* res) {
@@ -355,7 +364,7 @@ void MetalOps::mul(
     auto offset_res_striedes = calc_offset(res_striedes);
     auto offset_l_strides = calc_offset(l_strides);
     auto offset_r_striedes = calc_offset(r_striedes);
-    mulOps->prepare(device, commandQueue, commandBuffer, encoder);
+    auto encoder = mulOps->prepare(device, commandQueue, commandBuffer);
     assert(encoder != nullptr);
     encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 0);
     encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), offset_lhs, 1);
@@ -368,6 +377,8 @@ void MetalOps::mul(
     MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::sum(Tensor* lhs, Tensor* res, int dim) {
@@ -382,7 +393,7 @@ void MetalOps::sum(Tensor* lhs, Tensor* res, int dim) {
     assert(lhs->get_dim() == 2);
     assert(res->get_dim() == 1);
 
-    sumOps->prepare(device, commandQueue, commandBuffer, encoder);
+    auto encoder = sumOps->prepare(device, commandQueue, commandBuffer);
 
     int* args = (int*)bufferIntArgs->contents();
     args[0] = shape[0];
@@ -409,6 +420,8 @@ void MetalOps::sum(Tensor* lhs, Tensor* res, int dim) {
     );
     MTL::Size blockDim = MTL::Size(1, TILE_WIDTH, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::relu(Tensor* lhs, Tensor* res) {
@@ -421,7 +434,7 @@ void MetalOps::relu(Tensor* lhs, Tensor* res) {
     auto res_shape = res->get_shape();
     assert(shape == res_shape);
 
-    reluOps->prepare(device, commandQueue, commandBuffer, encoder);
+    auto encoder = reluOps->prepare(device, commandQueue, commandBuffer);
     int* args = (int*)bufferIntArgs->contents();
     args[0] = length;
 
@@ -434,6 +447,8 @@ void MetalOps::relu(Tensor* lhs, Tensor* res) {
     MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::reluPrime(Tensor* lhs, Tensor* res) {
@@ -446,7 +461,7 @@ void MetalOps::reluPrime(Tensor* lhs, Tensor* res) {
     auto res_shape = res->get_shape();
     assert(shape == res_shape);
 
-    reluPrimeOps->prepare(device, commandQueue, commandBuffer, encoder);
+    auto encoder = reluPrimeOps->prepare(device, commandQueue, commandBuffer);
     int* args = (int*)bufferIntArgs->contents();
     args[0] = length;
     auto offset_lhs = calc_offset(lhs);
@@ -458,6 +473,8 @@ void MetalOps::reluPrime(Tensor* lhs, Tensor* res) {
     MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::crossEntropy(
@@ -485,7 +502,7 @@ void MetalOps::crossEntropy(
     this->memset((float*)maxs->get_data(), 0, maxs->size());
     this->memset((float*)sums->get_data(), 0, sums->size());
 
-    crossEntropyOps->prepare(device, commandQueue, commandBuffer, encoder);
+    auto encoder = crossEntropyOps->prepare(device, commandQueue, commandBuffer);
     int* args = (int*)bufferIntArgs->contents();
     args[0] = lhs->get_shape()[0];
     args[1] = lhs->get_shape()[1];
@@ -507,6 +524,8 @@ void MetalOps::crossEntropy(
     MTL::Size gridDim = MTL::Size((lhs->get_shape()[0] + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::crossEntropyBackward(
@@ -527,7 +546,7 @@ void MetalOps::crossEntropyBackward(
     assert(lstrides.size() == 2);
     assert(res_strides.size() == 2);
 
-    crossEntropyBackwardOps->prepare(device, commandQueue, commandBuffer, encoder);
+    auto encoder = crossEntropyBackwardOps->prepare(device, commandQueue, commandBuffer);
     int* args = (int*)bufferIntArgs->contents();
     args[0] = batch_size;
     args[1] = size;
@@ -552,6 +571,8 @@ void MetalOps::crossEntropyBackward(
     MTL::Size gridDim = MTL::Size((batch_size + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::calcAllGradNorm(const std::vector<Tensor*>& grads, Tensor* norm) {
@@ -562,7 +583,7 @@ void MetalOps::calcAllGradNorm(const std::vector<Tensor*>& grads, Tensor* norm) 
         assert(grad != nullptr);
         auto length = grad->length();
 
-        calcAllGradNormOps->prepare(device, commandQueue, commandBuffer, encoder);
+        auto encoder = calcAllGradNormOps->prepare(device, commandQueue, commandBuffer);
         int* args = (int*)bufferIntArgs->contents();
         args[0] = length;
         auto offset_grad = calc_offset(grad);
@@ -577,6 +598,8 @@ void MetalOps::calcAllGradNorm(const std::vector<Tensor*>& grads, Tensor* norm) 
         MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
         MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
         encoder->dispatchThreadgroups(gridDim, blockDim);
+        encoder->endEncoding();
+        encoder->release();
     }
 }
 
@@ -590,7 +613,7 @@ void MetalOps::clipGrad(Tensor* grad, const Tensor* norm, float grad_clip_val) {
     auto norm_length = norm->length();
     assert(norm_length == 1);
 
-    clipGradOps->prepare(device, commandQueue, commandBuffer, encoder);
+    auto encoder = clipGradOps->prepare(device, commandQueue, commandBuffer);
     int* intArgs = (int*)bufferIntArgs->contents();
     float* floatArgs = (float*)bufferFloatArgs->contents();
     intArgs[0] = length;
@@ -605,6 +628,8 @@ void MetalOps::clipGrad(Tensor* grad, const Tensor* norm, float grad_clip_val) {
     MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::adamStep(
@@ -626,7 +651,7 @@ void MetalOps::adamStep(
 
     auto length = w->length();
 
-    adamStepOps->prepare(device, commandQueue, commandBuffer, encoder);
+    auto encoder = adamStepOps->prepare(device, commandQueue, commandBuffer);
     int* intArgs = (int*)bufferIntArgs->contents();
     float* floatArgs = (float*)bufferFloatArgs->contents();
     intArgs[0] = length;
@@ -650,6 +675,8 @@ void MetalOps::adamStep(
     MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::init_weight_gauss(Tensor* tensor, float mean, float sigma) {
@@ -737,7 +764,7 @@ void MetalOps::reshape_deep_cp(
         assert(false);
     }
     else if (dtype == FLOAT32) {
-        reshapeDeepCpOps->prepare(device, commandQueue, commandBuffer, encoder);
+        auto encoder = reshapeDeepCpOps->prepare(device, commandQueue, commandBuffer);
         int* args = (int*)bufferIntArgs->contents();
         args[0] = dim;
         args[1] = length;
@@ -754,6 +781,8 @@ void MetalOps::reshape_deep_cp(
         MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
         MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
         encoder->dispatchThreadgroups(gridDim, blockDim);
+        encoder->endEncoding();
+        encoder->release();
     }
     else {
         assert(false);
@@ -782,7 +811,7 @@ void MetalOps::repeat_interleave(Tensor* lhs, Tensor* res, int n) {
     assert(l_length * n == r_length);
     assert(l_length % width == 0);
 
-    repeatInterleaveOps->prepare(device, commandQueue, commandBuffer, encoder);
+    auto encoder = repeatInterleaveOps->prepare(device, commandQueue, commandBuffer);
     int* args = (int*)bufferIntArgs->contents();
     args[0] = width;
     args[1] = l_length;
@@ -797,6 +826,8 @@ void MetalOps::repeat_interleave(Tensor* lhs, Tensor* res, int n) {
     MTL::Size gridDim = MTL::Size((r_length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::sequence_mask(Tensor* lhs, const Tensor* mask, Tensor* res, float value) {
@@ -817,7 +848,7 @@ void MetalOps::div(Tensor* dst, Tensor* src, float value) {
     assert(dst->get_strides() == src->get_strides());
     auto length = dst->length();
 
-    divOps->prepare(device, commandQueue, commandBuffer, encoder);
+    auto encoder = divOps->prepare(device, commandQueue, commandBuffer);
     int* intArgs = (int*)bufferIntArgs->contents();
     float* floatArgs = (float*)bufferFloatArgs->contents();
     intArgs[0] = length;
@@ -832,6 +863,8 @@ void MetalOps::div(Tensor* dst, Tensor* src, float value) {
     MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::build_dropout_mask(
@@ -917,13 +950,11 @@ void MetalOps::cp_from_device(char* dst, const Tensor* src_tensor, size_t size) 
 }
 
 void MetalOps::commit() {
-    encoder->endEncoding();
     commandBuffer->commit();
 }
 
 void MetalOps::wait() {
     commandBuffer->waitUntilCompleted();
-    encoder->release();
     commandBuffer->release();
 }
 

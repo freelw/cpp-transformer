@@ -27,11 +27,10 @@ public:
     const std::string& getFunctionName() const {
         return functionName;
     }
-    void prepare(
+    MTL::ComputeCommandEncoder* prepare(
         MTL::Device* device,
         MTL::CommandQueue* commandQueue,
-        MTL::CommandBuffer* commandBuffer,
-        MTL::ComputeCommandEncoder* encoder
+        MTL::CommandBuffer* commandBuffer
     );
 private:
     std::string functionName;

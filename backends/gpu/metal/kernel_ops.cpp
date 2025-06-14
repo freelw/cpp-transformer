@@ -22,12 +22,16 @@ MetalKops::~MetalKops() {
     function->release();
 }
 
-void MetalKops::prepare(
+MTL::ComputeCommandEncoder* MetalKops::prepare(
     MTL::Device* device,
     MTL::CommandQueue* commandQueue,
-    MTL::CommandBuffer* commandBuffer,
-    MTL::ComputeCommandEncoder* encoder
+    MTL::CommandBuffer* commandBuffer
 ) {
+    MTL::ComputeCommandEncoder* encoder = commandBuffer->computeCommandEncoder();
+    if (!encoder) {
+        std::cerr << "Error: Failed to create compute command encoder." << std::endl;
+        throw std::runtime_error("Failed to create compute command encoder");
+    }
     NS::Error* error = nullptr;
     MTL::ComputePipelineState* pipelineState = device->newComputePipelineState(function, &error);
     if (!pipelineState) {
@@ -35,6 +39,7 @@ void MetalKops::prepare(
         throw std::runtime_error("Failed to create compute pipeline state");
     }
     encoder->setComputePipelineState(pipelineState);
+    return encoder;
 }
 
 #endif // METAL_GPU
