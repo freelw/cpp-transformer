@@ -66,6 +66,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
     varDim1Ops = new MetalKops("tensor_var_2d_dim1", library);
     normOps = new MetalKops("tensor_norm_kernel", library);
     normBackwardOps = new MetalKops("tensor_norm_backward_kernel", library);
+    mulSVOps = new MetalKops("tensor_mul_scalar", library);
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     gen = std::mt19937(seed);
@@ -73,6 +74,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
 }
 
 MetalOps::~MetalOps() {
+    delete mulSVOps;
     delete normBackwardOps;
     delete normOps;
     delete varDim1Ops;
@@ -1389,7 +1391,30 @@ void MetalOps::normBackward(
 }
 
 void MetalOps::mulSV(Tensor* dst, Tensor* src, float value) {
-    assert(false);
+    assert(dst->length() == src->length());
+    assert(dst->get_shape() == src->get_shape());
+    assert(dst->get_strides() == src->get_strides());
+    auto length = dst->length();
+
+    auto encoder = mulSVOps->prepare(device, commandQueue, commandBuffer);
+    auto offset_IntArgs = cur_int_args * sizeof(int);
+    int* intArgs = get_cur_int_args_buffer(1);
+    auto offset_FloatArgs = cur_float_args * sizeof(float);
+    float* floatArgs = get_cur_float_args_buffer(1);
+    intArgs[0] = length;
+    floatArgs[0] = value;
+    auto offset_dst = calc_offset(dst);
+    auto offset_src = calc_offset(src);
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(dst->get_storage()->ctx), offset_dst, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(src->get_storage()->ctx), offset_src, 1);
+    encoder->setBuffer(bufferIntArgs, offset_IntArgs, 2);
+    encoder->setBuffer(bufferFloatArgs, offset_FloatArgs, 3);
+    MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void* MetalOps::alloc(size_t size, void** ctx) {
