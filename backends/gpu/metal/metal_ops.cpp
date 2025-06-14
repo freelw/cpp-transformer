@@ -57,6 +57,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
     reshapeDeepCpOps = new MetalKops("reshape_deep_cp_float_kernel", library);
     repeatInterleaveOps = new MetalKops("repeat_interleave_int32_kernel", library);
     sequenceMaskOps = new MetalKops("sequence_mask_kernel", library);
+    softmaxOps = new MetalKops("softmax_kernel", library);
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     gen = std::mt19937(seed);
@@ -64,6 +65,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
 }
 
 MetalOps::~MetalOps() {
+    delete softmaxOps;
     delete sequenceMaskOps;
     delete repeatInterleaveOps;
     delete reshapeDeepCpOps;
@@ -902,7 +904,43 @@ void MetalOps::sequence_mask(Tensor* lhs, const Tensor* mask, Tensor* res, float
 }
 
 void MetalOps::softmax(Tensor* lhs, Tensor* res) {
-    assert(false);
+    auto l_shape = lhs->get_shape();
+    auto r_shape = res->get_shape();
+    assert(l_shape == r_shape);
+    assert(lhs->get_dtype() == FLOAT32);
+    assert(res->get_dtype() == FLOAT32);
+    assert(lhs->get_dim() == 3);
+    assert(res->get_dim() == 3);
+    auto lstrides = lhs->get_strides();
+    auto rstrides = res->get_strides();
+
+    auto encoder = softmaxOps->prepare(device, commandQueue, commandBuffer);
+    auto offset_args = cur_int_args * sizeof(int);
+    int* args = get_cur_int_args_buffer(9);
+    args[0] = l_shape[0]; // batch size
+    args[1] = l_shape[1]; // sequence length
+    args[2] = l_shape[2]; // feature size
+    args[3] = lstrides[0]; // lhs stride
+    args[4] = lstrides[1]; // lhs stride
+    args[5] = lstrides[2]; // lhs stride
+    args[6] = rstrides[0]; // res stride
+    args[7] = rstrides[1]; // res stride
+    args[8] = rstrides[2]; // res stride
+    auto offset_lhs = calc_offset(lhs);
+    auto offset_res = calc_offset(res);
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(lhs->get_storage()->ctx), offset_lhs, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 1);
+    encoder->setBuffer(bufferIntArgs, offset_args, 2);
+    MTL::Size gridDim = MTL::Size(
+        (l_shape[1] + TILE_WIDTH - 1) / TILE_WIDTH,
+        (l_shape[0] + TILE_WIDTH - 1) / TILE_WIDTH,
+        1
+    );
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, TILE_WIDTH, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::softmax_bacward(Tensor* target_grad, const Tensor* softmax_res, Tensor* grad) {

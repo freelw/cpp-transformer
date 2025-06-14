@@ -7557,8 +7557,8 @@ void test_embedding_with_cpu() {
 }
 
 void test_gpu() {
-    test_mask();
-    test_mask_with_cpu();
+    test_softmax();
+    test_softmax_with_cpu();
     return;
 
     test_at();

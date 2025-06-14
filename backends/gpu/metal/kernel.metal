@@ -578,3 +578,43 @@ kernel void sequence_mask_kernel(
         dst[index_r] = mask[index_m] <= col ? value : src[index_l];
     }
 }
+
+kernel void softmax_kernel(
+    device const float* src [[buffer(0)]],
+    device float* dst [[buffer(1)]],
+    device int* args [[buffer(2)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int shape0 = args[0];
+    int shape1 = args[1];
+    int shape2 = args[2];
+    int l_stride0 = args[3];
+    int l_stride1 = args[4];
+    int l_stride2 = args[5];
+    int r_stride0 = args[6];
+    int r_stride1 = args[7];
+    int r_stride2 = args[8];
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+    if (row >= shape0 || col >= shape1) {
+        return;
+    }
+    else {
+        float max = -1e10;
+        for (int i = 0; i < shape2; ++i) {
+            float val = src[row * l_stride0 + col * l_stride1 + i * l_stride2];
+            max = fmax(max, val);
+        }
+        float sum = 0.0f;
+        for (int i = 0; i < shape2; ++i) {
+            float val = src[row * l_stride0 + col * l_stride1 + i * l_stride2];
+            sum += exp(val - max);
+        }
+        for (int i = 0; i < shape2; ++i) {
+            float val = src[row * l_stride0 + col * l_stride1 + i * l_stride2];
+            dst[row * r_stride0 + col * r_stride1 + i * r_stride2] = exp(val - max) / sum;
+        }
+    }
+}
