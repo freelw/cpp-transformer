@@ -537,11 +537,17 @@ namespace graph {
             "div_value",
             FLOAT32
         );
-        g_backend_ops->cp_to_device(
-            value_tensor,
-            (char*)&value,
-            sizeof(float)
+        gCreateAction(
+            new AssignValueAction(
+                value_tensor,
+                value
+            )
         );
+        // g_backend_ops->cp_to_device(
+        //     value_tensor,
+        //     (char*)&value,
+        //     sizeof(float)
+        // );
         gCreateAction(
             new LazyDivAction(
                 l_tensor,

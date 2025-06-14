@@ -7557,13 +7557,7 @@ void test_embedding_with_cpu() {
 }
 
 void test_gpu() {
-    test_softmax();
-    test_softmax_with_cpu();
-    test_masked_softmax();
-    test_masked_softmax_1();
-    test_masked_softmax_with_cpu();
-    test_masked_softmax_bp();
-    test_masked_softmax_bp_with_cpu();
+    test_div_bp();
     return;
 
     test_at();

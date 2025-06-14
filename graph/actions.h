@@ -282,6 +282,16 @@ private:
     int32_t* strides_data;
 };
 
+class AssignValueAction : public Action {
+public:
+    AssignValueAction(Tensor* tensor, float value);
+    virtual ~AssignValueAction();
+    void execute() override;
+    std::string to_string() const override;
+private:
+    float value;
+};
+
 class ReshapeDeepCpAction : public Action {
 public:
     ReshapeDeepCpAction(

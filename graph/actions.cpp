@@ -542,6 +542,31 @@ std::string AssignShapeAndStridesAction::to_string() const {
     return oss.str();
 }
 
+AssignValueAction::AssignValueAction(Tensor* tensor, float value)
+    : Action(tensor, nullptr, nullptr), value(value) {
+    assert(tensor != nullptr);
+    assert(tensor->get_dtype() == FLOAT32);
+}
+
+AssignValueAction::~AssignValueAction() {
+    // No resources to free
+}
+
+void AssignValueAction::execute() {
+    assert(lhs != nullptr);
+    g_backend_ops->cp_to_device(
+        lhs,
+        reinterpret_cast<char*>(&value),
+        sizeof(float)
+    );
+}
+
+std::string AssignValueAction::to_string() const {
+    std::ostringstream oss;
+    oss << "AssignValueAction: assigning value " << value << " to " << lhs->get_meta_info();
+    return oss.str();
+}
+
 void ReshapeDeepCpAction::execute() {
     assert(lhs != nullptr);
     assert(rhs != nullptr);
