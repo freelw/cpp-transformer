@@ -709,12 +709,14 @@ void CPUOps::softmax_bacward(Tensor* target_grad, const Tensor* softmax_res, Ten
     }
 }
 
-void CPUOps::div(Tensor* dst, Tensor* src, float value) {
+void CPUOps::div(Tensor* dst, Tensor* src, Tensor* value) {
     assert(dst->length() == src->length());
+    assert(value->length() == 1);
     auto length = dst->length();
+    float value_scalar = static_cast<float*>(value->get_data())[0] + 1e-20;
     for (int i = 0; i < length; ++i) {
         static_cast<float*>(dst->get_data())[i] =
-            static_cast<float*>(src->get_data())[i] / value;
+            static_cast<float*>(src->get_data())[i] / value_scalar;
     }
 }
 

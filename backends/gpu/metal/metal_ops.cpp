@@ -857,26 +857,27 @@ void MetalOps::softmax_bacward(Tensor* target_grad, const Tensor* softmax_res, T
     assert(false);
 }
 
-void MetalOps::div(Tensor* dst, Tensor* src, float value) {
+void MetalOps::div(Tensor* dst, Tensor* src, Tensor* value) {
     assert(dst->length() == src->length());
     assert(dst->get_shape() == src->get_shape());
     assert(dst->get_strides() == src->get_strides());
+    assert(value->length() == 1);
     auto length = dst->length();
-
     auto encoder = divOps->prepare(device, commandQueue, commandBuffer);
     auto offset_IntArgs = cur_int_args * sizeof(int);
     int* intArgs = get_cur_int_args_buffer(1);
     auto offset_FloatArgs = cur_float_args * sizeof(float);
-    float* floatArgs = get_cur_float_args_buffer(1);
     intArgs[0] = length;
-    floatArgs[0] = value;
+
+    std::cout << "div: length = " << length << ", value = " << value << std::endl;
     auto offset_dst = calc_offset(dst);
     auto offset_src = calc_offset(src);
+    auto offset_value = calc_offset(value);
     assert(encoder != nullptr);
     encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(dst->get_storage()->ctx), offset_dst, 0);
     encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(src->get_storage()->ctx), offset_src, 1);
-    encoder->setBuffer(bufferIntArgs, offset_IntArgs, 2);
-    encoder->setBuffer(bufferFloatArgs, offset_FloatArgs, 3);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(value->get_storage()->ctx), offset_value, 2);
+    encoder->setBuffer(bufferIntArgs, offset_IntArgs, 3);
     MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
     MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
     encoder->dispatchThreadgroups(gridDim, blockDim);

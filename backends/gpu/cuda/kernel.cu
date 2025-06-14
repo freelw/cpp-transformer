@@ -501,14 +501,15 @@ __global__ void softmax_backward_kernel(
 
 __global__ void tensor_div_scalar(
     float* dst, float* src,
-    int length, float value
+    int length, float* value
 ) {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
+    float value_scalar = value[0] + 1e-20;
     if (index >= length) {
         return;
     }
     else {
-        dst[index] = src[index] / value;
+        dst[index] = src[index] / value_scalar;
     }
 }
 

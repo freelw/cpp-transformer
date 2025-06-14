@@ -841,10 +841,11 @@ void CUDAOps::softmax_bacward(Tensor* target_grad, const Tensor* softmax_res, Te
         );
 }
 
-void CUDAOps::div(Tensor* dst, Tensor* src, float value) {
+void CUDAOps::div(Tensor* dst, Tensor* src, Tensor* value) {
     assert(dst->length() == src->length());
     assert(dst->get_shape() == src->get_shape());
     assert(dst->get_strides() == src->get_strides());
+    assert(value->length() == 1);
     auto length = dst->length();
     dim3 gridDim(
         (length + TILE_WIDTH - 1) / TILE_WIDTH
@@ -854,7 +855,7 @@ void CUDAOps::div(Tensor* dst, Tensor* src, float value) {
         (float*)dst->get_data(),
         (float*)src->get_data(),
         length,
-        value
+        (float*)value->get_data()
         );
 }
 

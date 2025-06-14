@@ -48,7 +48,7 @@ public:
     virtual void sequence_mask(Tensor* lhs, const Tensor* mask, Tensor* res, float value) = 0;
     virtual void softmax(Tensor* lhs, Tensor* res) = 0;
     virtual void softmax_bacward(Tensor* target_grad, const Tensor* softmax_res, Tensor* grad) = 0;
-    virtual void div(Tensor* dst, Tensor* src, float value) = 0;
+    virtual void div(Tensor* dst, Tensor* src, Tensor* value) = 0;
     virtual void build_dropout_mask(
         Tensor* mask, float p,
         Tensor* shape, Tensor* strides
