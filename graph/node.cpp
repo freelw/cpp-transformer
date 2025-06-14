@@ -552,7 +552,7 @@ namespace graph {
         Node* res_node = allocNode(res_tensor);
         if (is_require_grad()) {
             res_node->require_grad();
-            res_node->edges.push_back(DivEdge::create(this, value));
+            res_node->edges.push_back(DivEdge::create(this, value_tensor));
         }
         return res_node;
     }

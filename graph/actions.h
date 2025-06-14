@@ -337,17 +337,6 @@ public:
     std::string to_string() const override;
 };
 
-class DivAction : public Action {
-public:
-    DivAction(Tensor* _lhs, Tensor* _res, float _value)
-        : Action(_lhs, nullptr, _res), value(_value) {
-    }
-    void execute() override;
-    std::string to_string() const override;
-private:
-    float value;
-};
-
 class LazyDivAction : public Action {
 public:
     LazyDivAction(Tensor* _lhs, Tensor* _res, Tensor* _value)

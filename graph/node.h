@@ -53,7 +53,8 @@ namespace graph {
             }
             if (_b_require_grad) {
                 grad = allocGradTensor(t->get_shape(), t->get_name() + "_grad");
-            } else {
+            }
+            else {
                 grad = nullptr;
             }
             b_require_grad = _b_require_grad;
@@ -504,13 +505,13 @@ namespace graph {
 
     class DivEdge : public Edge {
     public:
-        static Edge* create(Node* _node, float value) {
-            Edge* edge = new DivEdge(_node, value);
+        static Edge* create(Node* _node, Tensor* _value_tensor) {
+            Edge* edge = new DivEdge(_node, _value_tensor);
             gAddEdge(edge);
             return edge;
         }
-        DivEdge(Node* _node, float value)
-            : Edge(Div, _node), value(value) {
+        DivEdge(Node* _node, Tensor* _value_tensor)
+            : Edge(Div, _node), value_tensor(_value_tensor) {
         }
         virtual ~DivEdge() {}
         void backward(Tensor* grad) override {
@@ -519,10 +520,10 @@ namespace graph {
                 "div_tmp"
             );
             gCreateAction(
-                new DivAction(
+                new LazyDivAction(
                     grad,
                     tmp,
-                    value
+                    value_tensor
                 )
             );
             gCreateAction(
@@ -533,7 +534,7 @@ namespace graph {
             );
         }
     private:
-        float value;
+        Tensor* value_tensor;
     };
 
     class DropoutEdge : public Edge {

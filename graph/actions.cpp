@@ -609,18 +609,6 @@ std::string SoftmaxBackwardAction::to_string() const {
     return oss.str();
 }
 
-void DivAction::execute() {
-    assert(lhs != nullptr);
-    assert(res != nullptr);
-    g_backend_ops->div(res, lhs, value);
-}
-
-std::string DivAction::to_string() const {
-    std::ostringstream oss;
-    oss << "DivAction: dividing " << lhs->get_meta_info() << " by " << value << " to " << res->get_meta_info();
-    return oss.str();
-}
-
 void LazyDivAction::execute() {
     assert(lhs != nullptr);
     assert(res != nullptr);
