@@ -7557,7 +7557,9 @@ void test_embedding_with_cpu() {
 }
 
 void test_gpu() {
-    test_div_bp();
+    test_attention_bp();
+    test_attention_bp_part();
+    test_attention_bp_with_cpu();
     return;
 
     test_at();
