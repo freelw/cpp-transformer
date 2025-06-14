@@ -160,6 +160,11 @@ __global__ void softmax_backward_kernel(
 
 __global__ void tensor_div_scalar(
     float* dst, float* src,
+    int length, float value
+);
+
+__global__ void tensor_div_scalar_tensor(
+    float* dst, float* src,
     int length, float* value
 );
 

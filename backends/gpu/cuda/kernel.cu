@@ -25,8 +25,7 @@ __global__ void tensor_add_2d(
 
     if (row >= M || col >= N) {
         return;
-    }
-    else {
+    } else {
         int index_M = row * stride_M0 + col * stride_M1;
         int index_N = row * stride_N0 + col * stride_N1;
         int index_P = row * stride_P0 + col * stride_P1;
@@ -63,8 +62,7 @@ __global__ void tensor_at_2d(
         __syncthreads();
         if (row >= M || col >= P) {
 
-        }
-        else {
+        } else {
             float sum = 0.0f;
             for (int k = 0; k < TILE_WIDTH; ++k) {
                 sum += s_Md[threadIdx.y][k] * s_Nd[k][threadIdx.x];
@@ -86,8 +84,7 @@ __global__ void tensor_add_eq_kernel(
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index >= length) {
         return;
-    }
-    else {
+    } else {
         int tmp_length = length;
         int tmp_index = index;
         int offset_src = 0;
@@ -113,8 +110,7 @@ __global__ void expand_add(
     int col = blockIdx.x * blockDim.x + threadIdx.x;
     if (row >= M || col >= N) {
         return;
-    }
-    else {
+    } else {
         int index_M = row * stride_M0 + col * stride_M1;
         int index_P = row * stride_P0 + col * stride_P1;
         Pd[index_P] = Md[index_M] + Nd[col];
@@ -131,8 +127,7 @@ __global__ void expand_mul(
     int col = blockIdx.x * blockDim.x + threadIdx.x;
     if (row >= M || col >= N) {
         return;
-    }
-    else {
+    } else {
         int index_M = row * stride_M0 + col * stride_M1;
         int index_P = row * stride_P0 + col * stride_P1;
         Pd[index_P] = Md[index_M] * Nd[col];
@@ -151,8 +146,7 @@ __global__ void tensor_mul_kernel(
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index >= length) {
         return;
-    }
-    else {
+    } else {
         int tmp_length = length;
         int tmp_index = index;
         int offset_src1 = 0;
@@ -182,8 +176,7 @@ __global__ void tensor_add_kernel(
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index >= length) {
         return;
-    }
-    else {
+    } else {
         int tmp_length = length;
         int tmp_index = index;
         int offset_src1 = 0;
@@ -210,8 +203,7 @@ __global__ void tensor_sum_2d_dim0(
     int col = blockIdx.x * blockDim.x + threadIdx.x;
     if (col >= N) {
         return;
-    }
-    else {
+    } else {
         float sum = 0.0f;
         for (int i = 0; i < M; ++i) {
             sum += Md[i * stride_M0 + col * stride_M1];
@@ -230,8 +222,7 @@ __global__ void cross_entropy(
     int row = blockIdx.x * blockDim.x + threadIdx.x;
     if (row >= M) {
         return;
-    }
-    else {
+    } else {
         float max = -1e10;
         float sum = 0.0f;
         for (int i = 0; i < N; ++i) {
@@ -261,8 +252,7 @@ __global__ void cross_entropy_backward(
     int row = blockIdx.x * blockDim.x + threadIdx.x;
     if (row >= M) {
         return;
-    }
-    else {
+    } else {
         float max = maxs[row];
         float sum = sums[row];
         int label = labels[row];
@@ -281,8 +271,7 @@ __global__ void tensor_relu(
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index >= M) {
         return;
-    }
-    else {
+    } else {
         Nd[index] = fmaxf(Md[index], 0.f);
     }
 }
@@ -293,8 +282,7 @@ __global__ void tensor_relu_prime(
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index >= M) {
         return;
-    }
-    else {
+    } else {
         Nd[index] = Md[index] > 0.f ? 1.f : 0.f;
     }
 }
@@ -309,8 +297,7 @@ __global__ void tensor_l2_norm(
 
     if (row >= M) {
         return;
-    }
-    else {
+    } else {
         partial_sums[tid] = powf(Md[row], 2);
     }
 
@@ -335,8 +322,7 @@ __global__ void tensor_clip(
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index >= M) {
         return;
-    }
-    else {
+    } else {
         float norm = sqrtf(Norm[0]);
         if (norm > clip_value) {
             Md[index] *= clip_value / norm;
@@ -354,8 +340,7 @@ __global__ void tensor_adam_step(
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index >= M) {
         return;
-    }
-    else {
+    } else {
         float w_value = w[index];
         float m_value = m[index];
         float v_value = v[index];
@@ -380,8 +365,7 @@ __global__ void reshape_deep_cp_float_kernel(
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index >= length) {
         return;
-    }
-    else {
+    } else {
         int tmp_length = length;
         int tmp_index = index;
         int offset = 0;
@@ -404,8 +388,7 @@ __global__ void repeat_interleave_int32_kernel(
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index >= dst_length) {
         return;
-    }
-    else {
+    } else {
         int j = index / (width * n);
         int k = index % width;
         int offset = j * width + k;
@@ -427,8 +410,7 @@ __global__ void sequence_mask_kernel(
     int col = blockIdx.x * blockDim.x + threadIdx.x;
     if (row >= M || col >= N) {
         return;
-    }
-    else {
+    } else {
         int index_l = row * l_stride0 + col * l_stride1;
         int index_m = row * m_stride0;
         int index_r = row * r_stride0 + col * r_stride1;
@@ -446,8 +428,7 @@ __global__ void softmax_kernel(
     int col = blockIdx.x * blockDim.x + threadIdx.x;
     if (row >= shape0 || col >= shape1) {
         return;
-    }
-    else {
+    } else {
         float max = -1e10;
         for (int i = 0; i < shape2; ++i) {
             float val = src[row * l_stride0 + col * l_stride1 + i * l_stride2];
@@ -477,8 +458,7 @@ __global__ void softmax_backward_kernel(
     int col = blockIdx.x * blockDim.x + threadIdx.x;
     if (row >= shape0 || col >= shape1) {
         return;
-    }
-    else {
+    } else {
         for (int target = 0; target < shape2; ++target) {
             int tg_target_pos = row * t_stride0 + col * t_stride1 + target * t_stride2;
             float tmp = 0;
@@ -499,7 +479,21 @@ __global__ void softmax_backward_kernel(
     }
 }
 
+
 __global__ void tensor_div_scalar(
+    float* dst, float* src,
+    int length, float value
+) {
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    float value_scalar = value + 1e-20;
+    if (index >= length) {
+        return;
+    } else {
+        dst[index] = src[index] / value_scalar;
+    }
+}
+
+__global__ void tensor_div_scalar_tensor(
     float* dst, float* src,
     int length, float* value
 ) {
@@ -507,8 +501,7 @@ __global__ void tensor_div_scalar(
     float value_scalar = value[0] + 1e-20;
     if (index >= length) {
         return;
-    }
-    else {
+    } else {
         dst[index] = src[index] / value_scalar;
     }
 }
@@ -522,8 +515,7 @@ __global__ void build_dropout_mask_kernel(
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index >= length) {
         return;
-    }
-    else {
+    } else {
         int tmp_length = length;
         int tmp_index = index;
         int offset = 0;
@@ -550,8 +542,7 @@ __global__ void tensor_embedding_kernel(
     int col = blockIdx.x * blockDim.x + threadIdx.x;
     if (row >= length || col >= src_shape1) {
         return;
-    }
-    else {
+    } else {
         int index_src = indices[row] * src_stride0 + col * src_stride1;
         int index_dst = row * dst_stride0 + col * dst_stride1;
         dst[index_dst] = src[index_src];
@@ -571,8 +562,7 @@ __global__ void tensor_embedding_backward_kernel(
     int col = blockIdx.x * blockDim.x + threadIdx.x;
     if (row >= length || col >= src_shape1) {
         return;
-    }
-    else {
+    } else {
         int index_src = row * src_stride0 + col * src_stride1;
         int index_dst = indices[row] * dst_stride0 + col * dst_stride1;
         // dst[index_dst] += src[index_src];
@@ -595,8 +585,7 @@ __global__ void tensor_sum_2d_dim0_v1(
     partial_sums[tid] = 0.0f;
     if (row >= src_shape0 || col >= src_shape1) {
         return;
-    }
-    else {
+    } else {
         partial_sums[tid] = src[row * src_stride0 + col * src_stride1];
         __syncthreads();
         for (int s = blockDim.y / 2; s > 0; s >>= 1) {
@@ -625,8 +614,7 @@ __global__ void tensor_sum_2d_dim1(
     partial_sums[tid] = 0.0f;
     if (row >= src_shape0 || col >= src_shape1) {
         return;
-    }
-    else {
+    } else {
         partial_sums[tid] = src[row * src_stride0 + col * src_stride1];
         __syncthreads();
         for (int s = blockDim.x / 2; s > 0; s >>= 1) {
@@ -656,8 +644,7 @@ __global__ void tensor_var_2d_dim1(
     partial_sums[tid] = 0.0f;
     if (row >= src_shape0 || col >= src_shape1) {
         return;
-    }
-    else {
+    } else {
         float _avg = avg[row * sum_stride0];
         float _src = src[row * src_stride0 + col * src_stride1];
         float diff = _src - _avg;
@@ -687,8 +674,7 @@ __global__ void tensor_norm_kernel(
     const float eps = 1e-5f;
     if (row >= src_shape0 || col >= src_shape1) {
         return;
-    }
-    else {
+    } else {
         float _avg = avg[row];
         float _var = var[row];
         float _src = src[row * src_stride0 + col * src_stride1];
@@ -709,8 +695,7 @@ __global__ void tensor_norm_backward_kernel(
     const float eps = 1e-5f;
     if (row >= src_shape0 || i >= src_shape1) {
         return;
-    }
-    else {
+    } else {
         float tmp = 0;
         float var_value = var[row];
         for (int j = 0; j < src_shape1; ++j) {
@@ -734,8 +719,7 @@ __global__ void tensor_mul_scalar(
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index >= length) {
         return;
-    }
-    else {
+    } else {
         dst[index] = src[index] * value;
     }
 }

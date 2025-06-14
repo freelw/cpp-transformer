@@ -732,8 +732,7 @@ void test_bp() {
     bool loss_succ = fabs(loss - 18.360287f) < eps;
     if (loss_succ) {
         std::cout << GREEN << "test_cross_entropy succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_cross_entropy failed loss : " << loss << RESET << std::endl;
     }
 
@@ -872,8 +871,7 @@ void test_bp() {
     bool succ = nw_grad_succ && nb_grad_succ && nw1_grad_succ && nb1_grad_succ;
     if (succ) {
         std::cout << GREEN << "test_bp succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_bp failed" << RESET << std::endl;
     }
 
@@ -1270,8 +1268,7 @@ void test_adam() {
         && w_succ && bias_succ && w1_succ && bias1_succ;
     if (succ) {
         std::cout << GREEN << "test_adam succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_adam failed" << RESET << std::endl;
     }
 
@@ -1374,8 +1371,7 @@ void test_mlp() {
 
     if (w1_succ && w2_succ) {
         std::cout << GREEN << "test_mlp init weight succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_mlp init weight failed" << RESET << std::endl;
     }
 
@@ -1388,8 +1384,7 @@ void test_mlp() {
     }
     if (succ) {
         std::cout << GREEN << "test_mlp once action succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_mlp once action failed" << RESET << std::endl;
     }
     destruct_env();
@@ -1551,8 +1546,7 @@ void test_reshape() {
 
     if (succ) {
         std::cout << GREEN << "test_reshape succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_reshape failed" << RESET << std::endl;
     }
 
@@ -1588,8 +1582,7 @@ void test_reshape_1() {
 
     if (meta_succ) {
         std::cout << GREEN << "test_reshape_1 meta succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_reshape_1 meta failed" << RESET << std::endl;
     }
 
@@ -1610,8 +1603,7 @@ void test_reshape_1() {
     bool succ = l_t_m_1_succ && l_t_d3_succ && l_t_d3_1_succ;
     if (succ) {
         std::cout << GREEN << "test_reshape_1 succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_reshape_1 failed" << RESET << std::endl;
     }
     destruct_env();
@@ -1750,8 +1742,7 @@ void test_reshape_with_cpu() {
 
     if (succ) {
         std::cout << GREEN << "test_test_reshape_with_cpu succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_test_reshape_with_cpu failed" << RESET << std::endl;
     }
 
@@ -1898,8 +1889,7 @@ void test_reshape_bp() {
     );
     if (fabs(loss - 1.19474f) > eps) {
         std::cerr << RED << "Error: loss = " << loss << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << GREEN << "test_reshape_bp loss succ" << RESET << std::endl;
     }
 
@@ -1937,8 +1927,7 @@ void test_reshape_bp() {
     }
     if (ni_grad_succ) {
         std::cout << GREEN << "test_reshape_bp ni_grad succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_reshape_bp ni_grad failed" << RESET << std::endl;
     }
 
@@ -2079,8 +2068,7 @@ void test_reshape_bp_1() {
     );
     if (fabs(loss - 1.1947f) > eps) {
         std::cerr << RED << "Error: loss = " << loss << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << GREEN << "test_reshape_bp loss succ" << RESET << std::endl;
     }
 
@@ -2118,8 +2106,7 @@ void test_reshape_bp_1() {
     }
     if (ni_grad_succ) {
         std::cout << GREEN << "test_reshape_bp_1 ni_grad succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_reshape_bp_1 ni_grad failed" << RESET << std::endl;
     }
 
@@ -2138,8 +2125,7 @@ void test_contiguous() {
         input->is_contiguous() && !t_input->is_contiguous() && input->is_shared_with(t_input);
     if (succ) {
         std::cout << GREEN << "test_contiguous succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_contiguous failed" << RESET << std::endl;
     }
     insert_boundary_action();
@@ -2167,8 +2153,7 @@ void test_repeat_interleave() {
     bool succ = compare_res_ans_1d_int32(res, res_ans, "res");
     if (succ) {
         std::cout << GREEN << "test_repeat_interleave succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_repeat_interleave failed" << RESET << std::endl;
     }
     destruct_env();
@@ -2216,8 +2201,7 @@ void test_repeat_interleave_1() {
     bool succ = compare_res_ans_1d_int32(res, res_ans, "res");
     if (succ) {
         std::cout << GREEN << "test_repeat_interleave_1 succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_repeat_interleave_1 failed" << RESET << std::endl;
     }
 
@@ -2313,8 +2297,7 @@ void test_mask() {
 
     if (succ) {
         std::cout << GREEN << "test_mask succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_mask failed" << RESET << std::endl;
     }
     destruct_env();
@@ -2354,8 +2337,7 @@ void test_mask_1() {
     bool succ = compare_res_ans(res, ans, "res");
     if (succ) {
         std::cout << GREEN << "test_mask_1 succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_mask_1 failed" << RESET << std::endl;
     }
     destruct_env();
@@ -2385,8 +2367,7 @@ void test_softmax() {
     bool succ = succ_res;
     if (succ) {
         std::cout << GREEN << "test_softmax succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_softmax failed" << RESET << std::endl;
     }
     destruct_env();
@@ -2419,8 +2400,7 @@ void test_masked_softmax() {
     bool succ = compare_res_ans_1d(res->get_tensor(), ans, "res");
     if (!succ) {
         std::cout << RED << "test_masked_softmax failed" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << GREEN << "test_masked_softmax succ" << RESET << std::endl;
     }
     destruct_env();
@@ -2454,8 +2434,7 @@ void test_masked_softmax_1() {
     bool succ = compare_res_ans_1d(res->get_tensor(), ans, "res");
     if (!succ) {
         std::cout << RED << "test_masked_softmax_1 failed" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << GREEN << "test_masked_softmax_1 succ" << RESET << std::endl;
     }
     destruct_env();
@@ -2518,8 +2497,7 @@ void test_masked_softmax_bp() {
     bool succ = succ_softmax && succ_ni_grad;
     if (succ) {
         std::cout << GREEN << "test_masked_softmax_bp succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_masked_softmax_bp failed" << RESET << std::endl;
     }
     destruct_env();
@@ -2661,8 +2639,7 @@ void test_bmm_bp() {
 
     if (succ) {
         std::cout << GREEN << "test_bmm_bp succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_bmm_bp failed" << RESET << std::endl;
     }
 
@@ -2757,8 +2734,7 @@ void test_bmm_bp_1() {
 
     if (succ) {
         std::cout << GREEN << "test_bmm_bp_1 succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_bmm_bp_1 failed" << RESET << std::endl;
     }
     destruct_env();
@@ -2843,8 +2819,7 @@ void test_div_bp() {
 
     if (succ) {
         std::cout << GREEN << "test_div_bp succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_div_bp failed" << RESET << std::endl;
     }
 
@@ -2976,8 +2951,7 @@ void test_attention_bp_part() {
 
     if (succ) {
         std::cout << GREEN << "test_attention_bp_part succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_attention_bp_part failed" << RESET << std::endl;
     }
     destruct_env();
@@ -3127,8 +3101,7 @@ void test_attention_bp() {
     bool succ = succ_softmax_res && succ_nq_grad && succ_nk_grad && nv_grad;
     if (succ) {
         std::cout << GREEN << "test_attention_bp succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_attention_bp failed" << RESET << std::endl;
     }
     destruct_env();
@@ -3190,8 +3163,7 @@ void test_dropout() {
     bool succ = succ_res && succ_grad;
     if (succ) {
         std::cout << GREEN << "test_dropout succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_dropout failed" << RESET << std::endl;
     }
     ::free(res_buffer);
@@ -3240,8 +3212,7 @@ void test_dropout_1() {
 
     if (succ) {
         std::cout << GREEN << "test_dropout_1 succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_dropout_1 failed" << RESET << std::endl;
     }
     destruct_env();
@@ -3386,8 +3357,7 @@ void test_permute() {
     bool succ = succ_permute && succ_w;
     if (!succ) {
         std::cout << RED << "test_permute res failed" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << GREEN << "test_permute succ" << RESET << std::endl;
     }
     destruct_env();
@@ -3435,8 +3405,7 @@ void test_lazy_linear() {
 
     if (!succ) {
         std::cout << RED << "test_lazy_linear res failed" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << GREEN << "test_lazy_linear succ" << RESET << std::endl;
     }
     destruct_env();
@@ -3689,8 +3658,7 @@ void test_mha() {
 
     if (succ) {
         std::cout << GREEN << "test_mha succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_mha failed" << RESET << std::endl;
     }
     destruct_env();
@@ -3803,8 +3771,7 @@ void test_embedding() {
 
     if (succ) {
         std::cout << GREEN << "test_embedding succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_embedding failed" << RESET << std::endl;
     }
     destruct_env();
@@ -3836,8 +3803,7 @@ void test_pe() {
     );
     if (succ) {
         std::cout << GREEN << "test_pe succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_pe failed" << RESET << std::endl;
     }
     destruct_env();
@@ -3897,8 +3863,7 @@ void test_embedding_1() {
     );
     if (!succ) {
         std::cout << RED << "test_embedding_1 emb grad failed" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << GREEN << "test_embedding_1 succ" << RESET << std::endl;
     }
     destruct_env();
@@ -3934,8 +3899,7 @@ void test_pe_1() {
     );
     if (succ) {
         std::cout << GREEN << "test_pe_1 succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_pe_1 failed" << RESET << std::endl;
     }
     destruct_env();
@@ -4044,8 +4008,7 @@ void test_expand_mul() {
     bool succ = succ_res && succ_gamma_grad && succ_input1_grad && succ_input2_grad;
     if (succ) {
         std::cout << GREEN << "test_expand_mul succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_expand_mul failed" << RESET << std::endl;
     }
     destruct_env();
@@ -4158,8 +4121,7 @@ void test_at_bp_ledge_add_eq() {
     bool succ = succ_res && succ_input_grad && succ_w1_grad && succ_w2_grad;
     if (succ) {
         std::cout << GREEN << "test_at_bp_ledge_add_eq succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_at_bp_ledge_add_eq failed" << RESET << std::endl;
     }
 
@@ -4277,8 +4239,7 @@ void test_at_bp_redge_add_eq() {
     bool succ = succ_res && succ_input_grad && succ_w1_grad && succ_w2_grad;
     if (succ) {
         std::cout << GREEN << "test_at_bp_redge_add_eq succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_at_bp_redge_add_eq failed" << RESET << std::endl;
     }
     destruct_env();
@@ -4329,8 +4290,7 @@ void test_softmax_1() {
 
     if (succ) {
         std::cout << GREEN << "test_softmax_1 succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_softmax_1 failed" << RESET << std::endl;
     }
     destruct_env();
@@ -4437,8 +4397,7 @@ void test_layernorm() {
     bool succ = succ_res && succ_ni_grad && succ_gamma_grad && succ_beta_grad;
     if (succ) {
         std::cout << GREEN << "test_layernorm succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_layernorm failed" << RESET << std::endl;
     }
     destruct_env();
@@ -4478,8 +4437,7 @@ void test_avg() {
 
     if (succ) {
         std::cout << GREEN << "test_avg succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_avg failed" << RESET << std::endl;
     }
 
@@ -4524,8 +4482,7 @@ void test_var() {
 
     if (succ) {
         std::cout << GREEN << "test_var succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_var failed" << RESET << std::endl;
     }
     destruct_env();
@@ -4589,8 +4546,7 @@ void test_ce_avg_1d() {
     bool succ = succ_loss && succ_ni_grad;
     if (succ) {
         std::cout << GREEN << "test_ce_avg_1d succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_ce_avg_1d failed" << RESET << std::endl;
     }
     destruct_env();
@@ -4672,8 +4628,7 @@ void test_ce_mask() {
     bool succ = succ_loss && succ_input_grad;
     if (succ) {
         std::cout << GREEN << "test_ce_mask succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_ce_mask failed" << RESET << std::endl;
     }
 
@@ -4751,8 +4706,7 @@ void test_ce_mask_all_0() {
     bool succ = succ_loss && succ_input_grad;
     if (succ) {
         std::cout << GREEN << "test_ce_mask_all_0 succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_ce_mask_all_0 failed" << RESET << std::endl;
     }
 
@@ -4820,8 +4774,7 @@ void test_mulsv() {
 
     if (succ) {
         std::cout << GREEN << "test_mulsv succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_mulsv failed" << RESET << std::endl;
     }
 
@@ -5231,8 +5184,7 @@ void test_encoder() {
         succ_block1_addnorm2_beta_grad;
     if (succ) {
         std::cout << GREEN << "test_encoder succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_encoder failed" << RESET << std::endl;
     }
 
@@ -5330,8 +5282,7 @@ void test_decoder() {
     bool succ = succ_embedding_grad;
     if (succ) {
         std::cout << GREEN << "test_decoder succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_decoder failed" << RESET << std::endl;
     }
 
@@ -5643,8 +5594,7 @@ void test_encoder_mask() {
     bool succ = succ_res_grad && succ_embedding_grad;
     if (succ) {
         std::cout << GREEN << "test_encoder_mask succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_encoder_mask failed" << RESET << std::endl;
     }
 
@@ -5900,8 +5850,7 @@ void test_gpu_at_with_cpu() {
     bool succ = rsme < eps;
     if (succ) {
         std::cout << GREEN << "test_at_with_cpu succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_at_with_cpu failed, rsme = " << rsme << RESET << std::endl;
     }
     ::free(gpu_res_buffer);
@@ -6272,8 +6221,7 @@ void test_gpu_sum_with_cpu() {
     }
     if (succ) {
         std::cout << GREEN << "test_sum_with_cpu succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_sum_with_cpu failed" << RESET << std::endl;
     }
     ::free(cpu_res_buffer);
@@ -6547,8 +6495,7 @@ void test_repeat_interleave_with_cpu() {
     bool succ = compare_ans1_ans2_int32(res_cpu_buffer, res_gpu_buffer, res_gpu_length);
     if (succ) {
         std::cout << GREEN << "test_repeat_interleave_with_gpu succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_repeat_interleave_with_gpu failed" << RESET << std::endl;
     }
     ::free(res_cpu_buffer);
@@ -6604,8 +6551,7 @@ void test_mask_with_cpu() {
     bool succ = compare_ans1_ans2(res_cpu_buffer, res_gpu_buffer, res_gpu_length);
     if (succ) {
         std::cout << GREEN << "test_mask_with_gpu succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_mask_with_gpu failed" << RESET << std::endl;
     }
     ::free(res_gpu_buffer);
@@ -6661,8 +6607,7 @@ void test_mask_with_cpu_1() {
     bool succ = compare_ans1_ans2(res_cpu_buffer, res_gpu_buffer, res_gpu_length);
     if (succ) {
         std::cout << GREEN << "test_mask_with_gpu_1 succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_mask_with_gpu_1 failed" << RESET << std::endl;
     }
     ::free(res_gpu_buffer);
@@ -6719,16 +6664,14 @@ void test_softmax_with_cpu() {
     bool succ_res = compare_ans1_ans2(res_cpu_buffer, res_gpu_buffer, res_gpu_length);
     if (!succ_res) {
         std::cerr << RED << "res mismatch" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << GREEN << "res succ" << RESET << std::endl;
     }
 
     bool succ = succ_res;
     if (succ) {
         std::cout << GREEN << "test_softmax_with_cpu succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_softmax_with_cpu failed" << RESET << std::endl;
     }
     ::free(res_cpu_buffer);
@@ -6786,8 +6729,7 @@ void test_masked_softmax_with_cpu() {
     bool succ = compare_ans1_ans2(res_cpu_buffer, res_gpu_buffer, res_gpu_length);
     if (succ) {
         std::cout << GREEN << "test_masked_softmax_with_cpu succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_masked_softmax_with_cpu failed" << RESET << std::endl;
     }
     ::free(res_gpu_buffer);
@@ -6853,8 +6795,7 @@ void test_masked_softmax_bp_with_cpu() {
     bool succ = compare_ans1_ans2(res_cpu_buffer, res_gpu_buffer, res_gpu_length);
     if (succ) {
         std::cout << GREEN << "test_masked_softmax_bp_with_cpu succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_masked_softmax_bp_with_cpu failed" << RESET << std::endl;
     }
 
@@ -6977,8 +6918,7 @@ void test_bmm_bp_with_cpu() {
     bool succ = succ_res && succ_ni_grad && succ_nw_grad;
     if (succ) {
         std::cout << GREEN << "test_bmm_bp_with_cpu succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_bmm_bp_with_cpu failed" << RESET << std::endl;
     }
 
@@ -7123,8 +7063,7 @@ void test_div_bp_with_cpu() {
 
     if (succ) {
         std::cout << GREEN << "test_div_bp_with_cpu succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_div_bp_with_cpu failed" << RESET << std::endl;
     }
 
@@ -7307,8 +7246,7 @@ void test_attention_bp_with_cpu() {
     bool succ = succ_res && succ_nq_grad && succ_nk_grad && succ_nv_grad;
     if (succ) {
         std::cout << GREEN << "test_attention_bp_with_cpu succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_attention_bp_with_cpu failed" << RESET << std::endl;
     }
 
@@ -7425,8 +7363,7 @@ void test_permute_with_cpu() {
     bool succ = succ_res && succ_ni_grad;
     if (succ) {
         std::cout << GREEN << "test_permute_with_cpu succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_permute_with_cpu failed" << RESET << std::endl;
     }
     ::free(res_gpu_buffer);
@@ -7545,8 +7482,7 @@ void test_embedding_with_cpu() {
     bool succ = succ_res && succ_grad;
     if (succ) {
         std::cout << GREEN << "test_embedding_with_cpu succ" << RESET << std::endl;
-    }
-    else {
+    } else {
         std::cout << RED << "test_embedding_with_cpu failed" << RESET << std::endl;
     }
 
@@ -7557,8 +7493,6 @@ void test_embedding_with_cpu() {
 }
 
 void test_gpu() {
-    test_embedding();
-    return;
 
     test_at();
     test_at_1();
@@ -7659,12 +7593,10 @@ int main(int argc, char* argv[]) {
     }
     if (backend_type == 0) {
         test_cpu();
-    }
-    else if (backend_type == 1) {
+    } else if (backend_type == 1) {
         use_gpu();
         test_gpu();
-    }
-    else {
+    } else {
         std::cerr << "Invalid backend type. Use 0 for CPU and 1 for GPU." << std::endl;
         return 1;
     }

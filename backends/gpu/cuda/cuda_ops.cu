@@ -613,14 +613,12 @@ void CUDAOps::init_weight_for_dbg(Tensor* tensor, float scale) {
         for (int i = 0; i < tensor->length(); ++i) {
             data[i] = static_cast<float>(i) * 1e-5 * scale;
         }
-    }
-    else if (tensor->get_dtype() == INT32) {
+    } else if (tensor->get_dtype() == INT32) {
         int32_t* data = static_cast<int32_t*>(_data);
         for (int i = 0; i < tensor->length(); ++i) {
             data[i] = i % 10;
         }
-    }
-    else {
+    } else {
         assert(false);
     }
     this->cp_to_device(tensor, (char*)_data, size);
@@ -657,8 +655,7 @@ void CUDAOps::reshape_deep_cp(
 
     if (dtype == INT32) {
         assert(false);
-    }
-    else if (dtype == FLOAT32) {
+    } else if (dtype == FLOAT32) {
         dim3 gridDim(
             (length + TILE_WIDTH - 1) / TILE_WIDTH
         );
@@ -671,8 +668,7 @@ void CUDAOps::reshape_deep_cp(
             dim,
             length
             );
-    }
-    else {
+    } else {
         assert(false);
     }
 }
@@ -690,8 +686,7 @@ void CUDAOps::repeat_interleave(Tensor* lhs, Tensor* res, int n) {
 
     if (dim == 1) {
         width = 1;
-    }
-    else {
+    } else {
         width = lshape[dim - 1];
     }
     auto l_length = lhs->length();
@@ -851,7 +846,7 @@ void CUDAOps::div(Tensor* dst, Tensor* src, Tensor* value) {
         (length + TILE_WIDTH - 1) / TILE_WIDTH
     );
     dim3 blockDim(TILE_WIDTH);
-    tensor_div_scalar << <gridDim, blockDim >> > (
+    tensor_div_scalar_tensor << <gridDim, blockDim >> > (
         (float*)dst->get_data(),
         (float*)src->get_data(),
         length,
@@ -894,8 +889,7 @@ void CUDAOps::pos_encoding(Tensor* res) {
             if (i % 2 == 0) {
                 data[pos * res->get_strides()[0] + i * res->get_strides()[1]] =
                     std::sin(pos * 1. / std::pow(10000, (1.0f * i / num_hidden)));
-            }
-            else {
+            } else {
                 data[pos * res->get_strides()[0] + i * res->get_strides()[1]] =
                     std::cos(pos * 1. / std::pow(10000, (1.0f * (i & ~1) / num_hidden)));
             }
