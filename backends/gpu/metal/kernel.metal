@@ -694,3 +694,33 @@ kernel void tensor_embedding_kernel(
         dst[index_dst] = src[index_src];
     }
 }
+
+kernel void tensor_embedding_backward_kernel(
+    device float* dst [[buffer(0)]],
+    device const int* indices [[buffer(1)]],
+    device const float* src [[buffer(2)]],
+    device const int* args [[buffer(3)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int src_shape0 = args[0];
+    int src_shape1 = args[0];
+    int length = args[0];
+    int src_stride0 = args[0];
+    int src_stride1 = args[0];
+    int dst_stride0 = args[0];
+    int dst_stride1 = args[0];
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+    if (row >= length || col >= src_shape1) {
+        return;
+    }
+    else {
+        int index_src = row * src_stride0 + col * src_stride1;
+        int index_dst = indices[row] * dst_stride0 + col * dst_stride1;
+        device atomic_float* atomicData = (device atomic_float*)&dst[index_dst];
+        atomic_fetch_add_explicit(atomicData, src[index_src], memory_order_relaxed);
+        
+    }
+}

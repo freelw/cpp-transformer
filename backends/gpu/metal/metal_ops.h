@@ -128,6 +128,7 @@ private:
     MetalKops* softmaxOps;
     MetalKops* softmaxBackwardOps;
     MetalKops* embeddingOps;
+    MetalKops* embeddingBackwardOps;
 private:
     int cur_int_args;
     int cur_float_args;
