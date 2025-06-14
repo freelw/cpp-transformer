@@ -705,12 +705,12 @@ kernel void tensor_embedding_backward_kernel(
     uint3 blockDim [[threads_per_threadgroup]]
 ) {
     int src_shape0 = args[0];
-    int src_shape1 = args[0];
-    int length = args[0];
-    int src_stride0 = args[0];
-    int src_stride1 = args[0];
-    int dst_stride0 = args[0];
-    int dst_stride1 = args[0];
+    int src_shape1 = args[1];
+    int length = args[2];
+    int src_stride0 = args[3];
+    int src_stride1 = args[4];
+    int dst_stride0 = args[5];
+    int dst_stride1 = args[6];
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
     if (row >= length || col >= src_shape1) {
