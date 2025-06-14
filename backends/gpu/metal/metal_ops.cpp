@@ -64,6 +64,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
     sumDim1Ops = new MetalKops("tensor_sum_2d_dim1", library);
     divOps = new MetalKops("tensor_div_scalar", library);
     varDim1Ops = new MetalKops("tensor_var_2d_dim1", library);
+    normOps = new MetalKops("tensor_norm_kernel", library);
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     gen = std::mt19937(seed);
@@ -71,6 +72,7 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
 }
 
 MetalOps::~MetalOps() {
+    delete normOps;
     delete varDim1Ops;
     delete divOps;
     delete sumDim1Ops;
@@ -1293,7 +1295,45 @@ void MetalOps::var(Tensor* lhs, const Tensor* _avg, Tensor* res) {
 }
 
 void MetalOps::norm(const Tensor* src, const Tensor* avg, const Tensor* var, Tensor* res) {
-    assert(false);
+    assert(src->get_dim() == 2);
+    assert(avg->get_dim() == 1);
+    assert(var->get_dim() == 1);
+    assert(res->get_dim() == 2);
+    assert(src->get_shape() == res->get_shape());
+    auto shape = src->get_shape();
+    assert(shape[0] == avg->get_shape()[0]);
+    assert(shape[0] == var->get_shape()[0]);
+    auto src_strides = src->get_strides();
+    auto res_strides = res->get_strides();
+
+    auto encoder = normOps->prepare(device, commandQueue, commandBuffer);
+    auto offset_args = cur_int_args * sizeof(int);
+    int* args = get_cur_int_args_buffer(6);
+    args[0] = shape[0]; // batch size
+    args[1] = shape[1]; // sequence length
+    args[2] = src_strides[0]; // src stride
+    args[3] = src_strides[1]; // src stride
+    args[4] = res_strides[0]; // res stride
+    args[5] = res_strides[1]; // res stride
+    auto offset_src = calc_offset(src);
+    auto offset_avg = calc_offset(avg);
+    auto offset_var = calc_offset(var);
+    auto offset_res = calc_offset(res);
+    assert(encoder != nullptr);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(src->get_storage()->ctx), offset_src, 0);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(avg->get_storage()->ctx), offset_avg, 1);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(var->get_storage()->ctx), offset_var, 2);
+    encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(res->get_storage()->ctx), offset_res, 3);
+    encoder->setBuffer(bufferIntArgs, offset_args, 4);
+    MTL::Size gridDim = MTL::Size(
+        (shape[1] + TILE_WIDTH - 1) / TILE_WIDTH,
+        (shape[0] + TILE_WIDTH - 1) / TILE_WIDTH,
+        1
+    );
+    MTL::Size blockDim = MTL::Size(TILE_WIDTH, TILE_WIDTH, 1);
+    encoder->dispatchThreadgroups(gridDim, blockDim);
+    encoder->endEncoding();
+    encoder->release();
 }
 
 void MetalOps::normBackward(

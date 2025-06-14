@@ -822,3 +822,33 @@ kernel void tensor_var_2d_dim1(
         }
     }
 }
+
+kernel void tensor_norm_kernel(
+    device const float* src [[buffer(0)]],
+    device const float* avg [[buffer(1)]],
+    device const float* var [[buffer(2)]],
+    device float* dst [[buffer(3)]],
+    device const int* args [[buffer(4)]],
+    uint3 threadIdx [[thread_position_in_threadgroup]],
+    uint3 blockIdx [[threadgroup_position_in_grid]],
+    uint3 blockDim [[threads_per_threadgroup]]
+) {
+    int src_shape0 = args[0];
+    int src_shape1 = args[1];
+    int src_stride0 = args[2];
+    int src_stride1 = args[3];
+    int dst_stride0 = args[4];
+    int dst_stride1 = args[5];
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+    const float eps = 1e-5f;
+    if (row >= src_shape0 || col >= src_shape1) {
+        return;
+    } else {
+        float _avg = avg[row];
+        float _var = var[row];
+        float _src = src[row * src_stride0 + col * src_stride1];
+        dst[row * dst_stride0 + col * dst_stride1] =
+            (_src - _avg) / sqrtf(_var + eps);
+    }
+}

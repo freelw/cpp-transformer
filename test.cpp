@@ -7557,7 +7557,7 @@ void test_embedding_with_cpu() {
 }
 
 void test_gpu() {
-    test_var();
+    test_layernorm();
     return;
 
     test_at();
