@@ -343,7 +343,7 @@ kernel void tensor_div_scalar(
     uint3 blockDim [[threads_per_threadgroup]]
 ) {
     int length = intArgs[0];
-    float value = floatArgs[0];
+    float value = floatArgs[0] + 1e-20;;
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index >= length) {
         return;
@@ -364,11 +364,12 @@ kernel void tensor_div_scalar_tensor(
 ) {
     int length = intArgs[0];
     int index = blockIdx.x * blockDim.x + threadIdx.x;
+    float tmp = value[0] + 1e-20;
     if (index >= length) {
         return;
     }
     else {
-        dst[index] = src[index] / value[0];
+        dst[index] = src[index] / tmp;
     }
 }
 
