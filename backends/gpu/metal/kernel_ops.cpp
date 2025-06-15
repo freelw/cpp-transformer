@@ -44,6 +44,7 @@ MTL::ComputeCommandEncoder* MetalKops::prepare(
         throw std::runtime_error("Failed to create compute pipeline state");
     }
     encoder->setComputePipelineState(pipelineState);
+    pipelineState->release();
     return encoder;
 }
 
