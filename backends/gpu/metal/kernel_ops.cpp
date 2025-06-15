@@ -35,7 +35,12 @@ MTL::ComputeCommandEncoder* MetalKops::prepare(
     NS::Error* error = nullptr;
     MTL::ComputePipelineState* pipelineState = device->newComputePipelineState(function, &error);
     if (!pipelineState) {
-        std::cerr << "Error creating compute pipeline state: " << error->localizedDescription()->utf8String() << std::endl;
+        if (error) {
+            std::cerr << "Error creating compute pipeline state: " << error->localizedDescription()->utf8String() << std::endl;
+        }
+        else {
+            std::cerr << "Error creating compute pipeline state: Unknown error." << std::endl;
+        }
         throw std::runtime_error("Failed to create compute pipeline state");
     }
     encoder->setComputePipelineState(pipelineState);
