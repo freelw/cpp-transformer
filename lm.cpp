@@ -216,6 +216,8 @@ int main(int argc, char* argv[]) {
     adam.clip_grad(1.0f);
     adam.step();
     graph::validateAllNodesRefCnt(0);
+    // printAllTensors();
+    // exit(0);
     // printAllActions();
     allocMemAndInitTensors();
     std::cout << "Allocating memory  " << std::endl

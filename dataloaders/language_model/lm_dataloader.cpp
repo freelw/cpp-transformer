@@ -53,6 +53,7 @@ void LMDataLoader::get_token_ids(
         for (const auto& id : tgt_step_tokens) {
             std::cout << tgt_vocab.get_token(id) << " ";
         }
+        std::cout << std::endl;
     }
     // exit(0);
 }

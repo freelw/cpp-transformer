@@ -21,7 +21,7 @@ void use_gpu(bool use = true);
 bool is_use_gpu();
 void print_all_tensors();
 
-#define NUM_STEPS 9 // 对齐 dl2 dataloader
+#define NUM_STEPS 32 // 对齐 dl2 dataloader
 #define MAX_POSENCODING_LEN 1000 // 对齐 dl2
 #define RESOURCE_NAME "./resources/fra_preprocessed_512.txt"
 #define SRC_VOCAB_NAME "./vocab/fra_vocab_builder/vocab_en.txt"
@@ -29,7 +29,7 @@ void print_all_tensors();
 #define TEST_FILE "./test.txt"
 #define TEST_LM_FILE "./test_lm.txt"
 #define LM_PREDICT_CNT 50
-#define LM_NUM_STEPS 10
+#define LM_NUM_STEPS 32
 #define TIMEMACHINE_VOCAB_NAME "./vocab/time_machine/vocab.txt"
 #define TIMEMACHINE_RESOURCE_NAME "./resources/time_machine/timemachine_preprocessed.txt"
 

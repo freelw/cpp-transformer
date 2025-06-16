@@ -35,7 +35,15 @@ MetalOps::MetalOps() : commandBuffer(nullptr), cur_int_args(0), cur_float_args(0
     }
 
     bufferIntArgs = device->newBuffer(TOTAL_INT_ARGS * sizeof(int), MTL::ResourceStorageModeShared);
+    if (!bufferIntArgs) {
+        std::cerr << "Failed to create buffer for int args!" << std::endl;
+        throw std::runtime_error("Failed to create buffer for int args");
+    }
     bufferFloatArgs = device->newBuffer(TOTAL_FLOAT_ARGS * sizeof(float), MTL::ResourceStorageModeShared);
+    if (!bufferFloatArgs) {
+        std::cerr << "Failed to create buffer for float args!" << std::endl;
+        throw std::runtime_error("Failed to create buffer for float args");
+    }
     load_kernel_metal();
 
     addOps = new MetalKops("tensor_add_kernel", library);
@@ -1428,6 +1436,10 @@ void MetalOps::mulSV(Tensor* dst, Tensor* src, float value) {
 
 void* MetalOps::alloc(size_t size, void** ctx) {
     MTL::Buffer* buffer = device->newBuffer(size, MTL::ResourceStorageModeShared);
+    if (!buffer) {
+        std::cerr << "Failed to allocate buffer of size " << size << std::endl;
+        abort();
+    }
     *ctx = (void*)buffer;
     return buffer->contents();
 }
