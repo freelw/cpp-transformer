@@ -43,8 +43,8 @@ void LMDataLoader::get_token_ids(
         }
         v_src_token_ids.push_back(src_step_tokens);
         v_tgt_token_ids.push_back(tgt_step_tokens);
-        std::cout << "src_step_tokens.size() : " << src_step_tokens.size() << std::endl;
-        std::cout << "tgt_step_tokens.size() : " << tgt_step_tokens.size() << std::endl;
+        // std::cout << "src_step_tokens.size() : " << src_step_tokens.size() << std::endl;
+        // std::cout << "tgt_step_tokens.size() : " << tgt_step_tokens.size() << std::endl;
         // std::cout << "v_src_token_ids.size() : " << v_src_token_ids.size() << std::endl;
         // std::cout << "v_tgt_token_ids.size() : " << v_tgt_token_ids.size() << std::endl;
     }
