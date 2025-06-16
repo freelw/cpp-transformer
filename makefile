@@ -72,6 +72,8 @@ endif
 ifeq ($(RELEASE),1)
 	NVCC_CFLAGS += -DNDEBUG
 	NVCC_CFLAGS := $(filter-out -G,$(NVCC_CFLAGS))
+else
+	NVCC_CFLAGS := $(filter-out -O3,$(NVCC_CFLAGS))
 endif
 
 ifeq ($(MACOS), 1)
