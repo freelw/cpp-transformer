@@ -5481,7 +5481,7 @@ void test_encoder_decoder() {
     auto dec_embedding = dec_params[0];
     assert(dec_embedding->get_w()->get_name() == "embedding");
 
-    int epochs = 5;
+    int epochs = 50;
     for (int e = 0; e < epochs; e++) {
         gDoActions();
         std::cout << "e : " << e << " loss : " << *loss->get_tensor() << std::endl;
