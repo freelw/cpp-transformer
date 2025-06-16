@@ -534,6 +534,9 @@ void validateAllTensorNames() {
 void* tensors_data = nullptr;
 void* c_tensors_data = nullptr;
 void* grad_tensors_data = nullptr;
+void* tensors_data_ctx = nullptr;
+void* c_tensors_data_ctx = nullptr;
+void* grad_tensors_data_ctx = nullptr;
 size_t tensors_data_capacity = 0;
 size_t c_tensors_data_capacity = 0;
 size_t grad_tensors_data_capacity = 0;
@@ -556,9 +559,6 @@ void allocMemAndInitTensors() {
         grad_tensors_data_capacity += tensor->capacity();
     }
 
-    void* tensors_data_ctx = nullptr;
-    void* c_tensors_data_ctx = nullptr;
-    void* grad_tensors_data_ctx = nullptr;
     tensors_data = g_backend_ops->alloc(tensors_data_capacity, &tensors_data_ctx);
     c_tensors_data = g_backend_ops->alloc(c_tensors_data_capacity, &c_tensors_data_ctx);
     grad_tensors_data = g_backend_ops->alloc(grad_tensors_data_capacity, &grad_tensors_data_ctx);

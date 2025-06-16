@@ -94,6 +94,7 @@ public:
     void commit() override;
     void wait() override;
 private:
+    void didModifyAllBuffer();
     void load_kernel_metal();
     int* get_cur_int_args_buffer(int size);
     float* get_cur_float_args_buffer(int size);

@@ -109,8 +109,43 @@ MetalOps::~MetalOps() {
     device->release();
 }
 
+extern void* tensors_data_ctx;
+extern void* c_tensors_data_ctx;
+extern void* grad_tensors_data_ctx;
+extern size_t tensors_data_capacity;
+extern size_t c_tensors_data_capacity;
+extern size_t grad_tensors_data_capacity;
+
+void didModifyBuffer(
+    void* ctx, int len
+) {
+    MTL::Buffer* buffer = reinterpret_cast<MTL::Buffer*>(ctx);
+    buffer->didModifyRange(NS::Range::Make(0, len));
+}
+
+void MetalOps::didModifyAllBuffer() {
+    assert(tensors_data_ctx != nullptr);
+    assert(c_tensors_data_ctx != nullptr);
+    assert(grad_tensors_data_ctx != nullptr);
+    didModifyBuffer(
+        tensors_data_ctx,
+        tensors_data_capacity
+    );
+    didModifyBuffer(
+        c_tensors_data_ctx,
+        c_tensors_data_capacity
+    );
+    didModifyBuffer(
+        grad_tensors_data_ctx,
+        grad_tensors_data_capacity
+    );
+    bufferIntArgs->didModifyRange(NS::Range::Make(0, TOTAL_INT_ARGS * sizeof(int)));
+    bufferFloatArgs->didModifyRange(NS::Range::Make(0, TOTAL_FLOAT_ARGS * sizeof(float)));
+}
+
 void MetalOps::prepare() {
     commandBuffer = commandQueue->commandBuffer();
+    didModifyAllBuffer();
     cur_int_args = 0;
     cur_float_args = 0;
 }
@@ -820,33 +855,33 @@ void MetalOps::init_weight_gauss(Tensor* tensor, float mean, float sigma) {
     for (int i = 0; i < tensor->length(); ++i) {
         data[i] = distribution_w(generator_w) + mean;
     }
+    didModifyAllBuffer();
 }
 
 void MetalOps::init_weight_uniform(Tensor* tensor, float sigma) {
     unsigned seed1 = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine generator_w(seed1);
     std::uniform_real_distribution<float> distribution_w(-sigma, sigma);
-    auto size = tensor->size();
-    float* data = static_cast<float*>(::malloc(size));
+    float* data = static_cast<float*>(tensor->get_data());
     for (int i = 0; i < tensor->length(); ++i) {
         data[i] = distribution_w(generator_w);
     }
-    this->cp_to_device(tensor, (char*)data, size);
-    ::free(data);
+    didModifyAllBuffer();
 }
 
 void MetalOps::init_weight_for_dbg(Tensor* tensor, float scale) {
-    auto size = tensor->size();
-    void* _data = ::malloc(size);
+    assert(tensor != nullptr);
+    assert(tensor->get_data() != nullptr);
+    assert(tensor->length() > 0);
 
     if (tensor->get_dtype() == FLOAT32) {
-        float* data = static_cast<float*>(_data);
+        float* data = static_cast<float*>(tensor->get_data());
         for (int i = 0; i < tensor->length(); ++i) {
             data[i] = static_cast<float>(i) * 1e-5 * scale;
         }
     }
     else if (tensor->get_dtype() == INT32) {
-        int32_t* data = static_cast<int32_t*>(_data);
+        int32_t* data = static_cast<int32_t*>(tensor->get_data());
         for (int i = 0; i < tensor->length(); ++i) {
             data[i] = i % 10;
         }
@@ -854,8 +889,7 @@ void MetalOps::init_weight_for_dbg(Tensor* tensor, float scale) {
     else {
         assert(false);
     }
-    this->cp_to_device(tensor, (char*)_data, size);
-    ::free(_data);
+    didModifyAllBuffer();
 }
 
 void MetalOps::fill(Tensor* tensor, float value) {
@@ -868,22 +902,7 @@ void MetalOps::fill(Tensor* tensor, float value) {
     for (int i = 0; i < tensor->length(); ++i) {
         data[i] = value;
     }
-
-    // fillOps->prepare(device, commandQueue, commandBuffer, encoder);
-    // int* argsInt = (int*)bufferIntArgs->contents();
-    // float* argsFloat = (float*)bufferFloatArgs->contents();
-    // auto length = tensor->length();
-    // argsInt[0] = length;
-    // argsFloat[0] = value;
-    // auto offset_tensor = calc_offset(tensor);
-
-    // assert(encoder != nullptr);
-    // encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(tensor->get_storage()->ctx), offset_tensor, 0);
-    // encoder->setBuffer(bufferIntArgs, 0, 1);
-    // encoder->setBuffer(bufferFloatArgs, 0, 2);
-    // MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
-    // MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
-    // encoder->dispatchThreadgroups(gridDim, blockDim);
+    didModifyAllBuffer();
 }
 
 void MetalOps::reshape_deep_cp(
@@ -897,8 +916,6 @@ void MetalOps::reshape_deep_cp(
     );
 
     auto dtype = dst_tensor->get_dtype();
-    auto src_shape_data = static_cast<int32_t*>(src_shape->get_data());
-    auto src_strides_data = static_cast<int32_t*>(src_strides->get_data());
     auto dim = src_tensor->get_dim();
     auto length = src_tensor->length();
 
@@ -1172,6 +1189,7 @@ void MetalOps::build_dropout_mask(
         }
         static_cast<float*>(mask->get_data())[i] = dis(gen) < p ? 0.0f : 1.0f;
     }
+    didModifyAllBuffer();
 }
 
 void MetalOps::pos_encoding(Tensor* res) {
@@ -1434,6 +1452,7 @@ void* MetalOps::alloc(size_t size, void** ctx) {
 
 void MetalOps::memset(void* ptr, int value, size_t size) {
     ::memset(ptr, value, size);
+    didModifyAllBuffer();
 }
 
 void MetalOps::free(void* ptr) {
@@ -1442,6 +1461,7 @@ void MetalOps::free(void* ptr) {
 
 void MetalOps::cp_device_to_device(void* dst, const void* src, size_t size) {
     ::memcpy(dst, src, size);
+    didModifyAllBuffer();
 }
 
 void MetalOps::cp_to_device(Tensor* dst_tensor, char* src, size_t size) {
@@ -1451,6 +1471,7 @@ void MetalOps::cp_to_device(Tensor* dst_tensor, char* src, size_t size) {
     assert(dst_tensor->get_data() != nullptr);
     assert(dst_tensor->size() == size);
     ::memcpy(dst_tensor->get_data(), src, size);
+    didModifyAllBuffer();
 }
 
 void MetalOps::cp_from_device(char* dst, const Tensor* src_tensor, size_t size) {
@@ -1467,6 +1488,28 @@ void MetalOps::commit() {
 
 void MetalOps::wait() {
     commandBuffer->waitUntilCompleted();
+    // get status
+    auto status = commandBuffer->status();
+    /*
+    CommandBufferStatusNotEnqueued = 0,
+    CommandBufferStatusEnqueued = 1,
+    CommandBufferStatusCommitted = 2,
+    CommandBufferStatusScheduled = 3,
+    CommandBufferStatusCompleted = 4,
+    CommandBufferStatusError = 5,
+    */
+    switch (status) {
+    case MTL::CommandBufferStatus::CommandBufferStatusCompleted:
+        break;
+
+    case MTL::CommandBufferStatus::CommandBufferStatusNotEnqueued:
+    case MTL::CommandBufferStatus::CommandBufferStatusEnqueued:
+    case MTL::CommandBufferStatus::CommandBufferStatusCommitted:
+    case MTL::CommandBufferStatus::CommandBufferStatusScheduled:
+    case MTL::CommandBufferStatus::CommandBufferStatusError:
+        std::cerr << "status : " << status << std::endl;
+        abort();
+    }
     commandBuffer->release();
 }
 
