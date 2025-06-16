@@ -886,6 +886,7 @@ void gDoActions() {
     assert(validteZeroCTensorsFound());
     assert(validateZeroGradFound());
     g_training = true;
+
     g_backend_ops->prepare();
     for (Action* action : g_actions) {
         if (action->is_do_once() && action->executed_once()) {

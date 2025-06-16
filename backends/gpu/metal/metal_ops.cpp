@@ -123,29 +123,6 @@ void didModifyBuffer(
     buffer->didModifyRange(NS::Range::Make(0, len));
 }
 
-void MetalOps::didModifyAllBuffer() {
-    assert(tensors_data_ctx != nullptr);
-    assert(c_tensors_data_ctx != nullptr);
-    assert(grad_tensors_data_ctx != nullptr);
-    assert(tensors_data_capacity > 0);
-    assert(c_tensors_data_capacity > 0);
-    assert(grad_tensors_data_capacity > 0);
-    didModifyBuffer(
-        tensors_data_ctx,
-        tensors_data_capacity
-    );
-    didModifyBuffer(
-        c_tensors_data_ctx,
-        c_tensors_data_capacity
-    );
-    didModifyBuffer(
-        grad_tensors_data_ctx,
-        grad_tensors_data_capacity
-    );
-    bufferIntArgs->didModifyRange(NS::Range::Make(0, TOTAL_INT_ARGS * sizeof(int)));
-    bufferFloatArgs->didModifyRange(NS::Range::Make(0, TOTAL_FLOAT_ARGS * sizeof(float)));
-}
-
 void MetalOps::prepare() {
     commandBuffer = commandQueue->commandBuffer();
     didModifyAllBuffer();
@@ -1486,6 +1463,8 @@ void MetalOps::cp_from_device(char* dst, const Tensor* src_tensor, size_t size) 
 }
 
 void MetalOps::commit() {
+    didModifyAllBuffer();
+    synchronizeResource();
     commandBuffer->commit();
 }
 
@@ -1514,6 +1493,55 @@ void MetalOps::wait() {
         abort();
     }
     commandBuffer->release();
+}
+
+
+void MetalOps::didModifyAllBuffer() {
+    assert(tensors_data_ctx != nullptr);
+    assert(c_tensors_data_ctx != nullptr);
+    assert(grad_tensors_data_ctx != nullptr);
+    assert(tensors_data_capacity > 0);
+    assert(c_tensors_data_capacity > 0);
+    assert(grad_tensors_data_capacity > 0);
+
+    didModifyBuffer(
+        tensors_data_ctx,
+        tensors_data_capacity
+    );
+    didModifyBuffer(
+        c_tensors_data_ctx,
+        c_tensors_data_capacity
+    );
+    didModifyBuffer(
+        grad_tensors_data_ctx,
+        grad_tensors_data_capacity
+    );
+
+    bufferIntArgs->didModifyRange(NS::Range::Make(0, TOTAL_INT_ARGS * sizeof(int)));
+    bufferFloatArgs->didModifyRange(NS::Range::Make(0, TOTAL_FLOAT_ARGS * sizeof(float)));
+}
+
+void MetalOps::synchronizeResource() {
+    assert(tensors_data_ctx != nullptr);
+    assert(c_tensors_data_ctx != nullptr);
+    assert(grad_tensors_data_ctx != nullptr);
+    assert(tensors_data_capacity > 0);
+    assert(c_tensors_data_capacity > 0);
+    assert(grad_tensors_data_capacity > 0);
+    auto blit_encoder = commandBuffer->blitCommandEncoder();
+    MTL::Buffer* buffer_tensors_data = reinterpret_cast<MTL::Buffer*>(tensors_data_ctx);
+    MTL::Buffer* buffer_c_tensors_data = reinterpret_cast<MTL::Buffer*>(c_tensors_data_ctx);
+    MTL::Buffer* buffer_grad_tensors_data = reinterpret_cast<MTL::Buffer*>(grad_tensors_data_ctx);
+    assert(buffer_tensors_data != nullptr);
+    assert(buffer_c_tensors_data != nullptr);
+    assert(buffer_grad_tensors_data != nullptr);
+    blit_encoder->synchronizeResource(buffer_tensors_data);
+    blit_encoder->synchronizeResource(buffer_c_tensors_data);
+    blit_encoder->synchronizeResource(buffer_grad_tensors_data);
+    blit_encoder->synchronizeResource(bufferIntArgs);
+    blit_encoder->synchronizeResource(bufferFloatArgs);
+    blit_encoder->endEncoding();
+    blit_encoder->release();
 }
 
 void MetalOps::load_kernel_metal() {
