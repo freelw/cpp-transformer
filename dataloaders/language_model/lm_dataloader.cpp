@@ -34,7 +34,7 @@ void LMDataLoader::get_token_ids(
     int token_ids_size = std::min((int)token_ids.size(), max_token_ids_size);
     std::cout << "token_ids_size : " << token_ids_size << std::endl;
 
-    for (size_t i = 0; i < token_ids_size; ++i) {
+    for (size_t i = 0; i < token_ids_size && i + num_steps < token_ids_size; ++i) {
         std::vector<uint> src_step_tokens;
         std::vector<uint> tgt_step_tokens;
         for (size_t j = 0; j < num_steps && (i + j) < token_ids_size - 1; ++j) {
@@ -43,7 +43,12 @@ void LMDataLoader::get_token_ids(
         }
         v_src_token_ids.push_back(src_step_tokens);
         v_tgt_token_ids.push_back(tgt_step_tokens);
+        std::cout << "src_step_tokens.size() : " << src_step_tokens.size() << std::endl;
+        std::cout << "tgt_step_tokens.size() : " << tgt_step_tokens.size() << std::endl;
+        // std::cout << "v_src_token_ids.size() : " << v_src_token_ids.size() << std::endl;
+        // std::cout << "v_tgt_token_ids.size() : " << v_tgt_token_ids.size() << std::endl;
     }
+    // exit(0);
 }
 
 std::string LMDataLoader::get_tgt_token(uint token_id) {

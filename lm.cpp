@@ -41,7 +41,8 @@ std::vector<uint> trim_or_padding(const std::vector<uint>& src, uint max_len, ui
     std::vector<uint> res = src;
     if (src.size() > max_len) {
         res.resize(max_len);
-    } else {
+    }
+    else {
         res.resize(max_len, pad_id);
     }
     return res;
@@ -246,7 +247,8 @@ int main(int argc, char* argv[]) {
             auto origin_size = src_token_ids.size();
             if (src_token_ids.size() < num_steps) {
                 src_token_ids.resize(num_steps, loader.get_pad_id());
-            } else if (src_token_ids.size() > num_steps) {
+            }
+            else if (src_token_ids.size() > num_steps) {
                 src_token_ids.erase(src_token_ids.begin(), src_token_ids.end() - num_steps);
             }
             auto cur_step = origin_size - 1;
@@ -284,7 +286,8 @@ int main(int argc, char* argv[]) {
                 if (cur_step >= num_steps - 1) {
                     src_token_ids.push_back(max_index);
                     src_token_ids.erase(src_token_ids.begin(), src_token_ids.end() - num_steps);
-                } else {
+                }
+                else {
                     src_token_ids[++cur_step] = max_index;
                 }
             }
@@ -292,7 +295,8 @@ int main(int argc, char* argv[]) {
             std::cout << "-----------------" << std::endl;
             ::free(res_buffer);
         }
-    } else {
+    }
+    else {
         init_dec_valid_lens_for_training(dec_valid_lens);
         signal(SIGINT, signal_callback_handler);
         int epoch = 0;
@@ -313,9 +317,18 @@ int main(int argc, char* argv[]) {
                     break;
                 }
                 for (int j = i; j < end; ++j) {
+                    // std::cout << "j : " << j << std::endl;
+                    // std::cout << "i : " << i << std::endl;
+                    // std::cout << "v_src_token_ids.size() : " << v_src_token_ids.size() << std::endl;
+                    // std::cout << "num_steps : " << num_steps << std::endl;
                     for (int len = 0; len < num_steps; ++len) {
                         for (int k = 0; k < num_steps; ++k) {
                             auto base = (j - i) * num_steps * num_steps + len * num_steps;
+                            // std::cout << "base : " << base << std::endl;
+                            // std::cout << "k : " << k << std::endl;
+                            // std::cout << "tgt_token_ids->length() : " << tgt_token_ids->length() << std::endl;
+                            // std::cout << "v_src_token_ids.size() : " << v_src_token_ids.size() << std::endl;
+                            // std::cout << "v_src_token_ids[j-i].size() : " << v_src_token_ids[j - i].size() << std::endl;
                             tgt_token_ids_buffer[base + k] = v_src_token_ids[j - i][k];
                             labels_buffer[base + k] = v_tgt_token_ids[j - i][k];
                             ce_mask_buffer[base + k] = (k <= len) ? 1.0f : 0.0f;

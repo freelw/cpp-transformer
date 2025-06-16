@@ -1,6 +1,7 @@
 #include "vocab.h"
 
 Vocab::Vocab(const std::string& vocab_file) {
+    std::cout << "Loading vocabulary from: " << vocab_file << std::endl;
     id2token.push_back("<pad>");
     token2id["<pad>"] = 0;
     id2token.push_back("<eos>");
