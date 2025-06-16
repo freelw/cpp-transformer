@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
 
     int num_hiddens = 256;
     int num_blks = 2;
-    float dropout = 0.2f;
+    float dropout = 0.0f;
     int ffn_num_hiddens = 64;
     int num_heads = 4;
     int num_steps = LM_NUM_STEPS;

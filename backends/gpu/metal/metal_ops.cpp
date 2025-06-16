@@ -127,6 +127,9 @@ void MetalOps::didModifyAllBuffer() {
     assert(tensors_data_ctx != nullptr);
     assert(c_tensors_data_ctx != nullptr);
     assert(grad_tensors_data_ctx != nullptr);
+    assert(tensors_data_capacity > 0);
+    assert(c_tensors_data_capacity > 0);
+    assert(grad_tensors_data_capacity > 0);
     didModifyBuffer(
         tensors_data_ctx,
         tensors_data_capacity
