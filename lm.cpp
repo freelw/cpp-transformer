@@ -41,7 +41,8 @@ std::vector<uint> trim_or_padding(const std::vector<uint>& src, uint max_len, ui
     std::vector<uint> res = src;
     if (src.size() > max_len) {
         res.resize(max_len);
-    } else {
+    }
+    else {
         res.resize(max_len, pad_id);
     }
     return res;
@@ -98,7 +99,7 @@ int main(int argc, char* argv[]) {
 
     int opt;
     int epochs = 10;
-    int batch_size = 16;
+    int batch_size = 4;
     int gpu = 1;
     int max_words_cnt = 256;
     float lr = 0.001f;
@@ -246,7 +247,8 @@ int main(int argc, char* argv[]) {
             auto origin_size = src_token_ids.size();
             if (src_token_ids.size() < num_steps) {
                 src_token_ids.resize(num_steps, loader.get_pad_id());
-            } else if (src_token_ids.size() > num_steps) {
+            }
+            else if (src_token_ids.size() > num_steps) {
                 src_token_ids.erase(src_token_ids.begin(), src_token_ids.end() - num_steps);
             }
             auto cur_step = origin_size - 1;
@@ -284,7 +286,8 @@ int main(int argc, char* argv[]) {
                 if (cur_step >= num_steps - 1) {
                     src_token_ids.push_back(max_index);
                     src_token_ids.erase(src_token_ids.begin(), src_token_ids.end() - num_steps);
-                } else {
+                }
+                else {
                     src_token_ids[++cur_step] = max_index;
                 }
             }
@@ -292,7 +295,8 @@ int main(int argc, char* argv[]) {
             std::cout << "-----------------" << std::endl;
             ::free(res_buffer);
         }
-    } else {
+    }
+    else {
         init_dec_valid_lens_for_training(dec_valid_lens);
         signal(SIGINT, signal_callback_handler);
         int epoch = 0;
