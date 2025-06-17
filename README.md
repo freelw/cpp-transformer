@@ -213,7 +213,7 @@ by h g wells i the time traveller for so it will be convenient to speak of him w
 * [model link1](https://cpp-transformer-1252366230.cos.ap-beijing.myqcloud.com/lm/checkpoint_20250617_162040_7.bin)
 * [model link2](https://cpp-transformer-us-1252366230.cos.na-ashburn.myqcloud.com/lm/checkpoint_20250617_162040_7.bin)
 
-This model was trained for 7 epochs using the full text of The Time Machine novel.
+This model was trained for 8 epochs using the full text of The Time Machine novel.
 
 ## legacy version
 
