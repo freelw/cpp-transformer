@@ -1467,6 +1467,10 @@ void MetalOps::commit() {
 
 void MetalOps::wait() {
     commandBuffer->waitUntilCompleted();
+    auto error = commandBuffer->error();
+    if (error) {
+        std::cerr << "Error: " << error->localizedDescription()->utf8String() << std::endl;
+    }
     commandBuffer->release();
 }
 
