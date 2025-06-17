@@ -215,6 +215,42 @@ by h g wells i the time traveller for so it will be convenient to speak of him w
 
 This model was trained for 8 epochs using the full text of The Time Machine novel.
 
+## handwritten_recognition
+
+To verify some functions more quickly, I have introduced a handwritten digit recognition program.
+
+`
+./handwritten_recognition 
+images magic : 2051
+label magic : 2049
+lables_num : 60000
+data loaded.
+Actions:
+...
+evaluating :  [10000/10000] correct : 9501
+epoch : 9 [50000/50000] loss : 0.150985
+evaluating :  [10000/10000] correct : 9493
+`
+
+### graphviz supported
+
+You can add a line of code like this to the program to output an out.dot file that records the tensor computation topology. For example, in mnist.cpp:
+`
+printAllActions();
+printDotGraph(); // here
+allocMemAndInitTensors();
+`
+
+If you have Graphviz installed, you can use the following command to convert the out.dot file into a PNG image:
+
+`
+dot -Tpng out.dot -o out.png
+`
+
+Here's an example from my side where a PNG file is generated as output.
+
+![alt text](handwritten_recognition_topo.png)
+
 ## legacy version
 
 [v1](https://github.com/freelw/cpp-transformer/tree/v1_freeze_20250529)

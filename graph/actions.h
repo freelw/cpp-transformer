@@ -41,7 +41,7 @@ public:
     virtual bool is_init_weight() const {
         return false;
     }
-    virtual std::string get_dot_string();
+    virtual std::string get_dot_string() const;
     bool executed_once() const;
     void increase_exec_times();
     int get_exec_times() const;
@@ -78,6 +78,7 @@ public:
         return "AddEqAction";
     }
     std::string to_string() const override;
+    std::string get_dot_string() const override;
 private:
     Tensor* lhs_shape;
     Tensor* lhs_strides;
@@ -322,6 +323,7 @@ public:
         return "InitWeightAction";
     }
     std::string to_string() const override;
+    std::string get_dot_string() const override;
 };
 
 class BoundaryAction : public Action {
@@ -615,6 +617,7 @@ public:
         return "ClearAction";
     }
     std::string to_string() const override;
+    std::string get_dot_string() const override;
 };
 
 std::vector<Action*> getOnceActions();
