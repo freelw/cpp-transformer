@@ -3,6 +3,16 @@
 
 #include "graph/node.h"
 
+struct ParameterInfo {
+    int weight_size;
+    int m_size;
+    int v_size;
+    int t;
+    char* weight_start;
+    char* m_start;
+    char* v_start;
+};
+
 class Parameter {
 public:
     Parameter(graph::Node* _node);
@@ -19,6 +29,7 @@ public:
     }
     std::string serialize();
     void deserialize(char* buffer);
+    void deserialize_info(char* buffer, ParameterInfo* info);
     int get_serialized_size();
 
 private:
