@@ -61,7 +61,7 @@ else
 		NVCC_CFLAGS += -DMETAL_GPU -std=c++17
 		LDFLAGS += $(FRAMEWORKS)
 	else
-		NVCC_CFLAGS += -DCUDA_GPU -G
+		NVCC_CFLAGS += -DCUDA_GPU -G -std=c++17
 	endif
 endif
 
