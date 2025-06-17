@@ -983,6 +983,10 @@ void printDotGraph() {
         out << "Tensor_" << tensor_view->get_id() << " [shape=\"ellipse\" color=\"blue\" label=\"" << tensor_view->get_meta_info() << "\"];" << std::endl;
     }
 
+    for (Tensor* c_tensor : g_c_tensors) {
+        out << "Tensor_" << c_tensor->get_id() << " [shape=\"ellipse\" color=\"green\" label=\"" << c_tensor->get_meta_info() << "\"];" << std::endl;
+    }
+
     for (Tensor* grad_tensor : g_grad_tensors) {
         out << "Tensor_" << grad_tensor->get_id() << " [shape=\"ellipse\" color=\"yellow\" label=\"" << grad_tensor->get_meta_info() << "\"];" << std::endl;
     }
