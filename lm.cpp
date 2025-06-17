@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
     std::string checkpoint_diff_tgt;
     std::string corpus = TIMEMACHINE_RESOURCE_NAME;
 
-    while ((opt = getopt(argc, argv, "f:c:e:d:l:b:g:m:p:h")) != -1) {
+    while ((opt = getopt(argc, argv, "f:c:e:d:l:b:g:m:p:k:h")) != -1) {
         switch (opt) {
         case 'f':
             corpus = optarg;
