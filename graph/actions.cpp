@@ -4,10 +4,12 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <sstream>
+#include <fstream>
 #include "backends/backend_ops.h"
 #include "optimizers/parameter.h"
 
 extern bool g_training;
+int g_action_id_counter = 0;
 
 bool Action::executed_once() const {
     return exec_times > 0;
@@ -19,6 +21,20 @@ void Action::increase_exec_times() {
 
 int Action::get_exec_times() const {
     return exec_times;
+}
+
+std::string Action::get_dot_string() const {
+    std::ostringstream oss;
+    if (lhs) {
+        oss << "Tensor_" << lhs->get_id() << " -> " << "Action_" << action_id << ";" << std::endl;
+    }
+    if (rhs) {
+        oss << "Tensor_" << rhs->get_id() << " -> " << "Action_" << action_id << ";" << std::endl;
+    }
+    if (res) {
+        oss << "Action_" << action_id << " -> " << "Tensor_" << res->get_id() << ";" << std::endl;
+    }
+    return oss.str();
 }
 
 std::ostream& operator<<(std::ostream& output, const Action& a) {
@@ -147,6 +163,14 @@ void AddEqAction::execute() {
 std::string AddEqAction::to_string() const {
     std::ostringstream oss;
     oss << "AddEqAction: " << lhs->get_meta_info() << " += " << rhs->get_meta_info();
+    return oss.str();
+}
+
+std::string AddEqAction::get_dot_string() const {
+    std::ostringstream oss;
+    assert(lhs != nullptr);
+    oss << "Action_" << action_id << " -> Tensor_" << lhs->get_id() << ";" << std::endl;
+    oss << "Tensor_" << rhs->get_id() << " -> Action_" << action_id << ";" << std::endl;
     return oss.str();
 }
 
@@ -431,25 +455,19 @@ void FillWeightAction::execute() {
     assert(lhs != nullptr);
     if (init_type == "gauss") {
         g_backend_ops->init_weight_gauss(lhs, mean, sigma);
-    }
-    else if (init_type == "uniform") {
+    } else if (init_type == "uniform") {
         g_backend_ops->init_weight_uniform(lhs, sigma);
-    }
-    else if (init_type == "xavier") {
+    } else if (init_type == "xavier") {
         assert(false);
         // g_backend_ops->xavier(lhs);
-    }
-    else if (init_type == "kaiming") {
+    } else if (init_type == "kaiming") {
         assert(false);
         // g_backend_ops->kaiming(lhs);
-    }
-    else if (init_type == "dbg") {
+    } else if (init_type == "dbg") {
         g_backend_ops->init_weight_for_dbg(lhs, sigma);
-    }
-    else if (init_type == "fill") {
+    } else if (init_type == "fill") {
         g_backend_ops->fill(lhs, sigma);
-    }
-    else {
+    } else {
         std::cerr << "Error: Unknown initialization type: " << init_type << std::endl;
         abort();
     }
@@ -470,6 +488,13 @@ std::string InitWeightAction::to_string() const {
         << " with type " << init_type
         << " sigma " << sigma
         << " mean " << mean;
+    return oss.str();
+}
+
+std::string InitWeightAction::get_dot_string() const {
+    std::ostringstream oss;
+    assert(lhs != nullptr);
+    oss << "Action_" << action_id << " -> Tensor_" << lhs->get_id() << ";" << std::endl;
     return oss.str();
 }
 
@@ -829,6 +854,13 @@ std::string ClearAction::to_string() const {
     return oss.str();
 }
 
+std::string ClearAction::get_dot_string() const {
+    assert(lhs != nullptr);
+    std::ostringstream oss;
+    oss << "Action_" << action_id << " -> Tensor_" << lhs->get_id() << ";" << std::endl;
+    return oss.str();
+}
+
 std::vector<Action*> g_actions;
 
 std::vector<Action*> getOnceActions() {
@@ -951,6 +983,51 @@ void printAllActions() {
         }
         std::cout << *action << std::endl;
     }
+}
+
+void printDotGraph() {
+    // save in out.dot 
+
+    std::ofstream out("out.dot");
+    out << "digraph G {" << std::endl;
+
+    for (Tensor* tensor : g_tensors) {
+        out << "Tensor_" << tensor->get_id() << " [shape=\"ellipse\" label=\"" << tensor->get_meta_info() << "\"];" << std::endl;
+    }
+
+    for (Tensor* tensor_view : g_tensor_views) {
+        out << "Tensor_" << tensor_view->get_id() << " [shape=\"ellipse\" color=\"blue\" label=\"" << tensor_view->get_meta_info() << "\"];" << std::endl;
+    }
+
+    for (Tensor* c_tensor : g_c_tensors) {
+        out << "Tensor_" << c_tensor->get_id() << " [shape=\"ellipse\" color=\"green\" label=\"" << c_tensor->get_meta_info() << "\"];" << std::endl;
+    }
+
+    for (Tensor* grad_tensor : g_grad_tensors) {
+        out << "Tensor_" << grad_tensor->get_id() << " [shape=\"ellipse\" color=\"yellow\" label=\"" << grad_tensor->get_meta_info() << "\"];" << std::endl;
+    }
+
+    for (Action* action : g_actions) {
+        out << "Action_" << action->get_id() << " [shape=\"box\" label=\"" << action->get_name() << "\"];" << std::endl;
+    }
+
+    for (Tensor* tensor_view : g_tensor_views) {
+        // build edge
+        auto parent = tensor_view->get_parent();
+        if (parent != nullptr) {
+            out << "Tensor_" << parent->get_id() << " -> Tensor_" << tensor_view->get_id() << ";" << std::endl;
+        }
+    }
+
+    for (Action* action : g_actions) {
+        std::string dot_string = action->get_dot_string();
+        if (dot_string.empty()) {
+            continue; // skip actions that do not have a dot string
+        }
+        out << dot_string;
+    }
+
+    out << "}" << std::endl;
 }
 
 void freeAllActions() {
