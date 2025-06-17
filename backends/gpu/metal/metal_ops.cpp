@@ -876,22 +876,6 @@ void MetalOps::fill(Tensor* tensor, float value) {
     for (int i = 0; i < tensor->length(); ++i) {
         data[i] = value;
     }
-
-    // fillOps->prepare(device, commandQueue, commandBuffer, encoder);
-    // int* argsInt = (int*)bufferIntArgs->contents();
-    // float* argsFloat = (float*)bufferFloatArgs->contents();
-    // auto length = tensor->length();
-    // argsInt[0] = length;
-    // argsFloat[0] = value;
-    // auto offset_tensor = calc_offset(tensor);
-
-    // assert(encoder != nullptr);
-    // encoder->setBuffer(reinterpret_cast<MTL::Buffer*>(tensor->get_storage()->ctx), offset_tensor, 0);
-    // encoder->setBuffer(bufferIntArgs, 0, 1);
-    // encoder->setBuffer(bufferFloatArgs, 0, 2);
-    // MTL::Size gridDim = MTL::Size((length + TILE_WIDTH - 1) / TILE_WIDTH, 1, 1);
-    // MTL::Size blockDim = MTL::Size(TILE_WIDTH, 1, 1);
-    // encoder->dispatchThreadgroups(gridDim, blockDim);
 }
 
 void MetalOps::reshape_deep_cp(

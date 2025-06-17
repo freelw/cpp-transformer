@@ -638,12 +638,6 @@ void LazyDivAction::execute() {
     assert(lhs != nullptr);
     assert(res != nullptr);
     float fvalue = 0;
-    // g_backend_ops->cp_from_device(
-    //     reinterpret_cast<char*>(&fvalue),
-    //     value,
-    //     value->size()
-    // );
-    // fvalue += 1e-20;
     g_backend_ops->div(res, lhs, value);
 }
 
