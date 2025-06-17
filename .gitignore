@@ -14,3 +14,9 @@ vocab/fra_vocab_builder/tgt_vocab.txt
 vocab/fra_vocab_builder/src_vocab.txt
 backends/gpu/metal/metal-cpp/.DS_Store
 handwritten_recognition
+tools/vocab_builder/vocab.txt
+tools/vocab_builder/builder.dSYM/Contents/Resources/DWARF/builder
+tools/vocab_builder/builder.dSYM/Contents/Resources/Relocations/aarch64/builder.yml
+tools/vocab_builder/builder.dSYM/Contents/Info.plist
+tools/vocab_builder/builder
+tools/vocab_builder/builder.dSYM
