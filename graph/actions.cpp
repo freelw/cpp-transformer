@@ -25,15 +25,14 @@ int Action::get_exec_times() const {
 
 std::string Action::get_dot_string() {
     std::ostringstream oss;
-    oss << "Action_" << action_id << " [label=\"" << get_name() << "\"]";
     if (lhs) {
-        oss << ";\nAction_" << action_id << " -> " << "Tensor_" << lhs->get_id();
+        oss << "Tensor_" << lhs->get_id() << " -> " << "Action_" << action_id << ";" << std::endl;
     }
     if (rhs) {
-        oss << ";\nAction_" << action_id << " -> " << "Tensor_" << rhs->get_id();
+        oss << "Tensor_" << rhs->get_id() << " -> " << "Action_" << action_id << ";" << std::endl;
     }
     if (res) {
-        oss << ";\nAction_" << action_id << " -> " << "Tensor_" << res->get_id();
+        oss << "Action_" << action_id << " -> " << "Tensor_" << res->get_id() << ";" << std::endl;
     }
     return oss.str();
 }
@@ -981,11 +980,11 @@ void printDotGraph() {
     }
 
     for (Tensor* tensor_view : g_tensor_views) {
-        out << "Tensor_" << tensor_view->get_id() << " [shape=\"ellipse\" label=\"" << tensor_view->get_meta_info() << "\"];" << std::endl;
+        out << "Tensor_" << tensor_view->get_id() << " [shape=\"ellipse\" color=\"blue\" label=\"" << tensor_view->get_meta_info() << "\"];" << std::endl;
     }
 
     for (Tensor* grad_tensor : g_grad_tensors) {
-        out << "Tensor_" << grad_tensor->get_id() << " [shape=\"ellipse\" label=\"" << grad_tensor->get_meta_info() << "\"];" << std::endl;
+        out << "Tensor_" << grad_tensor->get_id() << " [shape=\"ellipse\" color=\"yellow\" label=\"" << grad_tensor->get_meta_info() << "\"];" << std::endl;
     }
 
     for (Action* action : g_actions) {
@@ -1001,7 +1000,11 @@ void printDotGraph() {
     }
 
     for (Action* action : g_actions) {
-        out << action->get_dot_string() << std::endl;
+        std::string dot_string = action->get_dot_string();
+        if (dot_string.empty()) {
+            continue; // skip actions that do not have a dot string
+        }
+        out << dot_string;
     }
 
     out << "}" << std::endl;
