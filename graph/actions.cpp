@@ -4,10 +4,12 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <sstream>
+#include <fstream>
 #include "backends/backend_ops.h"
 #include "optimizers/parameter.h"
 
 extern bool g_training;
+int g_action_id_counter = 0;
 
 bool Action::executed_once() const {
     return exec_times > 0;
@@ -19,6 +21,21 @@ void Action::increase_exec_times() {
 
 int Action::get_exec_times() const {
     return exec_times;
+}
+
+std::string Action::get_dot_string() {
+    std::ostringstream oss;
+    oss << "Action_" << action_id << " [label=\"" << get_name() << "\"]";
+    if (lhs) {
+        oss << ";\nAction_" << action_id << " -> " << "Tensor_" << lhs->get_id();
+    }
+    if (rhs) {
+        oss << ";\nAction_" << action_id << " -> " << "Tensor_" << rhs->get_id();
+    }
+    if (res) {
+        oss << ";\nAction_" << action_id << " -> " << "Tensor_" << res->get_id();
+    }
+    return oss.str();
 }
 
 std::ostream& operator<<(std::ostream& output, const Action& a) {
@@ -951,6 +968,43 @@ void printAllActions() {
         }
         std::cout << *action << std::endl;
     }
+}
+
+void printDotGraph() {
+    // save in out.dot 
+
+    std::ofstream out("out.dot");
+    out << "digraph G {" << std::endl;
+
+    for (Tensor* tensor : g_tensors) {
+        out << "Tensor_" << tensor->get_id() << " [shape=\"ellipse\" label=\"" << tensor->get_meta_info() << "\"];" << std::endl;
+    }
+
+    for (Tensor* tensor_view : g_tensor_views) {
+        out << "Tensor_" << tensor_view->get_id() << " [shape=\"ellipse\" label=\"" << tensor_view->get_meta_info() << "\"];" << std::endl;
+    }
+
+    for (Tensor* grad_tensor : g_grad_tensors) {
+        out << "Tensor_" << grad_tensor->get_id() << " [shape=\"ellipse\" label=\"" << grad_tensor->get_meta_info() << "\"];" << std::endl;
+    }
+
+    for (Action* action : g_actions) {
+        out << "Action_" << action->get_id() << " [shape=\"box\" label=\"" << action->get_name() << "\"];" << std::endl;
+    }
+
+    for (Tensor* tensor_view : g_tensor_views) {
+        // build edge
+        auto parent = tensor_view->get_parent();
+        if (parent != nullptr) {
+            out << "Tensor_" << parent->get_id() << " -> Tensor_" << tensor_view->get_id() << ";" << std::endl;
+        }
+    }
+
+    for (Action* action : g_actions) {
+        out << action->get_dot_string() << std::endl;
+    }
+
+    out << "}" << std::endl;
 }
 
 void freeAllActions() {

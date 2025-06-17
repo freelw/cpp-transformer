@@ -19,7 +19,7 @@ std::string TensorDtype_to_string(TensorDType dtype) {
 }
 
 Tensor::Tensor(const std::vector<int>& _shape, const std::string& _name, TensorDType _dtype)
-    : shape(_shape), name(_name), dtype(_dtype), own_storage(true), offset(0), id(0) {
+    : shape(_shape), name(_name), dtype(_dtype), own_storage(true), offset(0), id(0), parent(nullptr) {
     strides.resize(shape.size());
     strides[shape.size() - 1] = 1;
     for (int i = shape.size() - 2; i >= 0; --i) {
@@ -41,11 +41,13 @@ Tensor::Tensor(
     const std::string& _name,
     TensorDType _dtype,
     TensorStorage* _storage,
-    int _offset)
+    int _offset,
+    const Tensor* _parent)
     : shape(_shape), strides(_strides),
     name(_name), dtype(_dtype),
     own_storage(false), storage(_storage),
-    offset(_offset), id(0) {
+    offset(_offset), id(0),
+    parent(_parent) {
     assert(shape.size() == strides.size());
     assert(_storage != nullptr);
     assert(_offset >= 0);
@@ -54,17 +56,17 @@ Tensor::Tensor(
     id = gen_id();
 }
 
-Tensor::Tensor(
-    const std::vector<int>& _shape,
-    const std::vector<int>& _strides,
-    const std::string& _name,
-    TensorDType _dtype,
-    TensorStorage* _storage)
-    : Tensor(
-        _shape, _strides, _name, _dtype, _storage, 0
-    ) {
-    assert(shape.size() == strides.size());
-}
+// Tensor::Tensor(
+//     const std::vector<int>& _shape,
+//     const std::vector<int>& _strides,
+//     const std::string& _name,
+//     TensorDType _dtype,
+//     TensorStorage* _storage)
+//     : Tensor(
+//         _shape, _strides, _name, _dtype, _storage, 0
+//     ) {
+//     assert(shape.size() == strides.size());
+// }
 
 Tensor::~Tensor() {
     if (own_storage) {
@@ -426,7 +428,8 @@ Tensor* allocTensorView(
     Tensor* tensor_view = new Tensor(
         shape, strides, name,
         parent->get_dtype(), parent->get_storage(),
-        parent->get_offset() + offset
+        parent->get_offset() + offset,
+        parent
     );
     g_tensor_views.push_back(tensor_view);
     return tensor_view;

@@ -37,12 +37,12 @@ public:
     Tensor(
         const std::vector<int>& _shape, const std::vector<int>& _strides,
         const std::string& _name, TensorDType _dtype, TensorStorage* _storage,
-        int _offset
+        int _offset, const Tensor* _parent
     );
-    Tensor(
-        const std::vector<int>& _shape, const std::vector<int>& _strides,
-        const std::string& _name, TensorDType _dtype, TensorStorage* _storage
-    );
+    // Tensor(
+    //     const std::vector<int>& _shape, const std::vector<int>& _strides,
+    //     const std::string& _name, TensorDType _dtype, TensorStorage* _storage
+    // );
     virtual ~Tensor();
     virtual void set_data(void* ptr, void* ctx);
     virtual void* get_data() const;
@@ -57,6 +57,7 @@ public:
     virtual int get_dim() const { return shape.size(); }
     TensorDType get_dtype() const { return dtype; }
     virtual std::string get_name() const { return name; }
+    const Tensor* get_parent() const { return parent; }
     Tensor* transpose(int a = 0, int b = 1);
     Tensor* permute(const std::vector<int>& dims);
     Tensor* reshape(const std::vector<int>& shape) const;
@@ -81,6 +82,7 @@ protected:
     std::vector<int> strides;
     std::string name;
     TensorDType dtype;
+    const Tensor* parent;
 private:
     const bool own_storage;
     TensorStorage* storage;

@@ -7,13 +7,22 @@
 
 class Parameter;
 
+extern int g_action_id_counter;
+
 class Action {
 public:
     Action(Tensor* _lhs, const Tensor* _rhs, Tensor* _res)
-        : lhs(_lhs), rhs(_rhs), res(_res), exec_times(0) {
+        : lhs(_lhs), rhs(_rhs), res(_res), exec_times(0),
+        action_id(g_action_id_counter++) {
     }
     virtual ~Action() = default;
+    int get_id() const {
+        return action_id;
+    }
     virtual void execute() = 0;
+    virtual std::string get_name() const {
+        return "Action";
+    }
     virtual std::string to_string() const {
         return "Action not implemented";
     }
@@ -32,6 +41,7 @@ public:
     virtual bool is_init_weight() const {
         return false;
     }
+    virtual std::string get_dot_string();
     bool executed_once() const;
     void increase_exec_times();
     int get_exec_times() const;
@@ -41,12 +51,16 @@ protected:
     const Tensor* rhs;
     Tensor* res;
     int exec_times;
+    int action_id;
 };
 
 class AddAction : public Action {
 public:
     AddAction(Tensor* _lhs, const Tensor* _rhs, Tensor* _res);
     void execute() override;
+    std::string get_name() const override {
+        return "AddAction";
+    }
     std::string to_string() const override;
 private:
     Tensor* lhs_shape;
@@ -60,6 +74,9 @@ class AddEqAction : public Action {
 public:
     AddEqAction(Tensor* _lhs, const Tensor* _rhs);
     void execute() override;
+    std::string get_name() const override {
+        return "AddEqAction";
+    }
     std::string to_string() const override;
 private:
     Tensor* lhs_shape;
@@ -73,6 +90,9 @@ public:
         : Action(_lhs, _rhs, _res) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "ExpandAddAction";
+    }
     std::string to_string() const override;
 };
 
@@ -82,6 +102,9 @@ public:
         : Action(_lhs, _rhs, _res) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "ExpandMulAction";
+    }
     std::string to_string() const override;
 };
 
@@ -91,6 +114,9 @@ public:
         : Action(_lhs, _rhs, _res) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "AtAction";
+    }
     std::string to_string() const override;
 };
 
@@ -98,6 +124,9 @@ class MulAction : public Action {
 public:
     MulAction(Tensor* _lhs, const Tensor* _rhs, Tensor* _res);
     void execute() override;
+    std::string get_name() const override {
+        return "MulAction";
+    }
     std::string to_string() const override;
 private:
     Tensor* lhs_shape;
@@ -112,6 +141,9 @@ public:
         : Action(_lhs, nullptr, _res), dim(_dim) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "SumAction";
+    }
     std::string to_string() const override;
 private:
     int dim;
@@ -123,6 +155,9 @@ public:
         : Action(_lhs, nullptr, _res) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "ReluAction";
+    }
     std::string to_string() const override;
 };
 
@@ -132,6 +167,9 @@ public:
         : Action(_lhs, nullptr, _res) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "ReluPrimeAction";
+    }
     std::string to_string() const override;
 };
 
@@ -141,6 +179,9 @@ public:
         : Action(_lhs, labels, _res), maxs(_maxs), sums(_sums) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "CrossEntropyAction";
+    }
     std::string to_string() const override;
 private:
     Tensor* maxs;
@@ -153,6 +194,9 @@ public:
         : Action(_lhs, labels, _res), maxs(_maxs), sums(_sums) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "CrossEntropyBackwardAction";
+    }
     std::string to_string() const override;
 private:
     Tensor* maxs;
@@ -165,6 +209,9 @@ public:
         : Action(nullptr, nullptr, _norm), grads(_grads) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "CalcAllGradNormAction";
+    }
     std::string to_string() const override;
 private:
     std::vector<Tensor*> grads;
@@ -176,6 +223,9 @@ public:
         : Action(_grad, _norm, nullptr), grad_clip_val(_grad_clip_val) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "ClipGradAction";
+    }
     std::string to_string() const override;
 private:
     float grad_clip_val;
@@ -187,6 +237,9 @@ public:
         : Action(nullptr, nullptr, nullptr), param(_param), lr(_lr), beta1(_beta1), beta2(_beta2), epsilon(_epsilon) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "AdamStepAction";
+    }
     std::string to_string() const override;
 private:
     Parameter* param;
@@ -202,6 +255,9 @@ public:
         : Action(nullptr, nullptr, nullptr) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "ZeroGradAction";
+    }
     std::string to_string() const override;
     bool is_zero_grad() const override {
         return true;
@@ -217,6 +273,9 @@ public:
         return true;
     }
     void execute() override;
+    std::string get_name() const override {
+        return "ZeroCTensorsAction";
+    }
     std::string to_string() const override;
 };
 
@@ -226,6 +285,9 @@ public:
         : Action(nullptr, nullptr, nullptr) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "PrintNoZeroTensorNamesAction";
+    }
     std::string to_string() const override;
 };
 
@@ -235,6 +297,9 @@ public:
         : Action(_lhs, nullptr, nullptr), init_type(_init_type), sigma(_sigma), mean(_mean) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "FillWeightAction";
+    }
     std::string to_string() const override;
 protected:
     std::string init_type;
@@ -253,6 +318,9 @@ public:
     bool is_init_weight() const override {
         return true;
     }
+    std::string get_name() const override {
+        return "InitWeightAction";
+    }
     std::string to_string() const override;
 };
 
@@ -263,6 +331,9 @@ public:
     }
     void execute() override;
     bool is_backward_boundary() const override;
+    std::string get_name() const override {
+        return "BoundaryAction";
+    }
     std::string to_string() const override;
 };
 
@@ -276,6 +347,9 @@ public:
     );
     virtual ~AssignShapeAndStridesAction();
     void execute() override;
+    std::string get_name() const override {
+        return "AssignShapeAndStridesAction";
+    }
     std::string to_string() const override;
 private:
     int32_t* shape_data;
@@ -287,6 +361,9 @@ public:
     AssignValueAction(Tensor* tensor, float value);
     virtual ~AssignValueAction();
     void execute() override;
+    std::string get_name() const override {
+        return "AssignValueAction";
+    }
     std::string to_string() const override;
 private:
     float value;
@@ -301,6 +378,9 @@ public:
         shape(_shape), strides(_strides) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "ReshapeDeepCpAction";
+    }
     std::string to_string() const override;
 private:
     const Tensor* shape;
@@ -313,6 +393,9 @@ public:
         : Action(_lhs, nullptr, _res), n(_n) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "RepeatInterleaveAction";
+    }
     std::string to_string() const override;
 private:
     int n;
@@ -324,6 +407,9 @@ public:
         : Action(_lhs, _rhs, _res), value(_value) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "SequenceMaskAction";
+    }
     std::string to_string() const override;
 private:
     float value;
@@ -335,6 +421,9 @@ public:
         : Action(_lhs, nullptr, _res) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "SoftmaxAction";
+    }
     std::string to_string() const override;
 };
 
@@ -344,6 +433,9 @@ public:
         : Action(_lhs, _softmax_res, grad) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "SoftmaxBackwardAction";
+    }
     std::string to_string() const override;
 };
 
@@ -355,6 +447,9 @@ public:
         assert(value->get_shape()[0] == 1);
     }
     void execute() override;
+    std::string get_name() const override {
+        return "LazyDivAction";
+    }
     std::string to_string() const override;
 private:
     Tensor* value;
@@ -364,6 +459,9 @@ class DropoutMaskAction : public Action {
 public:
     DropoutMaskAction(Tensor* mask, float _p);
     void execute() override;
+    std::string get_name() const override {
+        return "DropoutMaskAction";
+    }
     std::string to_string() const override;
 private:
     float p;
@@ -377,6 +475,9 @@ public:
         : Action(_lhs, indices, _res) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "EmbeddingAction";
+    }
     std::string to_string() const override;
 };
 
@@ -386,6 +487,9 @@ public:
         : Action(_lhs, indices, _res) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "EmbeddingBackwardAction";
+    }
     std::string to_string() const override;
 };
 
@@ -395,6 +499,9 @@ public:
         : Action(nullptr, nullptr, res) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "PosEncodingAction";
+    }
     std::string to_string() const override;
     bool is_do_once() const override {
         return true;
@@ -407,6 +514,9 @@ public:
         : Action(_lhs, nullptr, _res) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "AvgAction";
+    }
     std::string to_string() const override;
 };
 
@@ -416,6 +526,9 @@ public:
         : Action(_lhs, avg, _res) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "VarAction";
+    }
     std::string to_string() const override;
 };
 
@@ -425,6 +538,9 @@ public:
         : Action(avg, var, _res), src(_src) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "NormAction";
+    }
     std::string to_string() const override;
 private:
     Tensor* src;
@@ -436,6 +552,9 @@ public:
         : Action(_grad, norm_res, _res), var_tensor(_var_tensor) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "NormBackwardAction";
+    }
     std::string to_string() const override;
 private:
     Tensor* var_tensor;
@@ -447,6 +566,9 @@ public:
         : Action(_lhs, nullptr, nullptr), msg(_msg), expected_name(_expected_name) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "DbgPrintAction";
+    }
     std::string to_string() const override;
 private:
     std::string msg;
@@ -459,6 +581,9 @@ public:
         : Action(_lhs, _rhs, nullptr), offset_l(_offset_l), offset_r(_offset_r), size(_size) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "MemCpAction";
+    }
     std::string to_string() const override;
 private:
     int offset_l;
@@ -472,6 +597,9 @@ public:
         : Action(_lhs, nullptr, _res), value(_value) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "MulSVAction";
+    }
     std::string to_string() const override;
 private:
     float value;
@@ -483,6 +611,9 @@ public:
         : Action(_lhs, nullptr, nullptr) {
     }
     void execute() override;
+    std::string get_name() const override {
+        return "ClearAction";
+    }
     std::string to_string() const override;
 };
 
@@ -493,6 +624,7 @@ void gDoOnceActions();
 void gDoForwardActions(bool training = false);
 void gDoBackwardActions();
 void printAllActions();
+void printDotGraph();
 void freeAllActions();
 
 void disableInitWeightAction();

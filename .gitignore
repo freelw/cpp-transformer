@@ -20,3 +20,4 @@ tools/vocab_builder/builder.dSYM/Contents/Resources/Relocations/aarch64/builder.
 tools/vocab_builder/builder.dSYM/Contents/Info.plist
 tools/vocab_builder/builder
 tools/vocab_builder/builder.dSYM
+out.dot
