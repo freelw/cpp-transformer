@@ -70,7 +70,6 @@ void diff_tensor_buffer(Tensor* tensor, char* buffer) {
                 << ", got: " << buffer_f[i] << std::endl;
             std::cerr << "tensor meta : " << tensor->get_meta_info() << std::endl;
             break;
-            // abort();
         }
     }
     ::free(tensor_buffer);

@@ -559,13 +559,18 @@ void allocMemAndInitTensors() {
     void* tensors_data_ctx = nullptr;
     void* c_tensors_data_ctx = nullptr;
     void* grad_tensors_data_ctx = nullptr;
-    tensors_data = g_backend_ops->alloc(tensors_data_capacity, &tensors_data_ctx);
-    c_tensors_data = g_backend_ops->alloc(c_tensors_data_capacity, &c_tensors_data_ctx);
-    grad_tensors_data = g_backend_ops->alloc(grad_tensors_data_capacity, &grad_tensors_data_ctx);
-
-    g_backend_ops->memset(tensors_data, 0, tensors_data_capacity);
-    g_backend_ops->memset(c_tensors_data, 0, c_tensors_data_capacity);
-    g_backend_ops->memset(grad_tensors_data, 0, grad_tensors_data_capacity);
+    if (tensors_data_capacity > 0) {
+        tensors_data = g_backend_ops->alloc(tensors_data_capacity, &tensors_data_ctx);
+        g_backend_ops->memset(tensors_data, 0, tensors_data_capacity);
+    }
+    if (c_tensors_data_capacity > 0) {
+        c_tensors_data = g_backend_ops->alloc(c_tensors_data_capacity, &c_tensors_data_ctx);
+        g_backend_ops->memset(c_tensors_data, 0, c_tensors_data_capacity);
+    }
+    if (grad_tensors_data_capacity > 0) {
+        grad_tensors_data = g_backend_ops->alloc(grad_tensors_data_capacity, &grad_tensors_data_ctx);
+        g_backend_ops->memset(grad_tensors_data, 0, grad_tensors_data_capacity);
+    }
 
     int64_t offset = 0;
     for (Tensor* tensor : g_tensors) {

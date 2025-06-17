@@ -725,7 +725,6 @@ void CPUOps::build_dropout_mask(
     Tensor*/*shape*/, Tensor*/*strides*/
 ) {
     assert(mask != nullptr);
-    // assert(mask->get_dim() == 1);
     auto length = mask->length();
     for (int i = 0; i < length; ++i) {
         int index = 0;
