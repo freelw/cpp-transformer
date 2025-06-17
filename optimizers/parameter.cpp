@@ -34,18 +34,18 @@ bool Parameter::is_require_grad() {
 
 std::string Parameter::serialize() {
     int weight_size = get_w()->size();
-    int grad_size = get_grad()->size();
+    // int grad_size = get_grad()->size();
     int m_size = m->size();
     int v_size = v->size();
 
     int tot_size = 0;
     tot_size += sizeof(weight_size);
-    tot_size += sizeof(grad_size);
+    // tot_size += sizeof(grad_size);
     tot_size += sizeof(m_size);
     tot_size += sizeof(v_size);
     tot_size += sizeof(t);
     tot_size += weight_size;
-    tot_size += grad_size;
+    // tot_size += grad_size;
     tot_size += m_size;
     tot_size += v_size;
 
@@ -54,8 +54,8 @@ std::string Parameter::serialize() {
 
     ::memcpy(buffer + offset, &weight_size, sizeof(weight_size));
     offset += sizeof(weight_size);
-    ::memcpy(buffer + offset, &grad_size, sizeof(grad_size));
-    offset += sizeof(grad_size);
+    // ::memcpy(buffer + offset, &grad_size, sizeof(grad_size));
+    // offset += sizeof(grad_size);
     ::memcpy(buffer + offset, &m_size, sizeof(m_size));
     offset += sizeof(m_size);
     ::memcpy(buffer + offset, &v_size, sizeof(v_size));
@@ -69,12 +69,12 @@ std::string Parameter::serialize() {
         weight_size
     );
     offset += weight_size;
-    g_backend_ops->cp_from_device(
-        buffer + offset,
-        get_grad(),
-        grad_size
-    );
-    offset += grad_size;
+    // g_backend_ops->cp_from_device(
+    //     buffer + offset,
+    //     get_grad(),
+    //     grad_size
+    // );
+    // offset += grad_size;
     g_backend_ops->cp_from_device(
         buffer + offset,
         m,
@@ -94,13 +94,13 @@ std::string Parameter::serialize() {
 }
 
 void Parameter::deserialize(char* buffer) {
-    int weight_size, grad_size, m_size, v_size;
+    int weight_size, m_size, v_size;
     int offset = 0;
 
     ::memcpy(&weight_size, buffer + offset, sizeof(weight_size));
     offset += sizeof(weight_size);
-    ::memcpy(&grad_size, buffer + offset, sizeof(grad_size));
-    offset += sizeof(grad_size);
+    // ::memcpy(&grad_size, buffer + offset, sizeof(grad_size));
+    // offset += sizeof(grad_size);
     ::memcpy(&m_size, buffer + offset, sizeof(m_size));
     offset += sizeof(m_size);
     ::memcpy(&v_size, buffer + offset, sizeof(v_size));
@@ -109,7 +109,7 @@ void Parameter::deserialize(char* buffer) {
     offset += sizeof(t);
 
     assert(weight_size == get_w()->size());
-    assert(grad_size == get_grad()->size());
+    // assert(grad_size == get_grad()->size());
     assert(m_size == m->size());
     assert(v_size == v->size());
 
@@ -119,12 +119,12 @@ void Parameter::deserialize(char* buffer) {
         weight_size
     );
     offset += weight_size;
-    g_backend_ops->cp_to_device(
-        get_grad(),
-        buffer + offset,
-        grad_size
-    );
-    offset += grad_size;
+    // g_backend_ops->cp_to_device(
+    //     get_grad(),
+    //     buffer + offset,
+    //     grad_size
+    // );
+    // offset += grad_size;
     g_backend_ops->cp_to_device(
         m,
         buffer + offset,
@@ -136,6 +136,37 @@ void Parameter::deserialize(char* buffer) {
         buffer + offset,
         v_size
     );
+    offset += v_size;
+    assert(offset == get_serialized_size());
+}
+
+void Parameter::deserialize_info(char* buffer, ParameterInfo* info) {
+    int weight_size, m_size, v_size, _t;
+    int offset = 0;
+
+    ::memcpy(&weight_size, buffer + offset, sizeof(weight_size));
+    offset += sizeof(weight_size);
+    ::memcpy(&m_size, buffer + offset, sizeof(m_size));
+    offset += sizeof(m_size);
+    ::memcpy(&v_size, buffer + offset, sizeof(v_size));
+    offset += sizeof(v_size);
+    ::memcpy(&_t, buffer + offset, sizeof(_t));
+    offset += sizeof(_t);
+
+    assert(weight_size == get_w()->size());
+    assert(m_size == m->size());
+    assert(v_size == v->size());
+
+    info->weight_size = weight_size;
+    info->m_size = m_size;
+    info->v_size = v_size;
+    info->t = _t;
+
+    info->weight_start = buffer + offset;
+    offset += weight_size;
+    info->m_start = buffer + offset;
+    offset += m_size;
+    info->v_start = buffer + offset;
     offset += v_size;
     assert(offset == get_serialized_size());
 }

@@ -41,8 +41,7 @@ std::vector<uint> trim_or_padding(const std::vector<uint>& src, uint max_len, ui
     std::vector<uint> res = src;
     if (src.size() > max_len) {
         res.resize(max_len);
-    }
-    else {
+    } else {
         res.resize(max_len, pad_id);
     }
     return res;
@@ -104,10 +103,12 @@ int main(int argc, char* argv[]) {
     int max_words_cnt = 256;
     float lr = 0.001f;
     int lm_predict_cnt = LM_PREDICT_CNT;
+    float dropout = 0.2f;
     std::string checkpoint;
+    std::string checkpoint_diff_tgt;
     std::string corpus = TIMEMACHINE_RESOURCE_NAME;
 
-    while ((opt = getopt(argc, argv, "f:c:e:l:b:g:m:p:")) != -1) {
+    while ((opt = getopt(argc, argv, "f:c:e:d:l:b:g:m:p:k:h")) != -1) {
         switch (opt) {
         case 'f':
             corpus = optarg;
@@ -117,6 +118,9 @@ int main(int argc, char* argv[]) {
             break;
         case 'e':
             epochs = atoi(optarg);
+            break;
+        case 'd':
+            dropout = atof(optarg);
             break;
         case 'l':
             lr = atof(optarg);
@@ -133,9 +137,13 @@ int main(int argc, char* argv[]) {
         case 'p':
             lm_predict_cnt = atoi(optarg);
             break;
+        case 'k':
+            checkpoint_diff_tgt = optarg;
+            break;
+        case 'h':
         default:
             std::cerr << "Usage: " << argv[0]
-                << " -f <corpus> -c <checpoint> -e <epochs>" << std::endl;
+                << " -f <corpus> -c <checpoint> -e <epochs> -d <dropout> -l <lr> -b <batch_size> -g <gpu> -m <max_words_cnt> -p <lm_predict_cnt>" << std::endl;
             return 1;
         }
     }
@@ -143,6 +151,7 @@ int main(int argc, char* argv[]) {
     std::cout << "corpus : " << corpus << std::endl;
     std::cout << "epochs : " << epochs << std::endl;
     std::cout << "batch_size : " << batch_size << std::endl;
+    std::cout << "dropout : " << dropout << std::endl;
     std::cout << "gpu : " << gpu << std::endl;
     std::cout << "learning rate : " << lr << std::endl;
     std::cout << "checkpoint : " << checkpoint << std::endl;
@@ -150,7 +159,7 @@ int main(int argc, char* argv[]) {
 
     int num_hiddens = 256;
     int num_blks = 2;
-    float dropout = 0.2f;
+
     int ffn_num_hiddens = 64;
     int num_heads = 4;
     int num_steps = LM_NUM_STEPS;
@@ -231,6 +240,14 @@ int main(int argc, char* argv[]) {
         std::cout << "loaded from checkpoint" << std::endl;
     }
 
+    if (!checkpoint_diff_tgt.empty()) {
+        std::cout << "diff mode start." << std::endl;
+        std::cout << "checkpoint 0 is : " << checkpoint << std::endl;
+        std::cout << "checkpoint 1 is : " << checkpoint_diff_tgt << std::endl;
+        difffrom_checkpoint(checkpoint_diff_tgt, parameters);
+        return 0;
+    }
+
     if (predicting) {
         assert(batch_size == 1);
         std::cout << "serving mode" << std::endl;
@@ -247,8 +264,7 @@ int main(int argc, char* argv[]) {
             auto origin_size = src_token_ids.size();
             if (src_token_ids.size() < num_steps) {
                 src_token_ids.resize(num_steps, loader.get_pad_id());
-            }
-            else if (src_token_ids.size() > num_steps) {
+            } else if (src_token_ids.size() > num_steps) {
                 src_token_ids.erase(src_token_ids.begin(), src_token_ids.end() - num_steps);
             }
             auto cur_step = origin_size - 1;
@@ -286,8 +302,7 @@ int main(int argc, char* argv[]) {
                 if (cur_step >= num_steps - 1) {
                     src_token_ids.push_back(max_index);
                     src_token_ids.erase(src_token_ids.begin(), src_token_ids.end() - num_steps);
-                }
-                else {
+                } else {
                     src_token_ids[++cur_step] = max_index;
                 }
             }
@@ -295,8 +310,7 @@ int main(int argc, char* argv[]) {
             std::cout << "-----------------" << std::endl;
             ::free(res_buffer);
         }
-    }
-    else {
+    } else {
         init_dec_valid_lens_for_training(dec_valid_lens);
         signal(SIGINT, signal_callback_handler);
         int epoch = 0;
