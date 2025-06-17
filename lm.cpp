@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
 
     int opt;
     int epochs = 10;
-    int batch_size = 4;
+    int batch_size = 16;
     int gpu = 1;
     int max_words_cnt = 256;
     float lr = 0.001f;
@@ -226,7 +226,7 @@ int main(int argc, char* argv[]) {
     adam.clip_grad(1.0f);
     adam.step();
     graph::validateAllNodesRefCnt(0);
-    printAllTensors();
+    // printAllTensors();
     // printAllActions();
     allocMemAndInitTensors();
     std::cout << "Allocating memory  " << std::endl
