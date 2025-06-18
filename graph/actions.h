@@ -214,6 +214,7 @@ public:
         return "CalcAllGradNormAction";
     }
     std::string to_string() const override;
+    std::string get_dot_string() const override;
 private:
     std::vector<Tensor*> grads;
 };
@@ -228,6 +229,7 @@ public:
         return "ClipGradAction";
     }
     std::string to_string() const override;
+    std::string get_dot_string() const override;
 private:
     float grad_clip_val;
 };

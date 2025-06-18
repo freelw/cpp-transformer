@@ -379,6 +379,15 @@ std::string CalcAllGradNormAction::to_string() const {
     return oss.str();
 }
 
+std::string CalcAllGradNormAction::get_dot_string() const {
+    std::ostringstream oss;
+    oss << "Action_" << action_id << " -> Tensor_" << res->get_id() << ";" << std::endl;
+    for (const auto& grad : grads) {
+        oss << "Tensor_" << grad->get_id() << " -> Action_" << action_id << ";" << std::endl;
+    }
+    return oss.str();
+}
+
 void ClipGradAction::execute() {
     assert(lhs != nullptr); // grad
     assert(rhs != nullptr); // norm
@@ -389,6 +398,14 @@ std::string ClipGradAction::to_string() const {
     std::ostringstream oss;
     oss << "ClipGradAction: clipping gradient " << lhs->get_meta_info() << " with norm " << rhs->get_meta_info() << " to grad_clip_val: " << grad_clip_val;
     return oss.str();
+}
+
+std::string ClipGradAction::get_dot_string() const {
+    std::ostringstream oss;
+    oss << "Action_" << action_id << " -> Tensor_" << lhs->get_id() << ";" << std::endl;
+    oss << "Tensor_" << rhs->get_id() << "-> Action_" << action_id << ";" << std::endl;
+    return oss.str();
+
 }
 
 void AdamStepAction::execute() {
@@ -1015,7 +1032,7 @@ void printDotGraph() {
         // build edge
         auto parent = tensor_view->get_parent();
         if (parent != nullptr) {
-            out << "Tensor_" << parent->get_id() << " -> Tensor_" << tensor_view->get_id() << ";" << std::endl;
+            out << "Tensor_" << parent->get_id() << " -> Tensor_" << tensor_view->get_id() << "[style=dashed, dir=none];" << std::endl;
         }
     }
 
