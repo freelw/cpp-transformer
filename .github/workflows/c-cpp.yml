@@ -14,4 +14,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: make
-      run: ./build_cpu.sh
+      run: ./build_gpu.sh
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+          name: build-artifacts
+          path: *.exe
